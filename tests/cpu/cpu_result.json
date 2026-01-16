@@ -1,0 +1,26 @@
+[
+  {
+    "target_rps": 5,
+    "avg_latency": 81.39910095774646,
+    "p95_latency": 118.78291699999997,
+    "p99_latency": 202.87213769999994,
+    "fail_rate": 0,
+    "note": "Metrics are global average of CPU stress + Health check"
+  },
+  {
+    "target_rps": 20,
+    "avg_latency": 108.03213434234237,
+    "p95_latency": 143.1835601,
+    "p99_latency": 162.55770614,
+    "fail_rate": 0,
+    "note": "Metrics are global average of CPU stress + Health check"
+  },
+  {
+    "target_rps": 50,
+    "avg_latency": 1794.9411052626929,
+    "p95_latency": 3177.6240764,
+    "p99_latency": 3383.39932648,
+    "fail_rate": 0,
+    "note": "Metrics are global average of CPU stress + Health check"
+  }
+]

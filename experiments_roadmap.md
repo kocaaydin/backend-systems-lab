@@ -6,7 +6,7 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
 - [ ] **Deney #1: Yapay Gecikme (Latency)**
   - *Kavram:* Latency vs Throughput, I/O Wait.
   - *Amaç:* Sistemin tek bir yavaş dış servise (DB, API) bağımlı olduğunda nasıl davrandığını görmek.
-- [ ] **Deney #2: CPU Darboğazı (CPU Bound)**
+- [/] **Deney #2: CPU Darboğazı (CPU Bound)**
   - *Kavram:* Event Loop Blocking (Node.js/JS), Thread Starvation (.NET).
   - *Amaç:* I/O beklemesi yerine CPU yakan bir işlem olduğunda sistemin çöküşünü izlemek.
 - [ ] **Deney #3: Concurrency Limitleri**
