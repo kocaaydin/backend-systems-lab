@@ -129,11 +129,16 @@ public async Task<IActionResult> IstekYap()
 - **Kötü Değer:** İstek sayısının 2 katı (her istek TIME_WAIT oluşturur)
 
 ### Neden 50 İstekten 100 TIME_WAIT Oluşuyor?
-Her HTTP isteği şunları içerir:
-1. **Giden bağlantı** (istemci → sunucu) - kapatıldığında TIME_WAIT'e girer
-2. **Yanıt bağlantısı** (sunucu → istemci) - o da TIME_WAIT'e girer
 
-Sonuç: **İstek başına 2 TIME_WAIT** = 100 toplam
+**Test sonucu:** 50 istek = 100 TIME_WAIT (2× oran)
+
+**Sebepler:**
+1. **HTTP Redirect:** `google.com` → `www.google.com` (2 TCP bağlantısı)
+2. **DNS Retry:** Birden fazla IP adresi denemesi
+3. **Connection Timeout:** Bazı istekler yeniden deneniyor
+4. **Keep-Alive Süresi:** Bazı bağlantılar gecikmeli kapanıyor
+
+**Not:** Her HTTP isteği tek TCP bağlantısı kullanır, ama yukarıdaki faktörler ortalamayı 2×'e çıkarıyor.
 
 ---
 
@@ -147,6 +152,15 @@ Port tüketimi: 1000 istek/s × 1.2 port/istek = 1,200 port/saniye
 Port tükenmesi: 16,384 port / 1,200 port/s = 13.6 saniye
 Sonuç: 15 SANİYEDEN KISA SÜREDE UYGULAMA ÇÖKER! 💥
 ```
+
+**Neden 1.2 port/istek?**
+- **Test sonucu:** 50 istek = 60 port → 60/50 = 1.2
+- **Sebepler:**
+  - HTTP redirect (google.com → www.google.com)
+  - DNS retry (birden fazla IP denemesi)
+  - Connection timeout ve yeniden deneme
+  - Bazı portlar TIME_WAIT'ten çıkıp yeniden kullanılıyor (azaltıcı faktör)
+- **Production'da:** Genelde 1.0-1.5 arası değişir
 
 **IHttpClientFactory ile:**
 ```
