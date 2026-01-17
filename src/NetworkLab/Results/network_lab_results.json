@@ -46,5 +46,29 @@
       }
     },
     "Observations": "Bad HttpClient usage created 49 new ephemeral ports and 122 TIME_WAIT connections. Each request opened a new socket."
+  },
+  {
+    "Timestamp": "2026-01-17T21:46:05.5538857Z",
+    "Scenario": "Bad HttpClient Usage",
+    "Metrics": {
+      "RequestCount": 500,
+      "SuccessCount": 500,
+      "FailCount": 0,
+      "DurationSeconds": 559.8083627,
+      "RequestsPerSecond": 0.8931627916175823,
+      "Baseline": {
+        "EphemeralPorts": 0,
+        "TimeWait": 0
+      },
+      "After": {
+        "EphemeralPorts": 18,
+        "TimeWait": 114
+      },
+      "Delta": {
+        "EphemeralPorts": 18,
+        "TimeWait": 114
+      }
+    },
+    "Observations": "Bad HttpClient usage created 18 new ephemeral ports and 114 TIME_WAIT connections. Each request opened a new socket."
   }
 ]

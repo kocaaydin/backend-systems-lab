@@ -144,26 +144,23 @@ public async Task<IActionResult> IstekYap()
 
 ## ⚠️ Production Etkisi
 
-### Senaryo: Saniyede 1000 istek alan API
+### 🔥 Gerçek Dünya Senaryosu (Stress Test)
 
-**Kötü HttpClient ile:**
-```
-Port tüketimi: 1000 istek/s × 1.2 port/istek = 1,200 port/saniye
-Port tükenmesi: 16,384 port / 1,200 port/s = 13.6 saniye
-Sonuç: 15 SANİYEDEN KISA SÜREDE UYGULAMA ÇÖKER! 💥
-```
+Bad HttpClient kullanımı ile yapılan stres testinde, saniyeler içinde binlerce socket açılmış ve sistem **Port Exhaustion** noktasına ulaşmıştır.
 
-**Neden 1.2 port/istek?**
-- **Test sonucu:** 50 istek = 60 port → 60/50 = 1.2
-- **Sebepler:**
-  - HTTP redirect (google.com → www.google.com)
-  - DNS retry (birden fazla IP denemesi)
-  - Connection timeout ve yeniden deneme
-  - Bazı portlar TIME_WAIT'ten çıkıp yeniden kullanılıyor (azaltıcı faktör)
-- **Production'da:** Genelde 1.0-1.5 arası değişir
+**Stres Testi Sonuçlarımız:**
+- **Konfigürasyon:** 200 VU, `ulimit -n 512`
+- **Başarı Oranı:** **%0** 🚨 (Port havuzu tamamen kilitlendi)
+- **Hata Mesajı:** `dial: i/o timeout` (cannot assign requested address)
+
+Detaylı çöküş raporu için bakınız: [Port_Exhaustion_Crash_Report.md](./Port_Exhaustion_Crash_Report.md)
 
 **IHttpClientFactory ile:**
-```
+- **Sonuç:** %100 Başarı ✅
+- **Analiz:** Binlerce paralel istek gelse bile connection pooling sayesinde socket sayısı sabit kalır (örn. 10 port), sistem asla darboğaza girmez.
+
+**IHttpClientFactory ile:**
+```1
 Port tüketimi: ~10 port (connection pool)
 Port tükenmesi: Asla
 Sonuç: Süresiz kararlı çalışma ✅

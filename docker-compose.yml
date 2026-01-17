@@ -137,6 +137,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8085:8080"
+    ulimits:
+      nofile:
+        soft: 512
+        hard: 512
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
