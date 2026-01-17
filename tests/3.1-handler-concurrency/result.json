@@ -1,0 +1,44 @@
+[
+  {
+    "connection_limit": 10,
+    "avg_latency": 1.708052851429717,
+    "p95_latency": 1.589958,
+    "p99_latency": 26.362333,
+    "rps": 500.0371617799869
+  },
+  {
+    "connection_limit": 1000,
+    "avg_latency": 0.8055012071585693,
+    "p95_latency": 1.278875,
+    "p99_latency": 1.972416,
+    "rps": 499.9544429135221
+  },
+  {
+    "connection_limit": 10,
+    "avg_latency": 1.5786980807838409,
+    "p95_latency": 1.872125,
+    "p99_latency": 17.063333,
+    "rps": 499.9374187516222
+  },
+  {
+    "connection_limit": 1000,
+    "avg_latency": 0.7841152316000009,
+    "p95_latency": 1.2624872,
+    "p99_latency": 2.28202333,
+    "rps": 499.9789756840809
+  },
+  {
+    "connection_limit": 10,
+    "avg_latency": 1.1543726230376923,
+    "p95_latency": 2.030041,
+    "p99_latency": 5.383833,
+    "rps": 999.9227174019186
+  },
+  {
+    "connection_limit": 1000,
+    "avg_latency": 1.7719447837216293,
+    "p95_latency": 3.353125,
+    "p99_latency": 7.120375,
+    "rps": 999.8056082384597
+  }
+]

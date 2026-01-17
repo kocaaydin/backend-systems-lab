@@ -1,0 +1,8 @@
+[
+  {
+    "scenario": "Outbound Rate Limiter (Limit 100 RPS)",
+    "total_requests": 5001,
+    "actual_rps": 499.9977252153084,
+    "note": "Check console output for 200 vs 429 split"
+  }
+]

@@ -9,9 +9,12 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
 - [/] **Deney #2: CPU Darboğazı (CPU Bound)**
   - *Kavram:* Event Loop Blocking (Node.js/JS), Thread Starvation (.NET).
   - *Amaç:* I/O beklemesi yerine CPU yakan bir işlem olduğunda sistemin çöküşünü izlemek.
-- [ ] **Deney #3: Concurrency Limitleri**
-  - *Kavram:* Thread Pool Saturation (Starvation).
-  - *Amaç:* .NET'te Thread Pool tükendiğinde ne olur?
+- [/] **Deney #3: Outgoing Limits & Concurrency**
+  - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
+  - **3.2 Rate Limiter:** Uygulama içi (In-app) Outbound Rate Limiting (Token Bucket).
+  - **3.3 Socket Exhaustion:** `new HttpClient()` antipattern ve Ephemeral port tükenmesi.
+  - **3.4 OS Limits:** Container `ulimit -n` kısıtlaması ve "Too many open files" hataları.
+  - **3.5 Proxy/Gateway Limits:** Araya Nginx koyarak reverse proxy darboğazı.
 
 ## Bölüm 2: Dayanıklılık Desenleri (Resiliency Patterns)
 - [ ] **Deney #4: Retry Storm**

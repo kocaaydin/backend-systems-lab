@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: ../../src/BackendLab.Api
+      dockerfile: Dockerfile
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ExternalServiceUrl=http://external-api:80
+    depends_on:
+      - external-api
+    networks:
+      - backend-lab-net
+
+  external-api:
+    image: traefik/whoami
+    ports:
+      - "8083:80"
+    networks:
+      - backend-lab-net
+
+  k6:
+    image: grafana/k6
+    volumes:
+      - ../../k6:/scripts
+    networks:
+      - backend-lab-net
+    links:
+      - api
+    # Mount local network to access api:8082? No, better use internal network
+    # Default network will be created
+    command: run /scripts/os-limits.js --summary-export=/scripts/summary-os.json
+
+networks:
+  backend-lab-net:
+    driver: bridge

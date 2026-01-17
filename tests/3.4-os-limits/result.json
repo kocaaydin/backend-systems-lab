@@ -1,0 +1,37 @@
+[
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  },
+  {
+    "scenario": "OS Limit (ulimit=50)",
+    "fail_rate": 0,
+    "note": "Expect high failure rate due to socket exhaustion at OS level"
+  }
+]

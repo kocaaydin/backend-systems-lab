@@ -1,0 +1,8 @@
+[
+  {
+    "scenario": "Proxy Limit 50 RPS",
+    "total_requests": 2001,
+    "actual_rps": 200.02652711617375,
+    "note": "Expect ~50 RPS success, rest failed (503 from Nginx -> 500 from API)"
+  }
+]
