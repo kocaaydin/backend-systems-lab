@@ -1,0 +1,50 @@
+[
+  {
+    "Timestamp": "2026-01-17T21:04:55.7995857Z",
+    "Scenario": "Good HttpClient Usage",
+    "Metrics": {
+      "RequestCount": 100,
+      "SuccessCount": 100,
+      "FailCount": 0,
+      "DurationSeconds": 98.3307869,
+      "RequestsPerSecond": 1.0169754880706643,
+      "Baseline": {
+        "EphemeralPorts": 0,
+        "TimeWait": 0
+      },
+      "After": {
+        "EphemeralPorts": 2,
+        "TimeWait": 0
+      },
+      "Delta": {
+        "EphemeralPorts": 2,
+        "TimeWait": 0
+      }
+    },
+    "Observations": "Good HttpClient usage (singleton) reused connections. Only 2 new ephemeral ports created for 100 requests. Connection pooling working efficiently."
+  },
+  {
+    "Timestamp": "2026-01-17T21:06:39.7794023Z",
+    "Scenario": "Bad HttpClient Usage",
+    "Metrics": {
+      "RequestCount": 100,
+      "SuccessCount": 100,
+      "FailCount": 0,
+      "DurationSeconds": 102.9387441,
+      "RequestsPerSecond": 0.9714515256068682,
+      "Baseline": {
+        "EphemeralPorts": 2,
+        "TimeWait": 0
+      },
+      "After": {
+        "EphemeralPorts": 51,
+        "TimeWait": 122
+      },
+      "Delta": {
+        "EphemeralPorts": 49,
+        "TimeWait": 122
+      }
+    },
+    "Observations": "Bad HttpClient usage created 49 new ephemeral ports and 122 TIME_WAIT connections. Each request opened a new socket."
+  }
+]

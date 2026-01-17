@@ -1,0 +1,66 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  # 1. Traces -> Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # 2. Metrics -> Prometheus
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+  # 3. Logs -> Loki (via OTLP HTTP)
+  otlphttp/loki:
+    endpoint: "http://loki:3100/otlp" # Loki OTLP endpoint
+    tls:
+      insecure: true
+
+  # 4. Logs -> Elasticsearch
+  elasticsearch:
+    endpoints: ["http://elasticsearch:9200"]
+    logs_index: "otel-logs"
+    mapping:
+      mode: raw
+
+  # 5. External SaaS (New Relic) - Trace, Metric, Log
+  otlp/newrelic:
+    endpoint: "${env:NR_OTLP_ENDPOINT}" 
+    headers:
+      api-key: "${env:NR_LICENSE_KEY}"
+  
+  # 6. External SaaS (Datadog) - Trace, Metric, Log
+  otlp/datadog:
+    endpoint: "${env:DD_OTLP_ENDPOINT}"
+    headers:
+      dd-api-key: "${env:DD_API_KEY}"
+
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger, otlp/newrelic, otlp/datadog]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, otlp/newrelic, otlp/datadog]
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/loki, elasticsearch, otlp/newrelic, otlp/datadog]

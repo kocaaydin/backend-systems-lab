@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ./src/BackendLab.Api
+      context: ./src/BasicsLab/BackendLab.Api
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -9,13 +9,17 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
       - ExternalServiceUrl=http://external-api:80
+      # Point to OTEL Collector now!
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=backend-lab-api
     depends_on:
       - rabbitmq
       - external-api
+      - otel-collector
 
   worker:
     build:
-      context: ./src/BackendLab.Worker
+      context: ./src/BasicsLab/BackendLab.Worker
       dockerfile: Dockerfile
     environment:
       - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
@@ -23,12 +27,209 @@ services:
       - rabbitmq
       - api
 
+  # --- STORAGE LAB ---
+  storage-order-api:
+    build:
+      context: ./src/StorageLab/StorageLab.OrderApi
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=storage-lab-order-api
+    volumes:
+      - ./src/StorageLab/results:/app/results
+    depends_on:
+      - otel-collector
+
+  # --- OBSERVABILITY LAB ---
+  observability-order-api:
+    build:
+      context: ./src/ObservabilityLab/ObservabilityLab.OrderApi
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=observability-lab-order-api
+    volumes:
+      - ./src/ObservabilityLab/results:/app/results
+    depends_on:
+      - otel-collector
+
+  # --- MICROSERVICE LAB ---
+  microservice-gateway-api:
+    build:
+      context: ./src/MicroserviceLab/MicroserviceLab.GatewayApi
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=microservice-gateway-api
+      - OTEL_SAMPLING_RATE=1.0
+      - ConnectionStrings__Kafka=kafka:29092
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
+      - OrderServiceUrl=http://microservice-order-service:8080/api/orders
+    volumes:
+      - ./src/MicroserviceLab/results:/app/results
+    depends_on:
+      - otel-collector
+      - kafka
+      - rabbitmq
+
+  microservice-consumer:
+    build:
+      context: ./src/MicroserviceLab/MicroserviceLab.Consumer
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Kafka=kafka:29092
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - kafka
+      - rabbitmq
+
+  microservice-order-service:
+    build:
+      context: ./src/MicroserviceLab/MicroserviceLab.OrderService
+      dockerfile: Dockerfile
+    ports:
+      - "8087:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PAYMENT_SERVICE_URL=http://microservice-payment-service:8080/api/payments
+    depends_on:
+      - microservice-payment-service
+
+  microservice-payment-service:
+    build:
+      context: ./src/MicroserviceLab/MicroserviceLab.PaymentService
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  # --- RESILIENCE LAB ---
+  resilience-api:
+    build:
+      context: ./src/ResilienceLab/ResilienceLab.Api
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=resilience-lab-api
+    volumes:
+      - ./src/ResilienceLab/results:/app/results
+    depends_on:
+      - otel-collector
+
+  # --- NETWORK LAB ---
+  network-api:
+    build:
+      context: ./src/NetworkLab/NetworkLab.Api
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=network-lab-api
+    volumes:
+      - ./src/NetworkLab/results:/app/results
+    depends_on:
+      - otel-collector
+
+  # --- CORE INFRASTRUCTURE ---
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  postgresql:
+    image: postgres:14
+    hostname: postgresql
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "conduktor-platform"
+      POSTGRES_USER: "conduktor"
+      POSTGRES_PASSWORD: "conduktor_password"
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+
+  conduktor-platform:
+    image: conduktor/conduktor-platform:latest
+    ports:
+      - "8091:8080"
+    volumes:
+      - conduktor_data:/var/conduktor
+    environment:
+      CDK_DATABASE_URL: "postgresql://conduktor:conduktor_password@postgresql:5432/conduktor-platform"
+      CDK_CLUSTERS_0_ID: "local"
+      CDK_CLUSTERS_0_NAME: "Local Kafka Cluster"
+      CDK_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"
+      CDK_ORGANIZATION_NAME: "Backend Systems Lab"
+    depends_on:
+      - postgresql
+      - kafka
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8889:8889" # Prometheus Exporter
+    environment:
+      - NR_OTLP_ENDPOINT=https://otlp.nr-data.net:4317
+      - NR_LICENSE_KEY=dummy_key_replace_me
+      - DD_OTLP_ENDPOINT=https://otp.datadoghq.com:4317
+      - DD_API_KEY=dummy_key_replace_me
+
+  # --- OBSERVABILITY: TRACING ---
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686" # UI
+      - "14250:14250"
+
+  # --- OBSERVABILITY: METRICS ---
   prometheus:
     image: prom/prometheus
     volumes:
@@ -43,13 +244,45 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
 
+  # --- OBSERVABILITY: LOGS (Variant 1: Loki) ---
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # --- OBSERVABILITY: LOGS (Variant 2: Elastic Stack) ---
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch:elasticsearch
+    depends_on:
+      - elasticsearch
+
+  # --- LOAD GENERATOR ---
   k6:
     image: grafana/k6
     volumes:
-      - ./k6:/scripts
-    command: run /scripts/script.js
+      - ./src:/scripts
+    command: run /scripts/BasicsLab/k6/load-test.js
 
   external-api:
     image: traefik/whoami
     ports:
-      - "8081:80"
+      - "8089:80"
+    environment:
+      - WHOAMI_NAME=external-service
+
+volumes:
+  pg_data:
+  conduktor_data:

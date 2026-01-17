@@ -1,0 +1,6 @@
+@StorageLab.InventoryApi_HostAddress = http://localhost:5157
+
+GET {{StorageLab.InventoryApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
