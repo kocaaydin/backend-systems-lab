@@ -1,0 +1,111 @@
+version: '3.9'
+
+services:
+  # Target Service - Custom API returning GUID
+  target-api:
+    build:
+      context: ./TargetApi
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    cpus: 1.0
+    mem_limit: 256m
+    networks:
+      - benchmark-net
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8080/" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+
+  # k6 Load Generator
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ./k6:/scripts
+    networks:
+      - benchmark-net
+    environment:
+      - TARGET_URL=http://target-api:8080
+    depends_on:
+      target-api:
+        condition: service_healthy
+
+  # .NET 7 Service
+  app-net7:
+    build:
+      context: ./RequestLimitsCheck.Net7
+      dockerfile: Dockerfile
+    networks:
+      - benchmark-net
+    environment:
+      - EXTERNAL_URL=http://target-api:8080
+    depends_on:
+      target-api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # .NET 8 Service
+  app-net8:
+    build:
+      context: ./RequestLimitsCheck.Net8
+      dockerfile: Dockerfile
+    networks:
+      - benchmark-net
+    environment:
+      - EXTERNAL_URL=http://target-api:8080
+    depends_on:
+      target-api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # .NET 9 Service
+  app-net9:
+    build:
+      context: ./RequestLimitsCheck.Net9
+      dockerfile: Dockerfile
+    networks:
+      - benchmark-net
+    environment:
+      - EXTERNAL_URL=http://target-api:8080
+    depends_on:
+      target-api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # .NET 10 Service (Placeholder using latest available)
+  app-net10:
+    build:
+      context: ./RequestLimitsCheck.Net10
+      dockerfile: Dockerfile
+    networks:
+      - benchmark-net
+    environment:
+      - EXTERNAL_URL=http://target-api:8080
+    depends_on:
+      target-api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+networks:
+  benchmark-net:
+    driver: bridge

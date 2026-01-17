@@ -1,0 +1,6 @@
+@RequestLimitsCheck.Net9_HostAddress = http://localhost:5277
+
+GET {{RequestLimitsCheck.Net9_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
