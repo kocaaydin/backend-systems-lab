@@ -1,0 +1,6 @@
+@QueueLab.Api_HostAddress = http://localhost:5267
+
+GET {{QueueLab.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

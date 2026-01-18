@@ -150,6 +150,61 @@ services:
     depends_on:
       - otel-collector
 
+  # --- QUEUE LAB ---
+  queue-api:
+    build:
+      context: ./src/QueueLab/QueueLab.Api
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
+      - ConnectionStrings__Kafka=kafka:29092
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=queue-lab-api
+    depends_on:
+      - rabbitmq
+      - kafka
+      - otel-collector
+
+  queue-worker:
+    build:
+      context: ./src/QueueLab/QueueLab.Worker
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672
+      - ConnectionStrings__Kafka=kafka:29092
+    depends_on:
+      - rabbitmq
+      - kafka
+
+  # --- GRPC LAB ---
+  grpc-server:
+    build:
+      context: ./src/GrpcLab/GrpcLab.Server
+      dockerfile: Dockerfile
+    ports:
+      - "8095:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=grpc-lab-server
+
+  grpc-client-api:
+    build:
+      context: ./src/GrpcLab/GrpcLab.ClientApi
+      dockerfile: Dockerfile
+    ports:
+      - "8096:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - GrpcServerUrl=http://grpc-server:8080
+    depends_on:
+      - grpc-server
+
   # --- CORE INFRASTRUCTURE ---
   rabbitmq:
     image: rabbitmq:3-management

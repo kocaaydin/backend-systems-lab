@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcLab.Protos";
+
+package experiments;
+
+service ExperimentsService {
+  // Scenario 1: Unary Saturation (CPU or IO heavy)
+  rpc UnaryWork (WorkRequest) returns (WorkResponse);
+
+  // Scenario 2: Streaming Backpressure (Server pushes fast, Client reads slow)
+  rpc StreamData (StreamRequest) returns (stream DataMessage);
+
+  // Scenario 3: Retry Storm (Fails randomly)
+  rpc FlakyUnary (WorkRequest) returns (WorkResponse);
+}
+
+message WorkRequest {
+  int32 load_intensity = 1;
+  string info = 2;
+}
+
+message WorkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StreamRequest {
+    int32 item_count = 1; // 0 for infinite
+    int32 msg_size = 2;   // Bytes per message
+}
+
+message DataMessage {
+    int32 seq_id = 1;
+    bytes payload = 2;
+    string timestamp = 3;
+}
