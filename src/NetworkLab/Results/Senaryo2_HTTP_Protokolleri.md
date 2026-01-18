@@ -1,6 +1,6 @@
 # NetworkLab - Senaryo 2: HTTP/1.1 vs HTTP/2 Karşılaştırması
 
-## 🎯 HTTP Protokol Performans Analizi
+## 🎯 Test Konusu: HTTP Protokol Performans Analizi (Protocol Performance Analysis)
 
 **Test Tarihi:** 18 Ocak 2026, 00:09  
 **Test Varyasyonları:** 3 farklı paralel istek seviyesi
@@ -14,7 +14,7 @@
 | Metrik | HTTP/1.1 | HTTP/2 | Fark |
 |--------|----------|--------|------|
 | **Paralel İstek** | 10 | 10 | - |
-| **Toplam Süre** | 1,454ms | 1,907ms | %31 daha yavaş ❌ |
+| **Toplam Süre** | 1,454ms | 1,907ms | %31 daha yavaş (Slower) ❌ |
 | **Ort. Latency** | 29.08ms | 38.14ms | %31 daha yavaş ❌ |
 | **TCP Bağlantı** | ~6 | 1 | 83% daha az ✅ |
 
@@ -23,7 +23,7 @@
 | Metrik | HTTP/1.1 | HTTP/2 | Fark |
 |--------|----------|--------|------|
 | **Paralel İstek** | 20 | 20 | - |
-| **Toplam Süre** | 2,848ms | 1,923ms | **%32 daha hızlı** ✅ |
+| **Toplam Süre** | 2,848ms | 1,923ms | **%32 daha hızlı (Faster)** ✅ |
 | **Ort. Latency** | 142.35ms | 96.15ms | **%32 daha hızlı** ✅ |
 | **TCP Bağlantı** | ~10 | 1 | 90% daha az ✅ |
 

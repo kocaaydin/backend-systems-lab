@@ -1,6 +1,6 @@
 # NetworkLab - Senaryo 3: CancellationToken ve Zombi İstek Önleme
 
-## 🎯 Client Timeout vs Server İşlem Süresi
+## 🎯 Test Konusu: Client Timeout vs Server İşlem Süresi (Processing Time)
 
 **Test Tarihi:** 18 Ocak 2026, 00:11  
 **Test Varyasyonları:** 2 farklı timeout konfigürasyonu
@@ -14,8 +14,8 @@
 | Metrik | WITH CancellationToken | WITHOUT CancellationToken | Fark |
 |--------|------------------------|---------------------------|------|
 | **Client Timeout** | 3s | 3s | - |
-| **Server Durdurma** | 3s ✅ | 10s ❌ | 7s kaynak israfı |
-| **Zombi İstek** | Hayır ✅ | Evet ❌ | Kritik |
+| **Server Durdurma** | 3s ✅ | 10s ❌ | 7s kaynak israfı (Resource Waste) |
+| **Zombi İstek** | Hayır ✅ | Evet ❌ | Kritik (Critical) |
 | **Log Mesajı** | "cancelled by client" | "completed (even if...)" | - |
 
 ### Test 3.2: Orta Timeout (5s timeout, 15s işlem)

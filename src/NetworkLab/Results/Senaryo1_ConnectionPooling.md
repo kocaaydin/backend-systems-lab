@@ -17,7 +17,7 @@
 - Her instance **yeni bir TCP soketi** açar
 - Sınırlı havuzdan (49152-65535 = ~16K port) bir **ephemeral port** tüketir
 - Kapatıldıktan sonra soket **60 saniye TIME_WAIT** durumunda kalır
-- Yük altında **port tükenmesi** → Uygulama çökmesi
+- Yük altında **port tükenmesi (Port Exhaustion)** → Uygulama çökmesi
 
 ### Çözüm: IHttpClientFactory
 
@@ -57,7 +57,7 @@ public async Task<IActionResult> IstekYap()
 
 **Sonuçlar:**
 - **İstek Sayısı:** 50
-- **Süre:** 48.05 saniye
+- **Süre (Duration):** 48.05 saniye
 - **Throughput:** 1.04 istek/saniye
 - **Oluşturulan Ephemeral Port:** +1
 - **TIME_WAIT Bağlantısı:** +0
@@ -117,7 +117,7 @@ public async Task<IActionResult> IstekYap()
 ### Ephemeral Port (Geçici Port)
 - **Ne:** İstemci tarafı giden bağlantılar için kullanılan geçici portlar (49152-65535)
 - **Toplam Mevcut:** macOS/Linux'ta ~16,384 port
-- **Neden Önemli:** Tükendiğinde → "Cannot assign requested address" hatası → Uygulama çöker
+- **Neden Önemli:** Tükendiğinde → "Cannot assign requested address" hatası → Uygulama çöker (System Crash)
 - **İyi Değer:** Minimal (connection pool için 1-5 port)
 - **Kötü Değer:** İsteklerle doğrusal artış (dakikalar içinde tükenme)
 

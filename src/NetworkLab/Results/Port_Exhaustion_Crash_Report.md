@@ -1,6 +1,6 @@
 # 🏁 NetworkLab: Port Exhaustion (Crash Scenario) Raporu
 
-Bu rapor, **Bad HttpClient** kullanımının sistemi nasıl bir "çöküş" noktasına sürüklediğini gösteren stres testi sonuçlarını içerir.
+Bu rapor, **Bad HttpClient** kullanımının sistemi nasıl bir "çöküş (System Crash)" noktasına sürüklediğini gösteren stres testi sonuçlarını içerir.
 
 ## 🧪 Test Ortamı ve Konfigürasyon
 
@@ -21,11 +21,11 @@ Bu rapor, **Bad HttpClient** kullanımının sistemi nasıl bir "çöküş" nokt
 | **Başarılı İstek** | 0 (%0) |
 | **Başarısız İstek** | 1.422 (%100) 💥 |
 | **Hata Mesajı** | `dial tcp: connect: cannot assign requested address` |
-| **Sistem Durumu** | **KİLİTLENDİ (UNRESPONSIVE)** |
+| **Sistem Durumu** | **KİLİTLENDİ (DEADLOCK / UNRESPONSIVE)** |
 
 ---
 
-## 🔍 Neden Çöktü? (Port Exhaustion Analizi)
+## 🔍 Neden Çöktü? (Root Cause Analysis: Port Exhaustion)
 
 ### Port Exhaustion Mekanizması
 Concurrency'yi (eşzamanlılık) kontrol altında tutarak ve `ulimit`'i 512'ye düşürerek **saf port tükenmesini** izole ettik.

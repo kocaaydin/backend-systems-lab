@@ -17,7 +17,7 @@
 | **Süre** | 48.05s | 50.19s | %4 daha yavaş |
 | **Throughput** | 1.04 req/s | 1.00 req/s | %4 daha düşük |
 | **Ephemeral Port** | +1 | +60 | **60× fazla** ❌ |
-| **TIME_WAIT** | 0 | +100 | **100 zombi** ❌ |
+| **TIME_WAIT** | 0 | +100 | **100 zombi (Zombie Connections)** ❌ |
 
 ### Test 1.2: Orta Yük (100 İstek)
 
@@ -27,7 +27,7 @@
 | **Süre** | 98.33s | 102.94s | %5 daha yavaş |
 | **Throughput** | 1.02 req/s | 0.97 req/s | %5 daha düşük |
 | **Ephemeral Port** | +2 | +49 | **24× fazla** ❌ |
-| **TIME_WAIT** | 0 | +122 | **122 zombi** ❌ |
+| **TIME_WAIT** | 0 | +122 | **122 zombi (Zombie Connections)** ❌ |
 
 ---
 
@@ -72,7 +72,7 @@
 **Production'da ne olur:**
 - 1000 req/s → 2000 TIME_WAIT/saniye
 - 60 saniye sonra: **120,000 TIME_WAIT bağlantısı**
-- Sistem kaynakları tükenir → Çökme
+- Sistem kaynakları tükenir (Resource Exhaustion) → Çökme
 
 ---
 
