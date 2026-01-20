@@ -1,5 +1,6 @@
 using Grpc.Core;
 using Grpc.Net.Client;
+using Grpc.Net.Client.Configuration;
 using GrpcLab.Protos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,7 +48,7 @@ public class ClientLabController : ControllerBase
                 }
             }
         }
-        catch(RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+        catch(RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Cancelled)
         {
              _logger.LogWarning("Stream cancelled");
         }
@@ -90,7 +91,7 @@ public class ClientLabController : ControllerBase
                 InitialBackoff = TimeSpan.FromMilliseconds(10), // NO BACKOFF!
                 MaxBackoff = TimeSpan.FromMilliseconds(100),
                 BackoffMultiplier = 1,
-                RetryableStatusCodes = { StatusCode.Unavailable }
+                RetryableStatusCodes = { Grpc.Core.StatusCode.Unavailable }
             }
         };
 

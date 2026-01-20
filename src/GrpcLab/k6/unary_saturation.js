@@ -10,7 +10,7 @@ export const options = {
 };
 
 export default function () {
-    client.connect('localhost:8095', {
+    client.connect('grpc-server:8080', {
         plaintext: true
     });
 

@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-    <!-- <Protobuf Include="Protos\greet.proto" GrpcServices="Server" /> -->
+  <ItemGroup>
+    <Protobuf Include="Protos/greet.proto" GrpcServices="Server" />
     <Protobuf Include="Protos/experiments.proto" GrpcServices="Server" />
   </ItemGroup>
 

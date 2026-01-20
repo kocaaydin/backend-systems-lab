@@ -63,12 +63,30 @@ public class ThreadStarvationBackgroundService : BackgroundService
         _logger.LogInformation("  - Worker Duration: {WorkerDurationMs}ms", WorkerDurationMs);
         _logger.LogInformation("  - Timeout: {TimeoutSeconds}s\n", TimeoutSeconds);
 
+        // Save original limits
+        ThreadPool.GetMinThreads(out int origMinW, out int origMinCP);
+        ThreadPool.GetMaxThreads(out int origMaxW, out int origMaxCP);
+
+        // DEMO CONFIG: Cap ThreadPool to force starvation with fewer workers
+        // This simulates a busy server where the pool limit is reached
+        int demoMaxThreads = MaxConcurrentWorkers + 5; // Allow just 5 extra threads (for monitoring etc)
+        ThreadPool.SetMaxThreads(demoMaxThreads, demoMaxThreads);
+        ThreadPool.SetMinThreads(demoMaxThreads, demoMaxThreads); // Avoid hill climbing delay
+        
+        _logger.LogWarning("⚠️  ThreadPool Constraints Applied for Demo:");
+        _logger.LogWarning("   - Max Threads set to: {Max}", demoMaxThreads);
+
         var sw = Stopwatch.StartNew();
         var semaphore = new SemaphoreSlim(MaxConcurrentWorkers, MaxConcurrentWorkers);
         var monitoringCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
         
-        // Start monitoring task
-        var monitoringTask = MonitorThreadPoolAsync(_logger, monitoringCts.Token);
+        // Start monitoring on a DEDICATED THREAD so it doesn't get starved itself
+        var monitoringThread = new Thread(() => MonitorThreadPoolSync(_logger, monitoringCts.Token))
+        {
+            IsBackground = true,
+            Name = "Monitor-Thread"
+        };
+        monitoringThread.Start();
 
         _logger.LogInformation("📊 Starting worker initialization...\n");
 
@@ -84,7 +102,9 @@ public class ThreadStarvationBackgroundService : BackgroundService
                 int workerId = i;
                 
                 // ❌ PROBLEMATIC PATTERN: Create thread, then Task.Run + .Wait() inside
-                var thread = new Thread(() =>
+                // ✅ CHANGED: Use Task.Run to force code to run on ThreadPool threads
+                // This causes true ThreadPool starvation when they block
+                _ = Task.Run(() =>
                 {
                     try
                     {
@@ -96,13 +116,7 @@ public class ThreadStarvationBackgroundService : BackgroundService
                         _logger.LogError(ex, "❌ Worker {WorkerId} failed", workerId);
                         Interlocked.Increment(ref failedWorkers);
                     }
-                })
-                {
-                    IsBackground = false,
-                    Name = $"Worker-{i}"
-                };
-
-                thread.Start();
+                });
             }
 
             _logger.LogInformation("✅ All {Count} worker threads launched\n", TotalWorkers);
@@ -162,6 +176,11 @@ public class ThreadStarvationBackgroundService : BackgroundService
             monitoringCts.Cancel();
             semaphore.Dispose();
             monitoringCts.Dispose();
+            
+            // Restore original limits
+            ThreadPool.SetMinThreads(origMinW, origMinCP);
+            ThreadPool.SetMaxThreads(origMaxW, origMaxCP);
+            _logger.LogInformation("Original ThreadPool limits restored.");
         }
 
         _logger.LogInformation("🏁 Thread Starvation Experiment Completed\n");
@@ -170,7 +189,7 @@ public class ThreadStarvationBackgroundService : BackgroundService
     private void RunWorkerSync(int workerId, SemaphoreSlim semaphore)
     {
         var threadId = Thread.CurrentThread.ManagedThreadId;
-        var threadName = Thread.CurrentThread.Name;
+        var threadName = Thread.CurrentThread.Name ?? "ThreadPool";
 
         _logger.LogDebug("👷 Worker {WorkerId} ({ThreadName}) started on Thread {ThreadId}", 
             workerId, threadName, threadId);
@@ -217,36 +236,37 @@ public class ThreadStarvationBackgroundService : BackgroundService
         }
     }
 
-    private async Task MonitorThreadPoolAsync(ILogger logger, CancellationToken ct)
+    private void MonitorThreadPoolSync(ILogger logger, CancellationToken ct)
     {
-        logger.LogInformation("🔍 ThreadPool Monitoring Started\n");
+        logger.LogInformation("🔍 ThreadPool Monitoring Started (Dedicated Thread)\n");
 
-        try
+        while (!ct.IsCancellationRequested)
         {
-            while (!ct.IsCancellationRequested)
+            try
             {
                 ThreadPool.GetAvailableThreads(out int workerThreads, out int completionPortThreads);
                 ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
 
-                var utilizationPercent = ((maxWorkerThreads - workerThreads) * 100) / maxWorkerThreads;
+                var utilizationPercent = 0;
+                if (maxWorkerThreads > 0)
+                    utilizationPercent = ((maxWorkerThreads - workerThreads) * 100) / maxWorkerThreads;
 
                 logger.LogInformation("📊 [ThreadPool] Available: {Available}/{Max} (Utilization: {Percent}%)",
                     workerThreads, maxWorkerThreads, utilizationPercent);
 
-                if (utilizationPercent > 90)
+                if (utilizationPercent >= 95)
                     logger.LogWarning("   ⚠️  HIGH UTILIZATION ({Percent}%) - Potential starvation!", utilizationPercent);
 
                 if (workerThreads == 0)
                     logger.LogError("   ❌ NO AVAILABLE THREADS - COMPLETE STARVATION!");
 
-                await Task.Delay(MonitoringIntervalMs, ct);
+                Thread.Sleep(MonitoringIntervalMs);
+            }
+            catch
+            {
+                break;
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Expected when cancellation is requested
-        }
-
         logger.LogInformation("\n🔍 ThreadPool Monitoring Stopped");
     }
 }

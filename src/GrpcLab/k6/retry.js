@@ -11,7 +11,7 @@ export default function () {
     // The endpoint initiates a gRPC call that fails 50% of the time
     // It retries AGGRESSIVELY (50 attempts, no backoff)
     // This multiplies load on the server x50.
-    const res = http.post('http://localhost:8096/api/clientlab/retry-storm');
+    const res = http.post('http://grpc-client-api:8080/api/clientlab/retry-storm');
 
     // We expect success eventually because of retries, 
     // but looking at Server logs/metrics will show the storm.
