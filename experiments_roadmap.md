@@ -9,6 +9,11 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
 - [/] **Deney #2: CPU Darboğazı (CPU Bound)**
   - *Kavram:* Event Loop Blocking (Node.js/JS), Thread Starvation (.NET).
   - *Amaç:* I/O beklemesi yerine CPU yakan bir işlem olduğunda sistemin çöküşünü izlemek.
+- [x] **Deney #2.1: Thread Starvation Senaryosu**
+  - *Kavram:* ThreadPool üzerinde çalışan worker'ların, içeride Thread + Task.Run + .Wait() kombinasyonu ve SemaphoreSlim kısıtı nedeniyle, yine ThreadPool'dan çalışacak task'ları bekleyerek kendi kendini kilitlemesi (Thread Starvation).
+  - *Amaç:* Aynı anda 50 worker tetiklendiğinde, ThreadPool thread'lerinin bloklanmasıyla task'ların ilerleyemediği, sistemin fiilen durduğu anı ayrıntılı log'larla gözle görünür hale getirmek.
+  - ✅ **Uygulama:** BackendLab.Api içine [ThreadStarvationService](src/BasicsLab/BackendLab.Api/Services/ThreadStarvationService.cs) entegre edildi
+  - 📍 **Endpoint:** `POST /experiments/thread-starvation`
 - [/] **Deney #3: Outgoing Limits & Concurrency**
   - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
   - **3.2 Rate Limiter:** Uygulama içi (In-app) Outbound Rate Limiting (Token Bucket).

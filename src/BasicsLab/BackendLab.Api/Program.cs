@@ -3,8 +3,8 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 using Serilog;
-using Serilog.Sinks.OpenTelemetry;
 using BackendLab.Api.Handlers;
+using BackendLab.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +46,8 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddControllers();
 
 // REGISTER SERVICES
+builder.Services.AddTransient<ThreadStarvationService>();
+builder.Services.AddHostedService<ThreadStarvationBackgroundService>();
 builder.Services.AddTransient<ClientRateLimitingHandler>(sp => new ClientRateLimitingHandler(100)); // Limit 100 RPS
 builder.Services.AddHttpClient("RateLimitedClient").AddHttpMessageHandler<ClientRateLimitingHandler>();
 

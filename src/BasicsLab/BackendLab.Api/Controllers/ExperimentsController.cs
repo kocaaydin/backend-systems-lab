@@ -10,7 +10,10 @@ public class ExperimentsController : ControllerBase
     private readonly IConfiguration _config;
     private readonly ILogger<ExperimentsController> _logger;
 
-    public ExperimentsController(IHttpClientFactory clientFactory, IConfiguration config, ILogger<ExperimentsController> logger)
+    public ExperimentsController(
+        IHttpClientFactory clientFactory, 
+        IConfiguration config, 
+        ILogger<ExperimentsController> logger)
     {
         _clientFactory = clientFactory;
         _config = config;
@@ -120,3 +123,4 @@ public class ExperimentsController : ControllerBase
         }
     }
 }
+
