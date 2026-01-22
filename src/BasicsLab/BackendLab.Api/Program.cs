@@ -48,7 +48,9 @@ builder.Services.AddOpenTelemetry()
         .AddMeter("BackendLab.Observability") // Meter for manual metrics
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddOtlpExporter());
+        .AddRuntimeInstrumentation()
+        .AddOtlpExporter()
+        .AddPrometheusExporter());
 
 // 3. MVC / CONTROLLERS
 builder.Services.AddControllers();
@@ -74,6 +76,9 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+// Prometheus metrics middleware
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 // Map Controllers
 app.MapControllers();
