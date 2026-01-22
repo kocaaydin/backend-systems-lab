@@ -26,7 +26,16 @@ echo "⏹️  Stopping existing containers..."
 docker compose down -v 2>/dev/null
 
 echo ""
-echo "🚀 Starting all services..."
+echo "� Building/rebuilding Docker images with latest code..."
+docker compose build
+
+if [ $? -ne 0 ]; then
+    echo "❌ ERROR: Failed to build Docker images"
+    exit 1
+fi
+
+echo ""
+echo "�🚀 Starting all services..."
 # Start all services to ensure all dependencies (RabbitMQ, External API, etc.) are up
 docker compose up -d
 
@@ -82,3 +91,4 @@ echo ""
 
 # Stream logs focusing on the relevant service
 docker compose logs -f api
+    

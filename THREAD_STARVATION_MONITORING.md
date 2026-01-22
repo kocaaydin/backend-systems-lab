@@ -1,352 +1,76 @@
-# 🔬 Thread Starvation Lab - Grafana Monitoring Guide
+# 🔬 Thread Starvation Lab - İzleme ve Analiz Rehberi
 
-## Deney #2.1: ThreadPool Starvation Demonstration
-
-Bu rehber, Thread Starvation deneyinin sonuçlarını **Grafana**, **Jaeger**, ve **Prometheus** aracılığıyla nasıl gözlemleyeceğinizi anlatır.
+Bu dosya, test sonuçlarını nasıl yorumlayacağınızı ve monitoring araçlarını nasıl kullanacağınızı açıklar.
 
 ---
 
 ## 🚀 Başlangıç
 
-### 1. Docker Compose Stack'i Başlat
-
-**En Kolay Yol - BAT Dosyası (Windows):**
+Tek komutla tüm sistemi başlatın:
 
 ```bash
-start-thread-starvation-test.bat
-```
-
-Bu script otomatik olarak:
-- ✅ Docker Compose stack'i başlatır
-- ✅ Tüm servislerin healthy olmasını bekler
-- ✅ Monitoring dashboard'larını aç
-
-**Manuel Başlatma:**
-
-```bash
-cd c:\Projects\backend-systems-lab
-docker-compose up -d
-```
-
-### 2. Servislerin Başlayıp Hazırlanmasını Bekle
-
-```bash
-docker-compose logs -f api
-```
-
-Output'ta şu satırları görünce hazır demektir:
-
-```
-🚀 Thread Starvation Background Service Starting...
-📊 Starting worker initialization...
-✅ All 100 worker threads launched
+./start-thread-starvation-test.sh
 ```
 
 ---
 
-## 📊 Monitoring Dashboard'ları
+## 📊 Monitoring Ekranları
 
-### 📍 **Jaeger - Distributed Tracing** (En Önemli)
+### 1. Jaeger (En Önemli)
+**Link:** [http://localhost:16686](http://localhost:16686)
 
-**URL:** http://localhost:16686
+*   **Service:** `backend-lab-api`
+*   **Operation:** `ThreadStarvationExperiment`
+*   **Find Traces:** Butona basarak arayın.
 
-#### Traces'i Görmek İçin:
+**🔍 Ne Görmelisiniz?**
+*   **Süre:** Eğer Starvation varsa `30s` (timeout) süren bir trace görürsünüz.
+*   **Durum:** Hata (Error) ikonu veya kırmızı loglar.
+*   **Tagler:** `experiment.starved = true`
 
-1. **Service:** "backend-lab-api" seç
-2. **Operation:** "ThreadStarvationExperiment" seç
-3. **Find Traces** tıkla
+### 2. Elastic & Kibana (Log Analizi)
+**Link:** [http://localhost:5601](http://localhost:5601)
 
-#### Gözlemlenecekler:
+*   Menüden **Discover** sekmesine gidin.
+*   Loglarda `NO AVAILABLE THREADS` veya `TIMEOUT` araması yapın.
 
-```
-▶ ThreadStarvationExperiment (30000ms duration)
-  ├─ experiment.name: "Thread Starvation - Deney #2.1"
-  ├─ experiment.workers.total: 100
-  ├─ experiment.workers.max_concurrent: 50
-  ├─ experiment.starved: true
-  ├─ experiment.result: "starvation_detected"
-  └─ experiment.elapsed_ms: 30015
-```
+### 3. Grafana (Görsel Grafikler)
+**Link:** [http://localhost:3000](http://localhost:3000)
 
-**Trace Detayları:**
-- **Duration:** ~30 saniye (timeout)
-- **Status:** Starvation detected ⚠️
-- **Tags:** Completed/Failed worker sayıları
-- **Logs:** Her worker'ın state'i
+*   **Login:** admin / admin
+*   **Veri Kaynağı:** Prometheus'u ekleyin (`http://prometheus:9090`).
+*   **Memory Spike:** Test sırasında bellek kullanımının (RAM) aniden yükseldiğini görebilirsiniz.
 
 ---
 
-### 📈 **Prometheus - Metrics Query**
+## 🎯 Deney Sonuçları
 
-**URL:** http://localhost:9090
+### Başarılı Senaryo (Starvation Yok - Yeterli Kaynak)
+Eğer sisteminiz güçlüyse (Mac M1/M2/M3 gibi), 100 thread 15-20 saniyede işini bitirir.
+*   **Log:** `✅ All workers completed successfully`
+*   **Trace Süresi:** < 20s
 
-#### Kullanışlı Queries:
-
-```promql
-# API'nin uptime'ı
-up{job="backend-lab-api"}
-
-# Process memory usage
-process_resident_memory_bytes{job="backend-lab-api"}
-
-# CPU usage
-process_cpu_seconds_total{job="backend-lab-api"}
-
-# Go routines (thread sayısı)
-go_goroutines{job="backend-lab-api"}
-```
-
-**Test Sırasında Beklenen Spike'lar:**
-- Memory artışı (100 thread oluşturmak için)
-- CPU usage yükselmesi
-- Go routines sayısı artması
+### Başarısız Senaryo (Starvation Var - Kaynak Tükendi)
+Thread limiti düşükse veya yük çok fazlaysa sistem kilitlenir.
+*   **Log:** `❌ NO AVAILABLE THREADS - COMPLETE STARVATION!`
+*   **Trace Süresi:** 30s (Timeout)
 
 ---
 
-### 🔍 **Grafana - Dashboards & Alerts**
+## 🧩 Kod Analizi
 
-**URL:** http://localhost:3000
-- **Username:** admin
-- **Password:** admin
+### Hatalı Kullanım (Anti-Pattern)
+`Task.Run` ile işi ThreadPool'a atıp, sonra `.Wait()` ile senkron olarak beklemek o thread'i kilitler. Bu (Sync-over-Async) deadlock'a yol açar.
 
-#### Dashboard Kurulumu:
-
-##### 1. Prometheus Data Source Ekle:
-
-1. Settings → Data Sources → Add
-2. Type: "Prometheus"
-3. URL: `http://prometheus:9090`
-4. Save & Test
-
-##### 2. Dashboard Import:
-
-```
-1. Create → Import
-2. Upload: grafana-dashboard.json
-3. Select Prometheus data source
-4. Import
-```
-
-#### Pre-built Panels:
-
-| Panel | Query | Açıklama |
-|-------|-------|---------|
-| API Uptime | `up{job="backend-lab-api"}` | API çalışıyor mu? |
-| Memory Usage | `process_resident_memory_bytes` | Bellek tüketimi |
-| Request Rate | `rate(http_request_duration_seconds_bucket[5m])` | HTTP request oranı |
-
----
-
-## 📝 Test Sonuçlarını Yakalama
-
-### 1. **Console Logs (Real-time)**
-
-```bash
-docker-compose logs -f api | findstr "Thread Starvation"
-```
-
-Output örneği:
-
-```
-🚀 Thread Starvation Background Service Starting...
-
-╔════════════════════════════════════════════════════════════════════╗
-║        Thread Starvation Lab - Deney #2.1 (Background Worker)       ║
-║     Demonstrating ThreadPool Starvation with Task.Run + .Wait()    ║
-╚════════════════════════════════════════════════════════════════════╝
-
-📊 ThreadPool Stats:
-   Worker Threads: 0/32 (Utilization: 100%)
-   ❌ NO AVAILABLE THREADS - COMPLETE STARVATION!
-
-📈 Final Statistics:
-  - Total Elapsed: 30015ms
-  - Completed Workers: 47/100
-  - Failed Workers: 53/100
-```
-
-### 2. **Jaeger Traces**
-
-Trace'ler otomatik olarak OTEL Collector'a gönderiliyor:
-
-```bash
-curl http://localhost:16686/api/traces?service=backend-lab-api
-```
-
-### 3. **Prometheus Metrics Scrape**
-
-```bash
-curl http://localhost:9090/api/v1/query?query=up
-```
-
-### 4. **Docker Stats**
-
-```bash
-docker stats backend-systems-lab-api-1
-```
-
-Görünecekler:
-- CPU % (spike sırasında)
-- Memory (100+ MB)
-- Network I/O
-
----
-
-## 🔍 Analiz - Starvation Bulguları
-
-### ✅ Beklenen Sonuçlar:
-
-| Bulgu | Değer | İzahı |
-|-------|-------|-------|
-| **Elapsed Time** | ~30 saniye | Timeout'a ulaştı |
-| **Completed Workers** | 47-60 | Sadece başarısız (starvation başladı) |
-| **Failed Workers** | 40-53 | Timeout veya hata |
-| **ThreadPool Util.** | 100% | Tüm thread'ler bloklandı |
-| **Starvation Detected** | TRUE | Deadlock tespit edildi |
-
-### 📊 Grafana'da Gözlemlenecekler:
-
-**Memory Spike:**
-```
-Before: ~100MB
-During: ~300-400MB (100 thread'e)
-After:  ~150MB (thread cleanup)
-```
-
-**CPU Spike:**
-```
-Before: ~5%
-During: ~80-95% (busy waiting + context switching)
-After:  ~2%
-```
-
----
-
-## 🛠️ Troubleshooting
-
-### Problem: Logs'ta "Thread Starvation" görünmüyor
-
-**Çözüm:**
-
-```bash
-# 1. Container'ın çalıştığını kontrol et
-docker ps | findstr api
-
-# 2. Logs'ı kontrol et
-docker-compose logs api
-
-# 3. Container'ı restart et
-docker-compose restart api
-```
-
-### Problem: Prometheus metrikleri gelmiyoriş
-
-**Çözüm:**
-
-```bash
-# OTEL Collector'ın çalıştığını kontrol et
-docker ps | findstr otel-collector
-
-# Collector logs'unu kontrol et
-docker-compose logs otel-collector
-
-# Prometheus config'ini kontrol et
-curl http://localhost:9090/api/v1/label/__name__/values
-```
-
-### Problem: Jaeger'da trace yok
-
-**Çözüm:**
-
-```bash
-# 1. API container'ını kontrol et
-docker logs backend-systems-lab-api-1 | tail -50
-
-# 2. OTEL Collector'a bağlantıyı kontrol et
-docker-compose logs otel-collector | grep api
-
-# 3. API'nin OTEL env variables'ı kontrol et
-docker inspect backend-systems-lab-api-1 | grep -i otel
-```
-
----
-
-## 📚 Kaynaklar
-
-### .NET ThreadPool Belgeleri
-- [ThreadPool.GetAvailableThreads](https://docs.microsoft.com/en-us/dotnet/api/system.threading.threadpool.getavailablethreads)
-- [Task Starvation](https://devblogs.microsoft.com/pfxteam/should-i-expose-asynchronous-wrappers-for-synchronous-methods/)
-
-### OpenTelemetry
-- [OTEL .NET SDK](https://github.com/open-telemetry/opentelemetry-dotnet)
-- [OTEL Jaeger Exporter](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Exporter.Jaeger)
-
-### Grafana & Prometheus
-- [Grafana Official Docs](https://grafana.com/docs/)
-- [Prometheus Query Language](https://prometheus.io/docs/prometheus/latest/querying/basics/)
-
----
-
-## 📌 Hızlı Referans
-
-### Önemli Komutlar
-
-```bash
-# Stack'i başlat
-docker-compose up -d
-
-# Stack'i durdur
-docker-compose down
-
-# Logs'u canlı göster
-docker-compose logs -f api
-
-# Belirli container'ın logs'u
-docker logs backend-systems-lab-api-1 -f
-
-# Stack'i sıfırla (volumes silinir)
-docker-compose down -v && docker-compose up -d
-
-# Container shell'e gir
-docker exec -it backend-systems-lab-api-1 sh
-
-# Network durumunu kontrol et
-docker network ls
-```
-
-### Dashboard URLs
-
-| Tool | URL | Port |
-|------|-----|------|
-| **Grafana** | http://localhost:3000 | 3000 |
-| **Prometheus** | http://localhost:9090 | 9090 |
-| **Jaeger** | http://localhost:16686 | 16686 |
-| **API** | http://localhost:8080 | 8080 |
-| **OTEL Collector** | http://localhost:4317 | 4317 |
-
----
-
-## 🎯 Sonuç
-
-Bu deneyim gösteriyor ki:
-
-1. ✅ **Task.Run + .Wait() ThreadPool'u blokluyor**
-2. ✅ **Concurrent worker sınırı (SemaphoreSlim) işe yaramıyor**
-3. ✅ **100 thread çalıştırıldığında ~30 saniyede deadlock oluşuyor**
-4. ✅ **ThreadPool istatistikleri (availability) sıfıra düşüyor**
-5. ✅ **Memory usage 3x artıyor (thread allocation)**
-
-**Doğru Pattern:**
 ```csharp
-// ❌ YANLIŞ
-Task.Run(async () => await SomeAsyncWork()).Wait();
-
-// ✅ DOĞRU
-await SomeAsyncWork();
+// ❌ YANLIŞ: ThreadPool thread'i meşgul edilirken, sonucunu beklemek için başka thread de bloklanıyor.
+Task.Run(async () => await IsYap()).Wait(); 
 ```
 
----
+### Doğru Kullanım
+Her aşamada `await` kullanarak Thread'in serbest kalmasını sağlamak.
 
-**Created:** January 20, 2026  
-**Experiment:** Deney #2.1 - Thread Starvation Lab  
-**Status:** ✅ Complete
+```csharp
+// ✅ DOĞRU: İş bitene kadar Thread serbest kalır, havuza döner.
+await IsYap();
+```

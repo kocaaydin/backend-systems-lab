@@ -3,9 +3,7 @@ using System.Diagnostics;
 namespace BackendLab.Api.Services;
 
 /// <summary>
-/// Background Worker for Thread Starvation Experiment (Deney #2.1)
-/// Runs automatically when the application starts
-/// Demonstrates ThreadPool starvation with Thread + Task.Run + .Wait() pattern
+/// Background Worker demonstrating ThreadPool Starvation (Sync-over-Async Antipattern).
 /// </summary>
 public class ThreadStarvationBackgroundService : BackgroundService
 {
@@ -26,239 +24,155 @@ public class ThreadStarvationBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("🚀 Thread Starvation Background Service Starting...");
+        _logger.LogInformation("🚀 Thread Starvation Service Starting...");
         
         // Small delay to let application finish startup
         await Task.Delay(2000, stoppingToken);
 
         try
         {
-            await RunThreadStarvationExperimentAsync(stoppingToken);
+            await RunExperimentAsync(stoppingToken);
         }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("⏹️  Thread Starvation Experiment Cancelled");
-        }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Thread Starvation Experiment Failed");
+            _logger.LogError(ex, "❌ Experiment Failed");
         }
     }
 
-    private async Task RunThreadStarvationExperimentAsync(CancellationToken stoppingToken)
+    private async Task RunExperimentAsync(CancellationToken stoppingToken)
     {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+        cts.CancelAfter(TimeSpan.FromSeconds(TimeoutSeconds + 5));
+        
         using var activity = ExperimentActivitySource.StartActivity("ThreadStarvationExperiment");
-        activity?.SetTag("experiment.name", "Thread Starvation - Deney #2.1");
-        activity?.SetTag("experiment.workers.total", TotalWorkers);
-        activity?.SetTag("experiment.workers.max_concurrent", MaxConcurrentWorkers);
+        activity?.SetTag("experiment.name", "Thread Starvation #2.1");
         
-        _logger.LogInformation("\n╔════════════════════════════════════════════════════════════════════╗");
-        _logger.LogInformation("║        Thread Starvation Lab - Deney #2.1 (Background Worker)       ║");
-        _logger.LogInformation("║     Demonstrating ThreadPool Starvation with Task.Run + .Wait()    ║");
-        _logger.LogInformation("╚════════════════════════════════════════════════════════════════════╝\n");
-        
-        _logger.LogInformation("Configuration:");
-        _logger.LogInformation("  - Total Workers: {TotalWorkers}", TotalWorkers);
-        _logger.LogInformation("  - Max Concurrent: {MaxConcurrentWorkers}", MaxConcurrentWorkers);
-        _logger.LogInformation("  - Worker Duration: {WorkerDurationMs}ms", WorkerDurationMs);
-        _logger.LogInformation("  - Timeout: {TimeoutSeconds}s\n", TimeoutSeconds);
+        _logger.LogInformation($"🔬 STARTING Experiment: {TotalWorkers} workers, MaxConcurrent={MaxConcurrentWorkers}");
 
         // Save original limits
         ThreadPool.GetMinThreads(out int origMinW, out int origMinCP);
         ThreadPool.GetMaxThreads(out int origMaxW, out int origMaxCP);
 
-        // DEMO CONFIG: Cap ThreadPool to force starvation with fewer workers
-        // This simulates a busy server where the pool limit is reached
-        int demoMaxThreads = MaxConcurrentWorkers + 5; // Allow just 5 extra threads (for monitoring etc)
+        // Limit ThreadPool to force starvation easier
+        int demoMaxThreads = MaxConcurrentWorkers + 5; 
         ThreadPool.SetMaxThreads(demoMaxThreads, demoMaxThreads);
-        ThreadPool.SetMinThreads(demoMaxThreads, demoMaxThreads); // Avoid hill climbing delay
-        
-        _logger.LogWarning("⚠️  ThreadPool Constraints Applied for Demo:");
-        _logger.LogWarning("   - Max Threads set to: {Max}", demoMaxThreads);
+        ThreadPool.SetMinThreads(demoMaxThreads, demoMaxThreads);
+        _logger.LogWarning($"⚠️  ThreadPool artificially capped at {demoMaxThreads} threads.");
 
         var sw = Stopwatch.StartNew();
-        var semaphore = new SemaphoreSlim(MaxConcurrentWorkers, MaxConcurrentWorkers);
+        using var semaphore = new SemaphoreSlim(MaxConcurrentWorkers, MaxConcurrentWorkers);
         var monitoringCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
         
-        // Start monitoring on a DEDICATED THREAD so it doesn't get starved itself
-        var monitoringThread = new Thread(() => MonitorThreadPoolSync(_logger, monitoringCts.Token))
-        {
-            IsBackground = true,
-            Name = "Monitor-Thread"
-        };
-        monitoringThread.Start();
+        //Start monitoring thread
+        new Thread(() => MonitorThreadPool(monitoringCts.Token)) { IsBackground = true, Name = "Monitor" }.Start();
 
-        _logger.LogInformation("📊 Starting worker initialization...\n");
-
-        var workerTasks = new List<Task>();
         var completedWorkers = 0;
         var failedWorkers = 0;
 
         try
         {
-            // Launch all workers - each on a separate thread
             for (int i = 0; i < TotalWorkers; i++)
             {
-                int workerId = i;
-                
-                // ❌ PROBLEMATIC PATTERN: Create thread, then Task.Run + .Wait() inside
-                // ✅ CHANGED: Use Task.Run to force code to run on ThreadPool threads
-                // This causes true ThreadPool starvation when they block
-                _ = Task.Run(() =>
+                int id = i;
+                _ = Task.Run(() => 
                 {
                     try
                     {
-                        RunWorkerSync(workerId, semaphore);
+                        RunWorker(id, semaphore);
                         Interlocked.Increment(ref completedWorkers);
                     }
-                    catch (Exception ex)
+                    catch 
                     {
-                        _logger.LogError(ex, "❌ Worker {WorkerId} failed", workerId);
                         Interlocked.Increment(ref failedWorkers);
                     }
                 });
             }
 
-            _logger.LogInformation("✅ All {Count} worker threads launched\n", TotalWorkers);
+            _logger.LogInformation("✅ All tasks queued. Waiting for completion...");
 
-            // Wait for completion or timeout
-            bool completed = false;
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds), stoppingToken);
-            
-            // Poll for completion or timeout
-            while (!completed && !stoppingToken.IsCancellationRequested)
+            // Wait loop
+            while (completedWorkers + failedWorkers < TotalWorkers && !stoppingToken.IsCancellationRequested)
             {
-                int current = Interlocked.CompareExchange(ref completedWorkers, 0, 0);
-                
-                if (current + failedWorkers >= TotalWorkers)
-                {
-                    completed = true;
-                    break;
-                }
-
-                if (timeoutTask.IsCompleted)
-                {
-                    break;
-                }
-
+                if (cts.IsCancellationRequested) break;
                 await Task.Delay(500, stoppingToken);
             }
 
+            int unfinished = TotalWorkers - (completedWorkers + failedWorkers);
+            if (unfinished > 0)
+            {
+                _logger.LogWarning($"⚠️  WARNING: {unfinished} workers are still RUNNING or PENDING at loop exit.");
+                _logger.LogWarning("   -> This demonstrates that if the application stops here (or we stop waiting),");
+                _logger.LogWarning("      these operations are cut short/orphaned.");
+            }
+
             sw.Stop();
-
-            _logger.LogInformation("\n╔════════════════════════════════════════════════════════════════════╗");
-            if (completed)
-            {
-                _logger.LogInformation("║ ✅ All workers completed successfully                              ║");
-                activity?.SetTag("experiment.result", "success");
-                activity?.SetTag("experiment.starved", false);
-            }
-            else
-            {
-                _logger.LogWarning("║ ⚠️  TIMEOUT! Workers did not complete within {TimeoutSeconds}s         ║", TimeoutSeconds);
-                _logger.LogWarning("║ ❌ ThreadPool is DEADLOCKED - threads blocked by Task.Run + .Wait() ║");
-                activity?.SetTag("experiment.result", "starvation_detected");
-                activity?.SetTag("experiment.starved", true);
-            }
-            _logger.LogInformation("╚════════════════════════════════════════════════════════════════════╝\n");
-
-            _logger.LogInformation("📈 Final Statistics:");
-            _logger.LogInformation("  - Total Elapsed: {ElapsedMs}ms", sw.ElapsedMilliseconds);
-            _logger.LogInformation("  - Completed Workers: {Completed}/{Total}", completedWorkers, TotalWorkers);
-            _logger.LogInformation("  - Failed Workers: {Failed}/{Total}\n", failedWorkers, TotalWorkers);
+            bool success = completedWorkers == TotalWorkers;
             
-            activity?.SetTag("experiment.elapsed_ms", sw.ElapsedMilliseconds);
-            activity?.SetTag("experiment.workers.completed", completedWorkers);
-            activity?.SetTag("experiment.workers.failed", failedWorkers);
+            _logger.LogInformation("--------------------------------------------------");
+            if (success)
+                _logger.LogInformation($"✅ SUCCESS: All {completedWorkers} workers completed in {sw.ElapsedMilliseconds}ms.");
+            else
+                _logger.LogError($"❌ FAILURE: Timeout/Starvation detected. Completed: {completedWorkers}/{TotalWorkers}");
+            _logger.LogInformation("--------------------------------------------------");
+
+
+
+            activity?.SetTag("experiment.success", success);
         }
         finally
         {
             monitoringCts.Cancel();
-            semaphore.Dispose();
-            monitoringCts.Dispose();
-            
-            // Restore original limits
             ThreadPool.SetMinThreads(origMinW, origMinCP);
             ThreadPool.SetMaxThreads(origMaxW, origMaxCP);
-            _logger.LogInformation("Original ThreadPool limits restored.");
+            _logger.LogInformation("🔄 Original ThreadPool limits restored.");
         }
-
-        _logger.LogInformation("🏁 Thread Starvation Experiment Completed\n");
     }
 
-    private void RunWorkerSync(int workerId, SemaphoreSlim semaphore)
+    private void RunWorker(int id, SemaphoreSlim semaphore)
     {
-        var threadId = Thread.CurrentThread.ManagedThreadId;
-        var threadName = Thread.CurrentThread.Name ?? "ThreadPool";
-
-        _logger.LogDebug("👷 Worker {WorkerId} ({ThreadName}) started on Thread {ThreadId}", 
-            workerId, threadName, threadId);
-
         try
         {
-            // Acquire semaphore slot (may block if limit reached)
-            if (!semaphore.Wait(TimeSpan.FromSeconds(5)))
-            {
-                _logger.LogWarning("⏱️  Worker {WorkerId} timeout waiting for semaphore", workerId);
-                return;
-            }
-
-            _logger.LogDebug("🟢 Worker {WorkerId} acquired semaphore slot on Thread {ThreadId}", 
-                workerId, threadId);
+            if (!semaphore.Wait(TimeSpan.FromSeconds(5))) return;
 
             try
             {
-                // ❌ PROBLEMATIC PATTERN: Task.Run + synchronous .Wait() 
-                // This thread (from ThreadPool) is now blocked, preventing ThreadPool from
-                // processing other queued tasks
-                var delayTask = Task.Run(async () =>
-                {
-                    _logger.LogDebug("📥 Worker {WorkerId} Task.Run executed on Thread {ThreadId}",
-                        workerId, Thread.CurrentThread.ManagedThreadId);
-                    await Task.Delay(WorkerDurationMs);
-                });
+                // THE ANTI-PATTERN: Blocking wait on Async task
+                Task.Run(async () => await Task.Delay(WorkerDurationMs)).Wait(); 
 
-                // ❌ DEADLOCK RISK: Synchronous .Wait() blocks this thread!
-                delayTask.Wait(TimeSpan.FromSeconds(10));
-
-                _logger.LogInformation("✅ Worker {WorkerId} completed on Thread {ThreadId}", 
-                    workerId, threadId);
+                _logger.LogInformation($"✅ Worker {id} done"); // Reduced verbosity
             }
             finally
             {
                 semaphore.Release();
-                _logger.LogDebug("🔴 Worker {WorkerId} released semaphore slot", workerId);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Worker {WorkerId} error on Thread {ThreadId}", workerId, threadId);
+            _logger.LogError($"Worker {id} error: {ex.Message}");
+            throw;
         }
     }
 
-    private void MonitorThreadPoolSync(ILogger logger, CancellationToken ct)
+    private void MonitorThreadPool(CancellationToken ct)
     {
-        logger.LogInformation("🔍 ThreadPool Monitoring Started (Dedicated Thread)\n");
-
         while (!ct.IsCancellationRequested)
         {
             try
             {
-                ThreadPool.GetAvailableThreads(out int workerThreads, out int completionPortThreads);
-                ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxCompletionPortThreads);
+                ThreadPool.GetAvailableThreads(out int availableWorkers, out _);
+                ThreadPool.GetMaxThreads(out int maxWorkers, out _);
 
-                var utilizationPercent = 0;
-                if (maxWorkerThreads > 0)
-                    utilizationPercent = ((maxWorkerThreads - workerThreads) * 100) / maxWorkerThreads;
+                int usedWorkers = maxWorkers - availableWorkers;
 
-                logger.LogInformation("📊 [ThreadPool] Available: {Available}/{Max} (Utilization: {Percent}%)",
-                    workerThreads, maxWorkerThreads, utilizationPercent);
-
-                if (utilizationPercent >= 95)
-                    logger.LogWarning("   ⚠️  HIGH UTILIZATION ({Percent}%) - Potential starvation!", utilizationPercent);
-
-                if (workerThreads == 0)
-                    logger.LogError("   ❌ NO AVAILABLE THREADS - COMPLETE STARVATION!");
+                if (availableWorkers == 0)
+                {
+                    _logger.LogError($"❌ THREADPOOL STARVATION: {usedWorkers}/{maxWorkers} in use, 0 available!");
+                }
+                else
+                {
+                    _logger.LogInformation($"📊 ThreadPool: {usedWorkers}/{maxWorkers} in use, {availableWorkers} available");
+                }
 
                 Thread.Sleep(MonitoringIntervalMs);
             }
@@ -267,6 +181,5 @@ public class ThreadStarvationBackgroundService : BackgroundService
                 break;
             }
         }
-        logger.LogInformation("\n🔍 ThreadPool Monitoring Stopped");
     }
 }

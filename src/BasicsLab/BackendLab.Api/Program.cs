@@ -3,6 +3,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 using Serilog;
+using Serilog.Sinks.Elasticsearch;
 using BackendLab.Api.Handlers;
 using BackendLab.Api.Services;
 
@@ -21,6 +22,13 @@ Log.Logger = new LoggerConfiguration()
         {
             ["service.name"] = builder.Configuration["OTEL_SERVICE_NAME"] ?? "backend-lab-api"
         };
+    })
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elasticsearch:9200"))
+    {
+        AutoRegisterTemplate = true,
+        IndexFormat = "backend-lab-api-{0:yyyy.MM.dd}",
+        NumberOfShards = 2,
+        NumberOfReplicas = 1
     })
     .CreateLogger();
 
@@ -46,7 +54,6 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddControllers();
 
 // REGISTER SERVICES
-builder.Services.AddTransient<ThreadStarvationService>();
 builder.Services.AddHostedService<ThreadStarvationBackgroundService>();
 builder.Services.AddTransient<ClientRateLimitingHandler>(sp => new ClientRateLimitingHandler(100)); // Limit 100 RPS
 builder.Services.AddHttpClient("RateLimitedClient").AddHttpMessageHandler<ClientRateLimitingHandler>();
