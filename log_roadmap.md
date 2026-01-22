@@ -80,3 +80,42 @@ Bu roadmap, loglama sisteminin temel zorluklarını ve çözüm desenlerini ince
 
 
 Amaç, log seviyelerini ve thread/worker mimarisini ezberlemek değil, davranışlarını gözünle görerek içselleştirmek olmalı: Basit bir API kurup her request’in başına ve sonuna INFO, ara adımlarına DEBUG, anormal ama çalışmaya devam eden durumlara WARN, request’i bozan hatalara ERROR, sistemi ayağa kalkamaz hâle getiren durumlara CRITICAL, kullanıcı aksiyonlarına ise ayrı bir kanal olarak AUDIT log yaz; sonra bilinçli olarak seviyeleri yanlış kullanıp prod benzeri ortamda nasıl ya gürültüye boğulduğunu ya da körleştiğini gözlemle, filtreleme yaparak hangi seviyede sistemin “hikâyesini” kaybettiğini gör; paralelinde tek thread pool’lu bir servis kurup fast ve heavy endpoint’leri aynı havuzda koştur, yük altında starvation’ı loglardan oku, ardından heavy işleri ayrı bir worker thread pool’a veya queue + worker mimarisine taşı, handler’ın sadece kuyruğa yazıp dönmesini sağla ve aynı testleri tekrar et; bu sefer queue’ya yazıldı INFO, worker aldı INFO, gecikmeler WARN, task düşmeleri ERROR, worker’ın ayağa kalkamaması CRITICAL olarak loglansın; hedefin, bir sistemi sadece log’a bakarak “şu an sağlıklı mı, tıkanıyor mu, kullanıcı mı hata yaptı, sistem mi çöküyor?” diye ayırt edebilecek refleksi kazanmaktır.
+
+
+🔎 APM & Distributed Tracing Alternatifleri
+1) Datadog APM
+Request → async hattına kadar trace
+Flame graph, span breakdown
+Thread profili, C# desteği
+2) Elastic APM (Elastic Stack)
+Trace + log correlation
+Kibana üzerinden görsel timeline
+Ucuz/özelleştirilebilir
+3) Splunk APM (SignalFx)
+Trace + metric + log tek yerde
+Heatmap + span analytics
+4) Dynatrace
+Otomatik enstrümantasyon
+Thread dump, call stack, CPU hotspot görme
+5) AppDynamics
+Kod seviyesinde transaction trace
+Async thread takılmalarını bulma
+6) OpenTelemetry + Backends (Jaeger / Tempo / Zipkin)
+Vendor bağımsız, açık standart
+Kendi metric + trace stack’in
+📊 Profiling / Thread Dump / Code-Level Analiz
+Bunlar APM değil ama “nerede takıldı” sorusuna cevap verir:
+7) PerfView
+.NET için stack trace, CPU / memory profili
+8) Visual Studio Profiler / Concurrency Visualizer
+Local / staging’de thread seviyesinde analiz
+9) dotnet-trace / dotnet-dump
+Canlı process analizi, stack snapshot
+🧠 Hızlı Kısa Özet
+APM (Datadog, Elastic, Splunk, Dynatrace, AppD) → Prod’da canlı trace + metric + log
+OpenTelemetry + Jaeger/Tempo/Zipkin → Ücretsiz, standart trace çözümü
+Profiling araçları (PerfView, VS Profiler) → Kod seviyesinde derin analiz
+🧾 Önerim (en pratik)
+Prod için Datadog APM veya Elastic APM
+Staging / lokal için PerfView + dotnet-dump
+Bunlar sana “hangi span başladı ama bitmedi?”, “hangi method thread’leri blokluyor?”, “CPU hotspot nerede?” gibi cevaplar verebilir.
