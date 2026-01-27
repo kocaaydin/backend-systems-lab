@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=VeryStrongPassword123!
+      # MSSQL_PID environment variable allows you to specify the edition (Standard, Enterprise, Developer, Express)
+      # Developer is the default for the container image
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: unless-stopped
+    # If you need to connect from other containers in the main compose file, 
+    # you might need to ensure they share a network or use host networking.
+
+volumes:
+  mssql_data:
