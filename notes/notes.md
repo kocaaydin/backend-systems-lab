@@ -437,46 +437,46 @@
 
 ### **🔹 S — Single Responsibility Principle**
 
-- Bir class’ın **tek değişme sebebi** ne demek?
-- SRP ihlali örneklerini tanıyabilme
-- Service + Validator + Mapper ayrımı
-- “Fat Service” problemini anlatabilme
+- Bir class’ın **tek değişme sebebi** ne demek: Bir sınıf sadece tek bir işten sorumlu olmalıdır, iş mantığı ve görünü/DB ayrılmalıdır.
+- SRP ihlali örneklerini tanıyabilme: Bir sınıfın hem rapor oluşturup hem de mail atması.
+- Service + Validator + Mapper ayrımı: İş mantığı, doğrulama ve veri dönüşümü ayrı sınıflarda olmalıdır.
+- “Fat Service” problemini anlatabilme: Service'lerin her işi yapan devasa sınıflara dönüşmesi (Anti-pattern).
 
 ---
 
 ### **🔹 O — Open / Closed Principle**
 
-- Mevcut kodu değiştirmeden genişletme
-- Strategy Pattern ile OCP
-- Polymorphism vs if/else zinciri
-- Feature eklerken neden refactor gerekmez?
+- Mevcut kodu değiştirmeden genişletme: Yeni özellik eklerken var olan kodu değiştirmek yerine, yeni kod ekleyerek yapılmalıdır.
+- Strategy Pattern ile OCP: Farklı algoritmaları ayrı sınıflara bölerek (Strategy) ana sınıfı değiştirmeden yeni algoritma ekleyebilme.
+- Polymorphism vs if/else zinciri: `if (type == A) ... else if (type == B)` yerine A ve B'nin `Execute()` metodunu override etmesi.
+- Feature eklerken neden refactor gerekmez: OCP'ye uyulduğunda, yeni class eklenir, eski kod bozulmaz.
 
 ---
 
 ### **🔹 L — Liskov Substitution Principle**
 
-- Base class yerine derived class kullanıldığında bozulma
-- Exception fırlatma kuralları
-- Precondition / Postcondition ihlali
-- Gerçek hayatta LSP örnekleri
+- Base class yerine derived class kullanıldığında bozulma: Alt sınıf, üst sınıfın yerine geçtiğinde programın davranışı bozulmamalıdır.
+- Exception fırlatma kuralları: Alt sınıf, üst sınıfın beklemediği bir hata fırlatmamalıdır.
+- Precondition / Postcondition ihlali: Alt sınıf, üst sınıfın kurallarını (girdi/çıktı şartları) gevşetmemeli veya daraltmamalıdır.
+- Gerçek hayatta LSP örnekleri: `Kare` sınıfının `Dikdörtgen` sınıfından türetilmesi (Kare'de en/boy bağımsız değişemez -> LSP ihlali).
 
 ---
 
 ### **🔹 I — Interface Segregation Principle**
 
-- “Fat interface” problemi
-- Küçük, amaç odaklı interface’ler
-- Read / Write interface ayrımı
-- ISP ihlalinin test yazmayı zorlaştırması
+- “Fat interface” problemi: İçinde çok fazla ve alakasız metot barındıran interface'ler.
+- Küçük, amaç odaklı interface’ler: İhtiyaca özel, bölünmüş interface'ler (`IPrinter`, `IScanner` vs `IMultiFunctionDevice`).
+- Read / Write interface ayrımı: `IReadable`, `IWritable` gibi ayırarak sadece gerekli yetkileri verme.
+- ISP ihlalinin test yazmayı zorlaştırması: Kullanılmayan metotları mock'lamak zorunda kalmak.
 
 ---
 
 ### **🔹 D — Dependency Inversion Principle**
 
-- High-level module → abstraction bağımlılığı
-- Constructor injection
-- DIP vs DI farkı
-- Mock edilebilirlik
+- High-level module → abstraction bağımlılığı: Üst seviye modüller, alt seviye modüllere (detaylara) değil, soyutlamalara (interface) bağlı olmalıdır.
+- Constructor injection: Bağımlılıkların sınıf oluşturulurken verilmesi.
+- DIP vs DI farkı: DIP prensiptir (soyuta bağlı ol), DI bu prensibi uygulama tekniğidir (container kullan).
+- Mock edilebilirlik: Interface bağımlılığı sayesinde testlerde sahte (mock) nesne verebilme imkanı.
 
 ---
 
@@ -484,28 +484,28 @@
 
 ### **🔹 Microservices Fundamentals**
 
-- Monolith vs Microservice
-- Service boundary nasıl çizilir?
-- Database per service neden önemli?
-- Distributed system trade-off’ları
+- Monolith vs Microservice: Tek parça büyük uygulama vs küçük, bağımsız, ağ üzerinden konuşan servisler.
+- Service boundary nasıl çizilir: Domain (Bounded Context) sınırlarına göre servisleri ayırma (DDD).
+- Database per service neden önemli: Servislerin birbirinin verisine doğrudan erişmemesi (Loose coupling) için.
+- Distributed system trade-off’ları: Karmaşıklık artar, consistency zorlaşır ama ölçeklenebilirlik artar.
 
 ---
 
 ### **🔹 API Communication Patterns**
 
-- Synchronous vs Asynchronous
-- REST vs Messaging
-- API Gateway rolü
-- Backward compatibility
+- Synchronous vs Asynchronous: Anında cevap bekleyen (HTTP REST) vs Beklemeyen (Messaging/Queue).
+- REST vs Messaging: REST (Request/Response) vs Event/Message (Fire & Forget).
+- API Gateway rolü: Tek giriş noktası, routing, auth, rate limiting gibi cross-cutting işleri yönetir.
+- Backward compatibility: API güncellemelerinde eski client'ların bozulmaması için versiyonlama.
 
 ---
 
 ### **🔹 Resiliency Patterns**
 
-- Circuit Breaker
-- Retry with backoff
-- Timeout stratejileri
-- Bulkhead pattern
+- Circuit Breaker: Sürekli hata alan servisi devreden çıkarıp sistemin geri kalanını koruma.
+- Retry with backoff: Hata durumunda bekleme süresini artırarak (exponential) tekrar deneme.
+- Timeout stratejileri: Cevap gelmeyen isteği belirli sürede kesip kaynağı serbest bırakma.
+- Bulkhead pattern: Sistemi bölmelere ayırarak bir parçadaki çökmenin diğerlerini etkilemesini önleme.
 
 👉 **Mülakat sorusu:**
 
@@ -515,19 +515,19 @@
 
 ### **🔹 Consistency & Reliability**
 
-- CAP Theorem
-- Eventual consistency
-- Idempotency
-- Exactly-once mümkün mü?
+- CAP Theorem: Consistency (Tutarlılık), Availability (Erişilebilirlik), Partition Tolerance (Bölünme Toleransı) - Sadece ikisi seçilebilir (Genelde CP veya AP).
+- Eventual consistency: Verinin hemen değil, bir süre sonra tüm sistemde tutarlı hale gelmesi.
+- Idempotency: Aynı işlemin birden fazla kez yapılması durumunda sonucun değişmemesi (Güvenli retry).
+- Exactly-once mümkün mü: Teorik olarak zor, genelde "at-least-once" + "idempotency" ile sağlanır.
 
 ---
 
 ### **🔹 Saga Pattern**
 
-- Choreography vs Orchestration
-- Compensating transaction
-- Saga ne zaman tercih edilir?
-- Distributed transaction neden kötü?
+- Choreography vs Orchestration: Dağıtık servislere olayı kimin haber vereceği (Merkezi vs Kendi aralarında).
+- Compensating transaction: Bir adım başarısız olursa, önceki başarılı adımları geri alan işlem (Rollback).
+- Saga ne zaman tercih edilir: Dağıtık transaction gerektiren uzun iş süreçlerinde (Sipariş -> Ödeme -> Stok).
+- Distributed transaction neden kötü: 2PC (Two-phase commit) yavaştır, kilitlenme riski yüksektir, ölçeklenemez.
 
 ---
 
@@ -535,19 +535,19 @@
 
 ### **🔹 Cache Temelleri**
 
-- Cache neden kullanılır?
-- Cache ne zaman KULLANILMAZ?
-- Data consistency riskleri
-- Cache eviction mantığı
+- Cache neden kullanılır: Performansı artırmak, DB yükünü azaltmak ve latency düşürmek için.
+- Cache ne zaman KULLANILMAZ: Veri çok sık değişiyorsa veya tutarlılık (consistency) çok kritikse.
+- Data consistency riskleri: Cache ile DB arasındaki veri farkı (Stale read).
+- Cache eviction mantığı: Cache dolduğunda hangi verinin silineceği (LRU - Least Recently Used, LFU).
 
 ---
 
 ### **🔹 Cache Patterns**
 
-- Cache Aside (Lazy loading)
-- Read Through
-- Write Through
-- Write Behind
+- Cache Aside (Lazy loading): Uygulama önce Cache'e bakar, yoksa DB'den okur ve Cache'e yazar.
+- Read Through: Cache provider DB'den okumayı kendi yapar, uygulama sadece Cache ile konuşur.
+- Write Through: Uygulama Cache'e yazar, Cache senkron olarak DB'ye yazar (Garanti ama yavaş).
+- Write Behind: Uygulama Cache'e yazar, Cache asenkron olarak (arkada) DB'ye yazar (Hızlı ama veri kaybı riski).
 
 👉 **En sık kullanılan:** Cache Aside
 
@@ -555,26 +555,26 @@
 
 ### **🔹 Invalidation Stratejileri**
 
-- TTL kullanımı
-- Manual invalidation
-- Versioned cache key
-- Event-based invalidation
+- TTL kullanımı: Veriye ömür biçme (Time To Live), süre bitince silinir.
+- Manual invalidation: Veri güncellendiğinde kodla cache'i silme.
+- Versioned cache key: Key sonuna versiyon (v1, v2) ekleyerek eski veriyi yetim bırakma.
+- Event-based invalidation: Veri değiştiğinde event fırlatıp consumer ile cache temizleme.
 
 ---
 
 ### **🔹 Cache Scope**
 
-- In-memory cache
-- Distributed cache
-- Per-user vs global cache
-- Cache stampede problemi
+- In-memory cache: Uygulamanın kendi RAM'inde (Hızlı ama dağıtık değil, Restartta gider).
+- Distributed cache: Redis/Memcached gibi harici servis (Kalıcı, paylaşılabilir, network latency var).
+- Per-user vs global cache: Kullanıcıya özel veri (Session) vs Herkesin gördüğü veri (Ürün listesi).
+- Cache stampede problemi: Cache süresi bittiğinde binlerce isteğin aynı anda DB'ye saldırması.
 
 ## **4️⃣ N+1 Problem**
 
-- N+1 query problemi nedir?
-- ORM kullanırken nasıl ortaya çıkar?
-- Lazy loading vs Eager loading çözümü
-- Batch fetch / Include / Join kullanımı
+- N+1 query problemi nedir: Bir ana kayıt (1) ve ilişkili N kayıt için N adet ayrı SQL sorgusu atılması.
+- ORM kullanırken nasıl ortaya çıkar: Lazy loading açıkken döngü içinde ilişkili tabloya erişildiğinde.
+- Lazy loading vs Eager loading çözümü: Veriyi ihtiyaç anında çekmek (Lazy) vs Baştan join ile çekmek (Eager).
+- Batch fetch / Include / Join kullanımı: `.Include(x => x.Orders)` diyerek tek sorguda veriyi almak.
 
 🎤
 
@@ -585,12 +585,12 @@
 
 ## **5️⃣ REST & API Design**
 
-- RESTful API prensipleri
-- Stateless API
-- Resource vs Endpoint
-- HTTP Methods (GET, POST, PUT, DELETE)
-- Status code kullanımı (200, 201, 204, 400, 401, 404, 500)
-- HATEOAS (concept)
+- RESTful API prensipleri: Kaynağa yönelim, Client-Server ayrımı, Stateless yapı, Cachelenebilirlik.
+- Stateless API: Sunucunun client durumunu (session) tutmaması, her isteğin kendi kendine yetmesi.
+- Resource vs Endpoint: Resource "Ürün"dür, Endpoint ona ulaşım adresidir (`/products/123`).
+- HTTP Methods (GET, POST, PUT, DELETE): Veri almak, yaratmak, güncellemek ve silmek için standart fiiller.
+- Status code kullanımı (200, 201, 204, 400, 401, 404, 500): İşlem sonucunu evrensel kodlarla bildirme.
+- HATEOAS (concept): Sunucunun client'a yapabileceği sonraki işlemleri link olarak dönmesi.
 
 🎤
 
@@ -923,11 +923,11 @@ prod:user:profile:123:v2
 
 ## **1️⃣ SQL Temelleri (Olmazsa Olmaz)**
 
-- SELECT / INSERT / UPDATE / DELETE
-- WHERE / ORDER BY / GROUP BY / HAVING
-- JOIN türleri (INNER / LEFT / RIGHT)
-- Subquery vs JOIN farkları
-- NULL davranışı (IS NULL)
+- SELECT / INSERT / UPDATE / DELETE: Temel veri manipülasyon komutları (DML).
+- WHERE / ORDER BY / GROUP BY / HAVING: Filtreleme, sıralama ve gruplama işlemleri (`Having` group sonrası filtreler).
+- JOIN türleri (INNER / LEFT / RIGHT): Tabloları birleştirme yöntemleri (Kesişim, Sol öncelikli, Sağ öncelikli).
+- Subquery vs JOIN farkları: Subquery iç içe sorgu, JOIN tabloları yan yana birleştirir; genelde JOIN daha performanslıdır.
+- NULL davranışı (IS NULL): NULL bir değer değil, bilinmeyen durumudur; `= NULL` çalışmaz, `IS NULL` kullanılır.
 
 🎤:
 
@@ -940,21 +940,21 @@ prod:user:profile:123:v2
 
 ### **🔹 Clustered Index**
 
-- Clustered index nedir?
-- Table başına neden tek?
-- PK her zaman clustered mı olmalı?
+- Clustered index nedir: Verinin diskteki fiziksel sıralamasını belirleyen index (Telefon rehberi gibi).
+- Table başına neden tek: Veri fiziksel olarak sadece bir şekilde sıralanabilir.
+- PK her zaman clustered mı olmalı: Default öyledir ama zorunlu değildir (Identity ise iyidir, UUID ise kötüdür).
 
 ### **🔹 Non-Clustered Index**
 
-- Seek vs Scan
-- Covering index
-- Include column’lar
+- Seek vs Scan: Seek (Index ile direkt gitme - Hızlı) vs Scan (Tüm tabloyu/indexi tarama - Yavaş).
+- Covering index: Sorgudaki tüm kolonların index içinde bulunması (Tabloya gitmeye gerek kalmaz - En hızlısı).
+- Include column’lar: Index anahtarına dahil olmayan ama index yaprağında saklanan ek veriler.
 
 ### **🔹 Index Design**
 
-- Over-indexing riskleri
-- Index fragmentation
-- Rebuild vs Reorganize
+- Over-indexing riskleri: Okuma hızlanır ama her yazma (Insert/Update) yavaşlar.
+- Index fragmentation: Sık ekleme/silme sonucu indexin diskte dağınıklaşması.
+- Rebuild vs Reorganize: Indexi tamamen yeniden oluşturma (Rebuild) vs Düzenleme (Reorganize).
 
 🎤:
 
@@ -965,11 +965,11 @@ prod:user:profile:123:v2
 
 ## **3️⃣ Execution Plan & Query Optimization**
 
-- Execution plan nasıl okunur?
-- Cost nedir?
-- Key lookup problemi
-- Parameter sniffing
-- Statistics önemi
+- Execution plan nasıl okunur: Sorgunun izlediği yol haritası (Hangi index kullanıldı, ne kadar sürdü).
+- Cost nedir: İşlemcinin ve diskin harcadığı tahmini kaynak maliyeti.
+- Key lookup problemi: Non-clustered index kullandıktan sonra asıl veriye gitmek için tabloya (Clustered Index) sıçrama maliyeti.
+- Parameter sniffing: İlk çalıştırılan parametreye göre plan oluşturulup, sonraki farklı parametrelerde o planın kötü çalışması.
+- Statistics önemi: SQL Server'ın veri dağılımını bilmesini sağlar, optimizasyon için kritiktir.
 
 📌 **Gerçek senior konusu**
 
@@ -977,10 +977,10 @@ prod:user:profile:123:v2
 
 ## **4️⃣ Transaction Management**
 
-- ACID nedir?
-- BEGIN / COMMIT / ROLLBACK
-- Nested transaction gerçek mi?
-- Long-running transaction riskleri
+- ACID nedir: Atomicity (Hepsi/Hiçbiri), Consistency (Tutarlılık), Isolation (Yalıtım), Durability (Kalıcılık).
+- BEGIN / COMMIT / ROLLBACK: Transaction başlatma, onaylama ve geri alma komutları.
+- Nested transaction gerçek mi: Hayır, SQL Server'da `@@TRANCOUNT` artar ama sadece en dıştaki Commit/Rollback gerçektir.
+- Long-running transaction riskleri: Log dosyasını şişirir, tabloyu kilitler (Blocking).
 
 🎤:
 
@@ -991,18 +991,18 @@ prod:user:profile:123:v2
 
 ## **5️⃣ Locking & Concurrency (🔥)**
 
-- Shared / Exclusive lock
-- Deadlock nedir?
-- Deadlock nasıl tespit edilir?
-- Isolation levels
+- Shared / Exclusive lock: Okuma kilidi (Shared - başkaları okuyabilir) vs Yazma kilidi (Exclusive - kimse erişemez).
+- Deadlock nedir: İki işlemin birbirinin kilitlediği kaynağı beklemesi ve kilitlenmesi.
+- Deadlock nasıl tespit edilir: SQL Error 1205 veya Extended Events / Profiler ile.
+- Isolation levels: Transactionların birbirini ne kadar etkileyeceğini belirleyen seviyeler.
 
 ### **Isolation Levels**
 
-- Read Uncommitted
-- Read Committed
-- Repeatable Read
-- Serializable
-- Snapshot Isolation
+- Read Uncommitted: Kirli okuma (Dirty Read) yapar, kilit koymaz (En hızlı, en güvensiz).
+- Read Committed: Sadece commitlenmiş veriyi okur (Default).
+- Repeatable Read: Okunan veri transaction bitene kadar değişmez (Update kilidi koyar).
+- Serializable: Tam yalıtım, araya yeni kayıt (Phantom Read) bile giremez (En yavaş).
+- Snapshot Isolation: Versiyonlama kullanarak kilit koymadan tutarlı okuma sağlar (TempDB kullanır).
 
 🎤:
 
@@ -1013,28 +1013,28 @@ prod:user:profile:123:v2
 
 ## **6️⃣ Stored Procedure vs Ad-hoc Query**
 
-- Execution plan reuse
-- Security avantajı
-- Versiyonlama zorlukları
-- Ne zaman SP, ne zaman ORM?
+- Execution plan reuse: SP'lerin planı cachelenir ve tekrar kullanılır (Performans sağlar).
+- Security avantajı: Kullanıcıya tabloya değil, SP'ye yetki verilir; SQL Injection riski azalır.
+- Versiyonlama zorlukları: Kodu veritabanında saklamak Git ile takibi ve deployment'ı zorlaştırır.
+- Ne zaman SP, ne zaman ORM: Karmaşık raporlar ve toplu işlemler için SP; CRUD için ORM.
 
 ---
 
 ## **7️⃣ Data Modeling**
 
-- Normalization (1NF–3NF)
-- Denormalization ne zaman?
-- Surrogate vs Natural key
-- Soft delete vs hard delete
+- Normalization (1NF–3NF): Veri tekrarını önleme ve tutarlılığı sağlama kuralları.
+- Denormalization ne zaman: Okuma performansını artırmak için bilerek veri tekrarı yapma (Reporting vb.).
+- Surrogate vs Natural key: Yapay artan ID (Surrogate) vs TC Kimlik/Email (Natural).
+- Soft delete vs hard delete: `IsDeleted=1` yapmak (Soft) vs Veriyi fiziksel silmek (Hard).
 
 ---
 
 ## **8️⃣ Pagination & Large Data**
 
-- OFFSET / FETCH
-- Keyset pagination
-- Large table scan riskleri
-- Batch processing
+- OFFSET / FETCH: Standart sayfalama (`Skip/Take`), büyük sayfalarda yavaştır.
+- Keyset pagination: `WHERE Id > LastId` diyerek son kalınan yerden devam etme (Çok hızlıdır).
+- Large table scan riskleri: Büyük tabloda indexsiz arama (Scan) veritabanını kilitler.
+- Batch processing: Büyük işlemleri küçük parçalara (Chunk) bölerek yapma.
 
 🎤:
 
@@ -1045,197 +1045,197 @@ prod:user:profile:123:v2
 
 ## **9️⃣ Performance & Scalability**
 
-- Read replica (concept)
-- Partitioning
-- TempDB kullanımı
-- Connection pooling
-- IO vs CPU bottleneck
+- Read replica (concept): Okuma yükünü başka sunucuya dağıtma.
+- Partitioning: Büyük tabloları fiziksel olarak parçalara bölme (Yıla göre vb.).
+- TempDB kullanımı: Geçici tablolar ve sıralama işlemleri için kullanılan sistem veritabanı.
+- Connection pooling: Veritabanı bağlantılarını kapatmayıp havuzda tutarak tekrar kullanma.
+- IO vs CPU bottleneck: Sorunun diskte mi işlemcide mi olduğunu anlama.
 
 ---
 
 ## **🔟 Error Handling (SQL Server)**
 
-- TRY / CATCH
-- THROW vs RAISERROR
-- Transaction rollback
-- Error propagation
+- TRY / CATCH: T-SQL içinde hata yakalama blokları.
+- THROW vs RAISERROR: `THROW` hatayı olduğu gibi fırlatır, `RAISERROR` özelleştirilebilir ama eskidir.
+- Transaction rollback: Hata durumunda `ROLLBACK` çağırmanın önemi.
+- Error propagation: Hatanın C# tarafına nasıl iletildiği.
 
 ---
 
 ## **1️⃣1️⃣ Security**
 
-- SQL Injection
-- Parameterized query
-- Least privilege
-- Encryption at rest / in transit
+- SQL Injection: Kötü niyetli kodun SQL sorgusuna enjekte edilmesi.
+- Parameterized query: Parametre kullanarak injection'ı %100 engelleme.
+- Least privilege: Kullanıcıya sadece ihtiyacı olan en az yetkiyi verme prensibi.
+- Encryption at rest / in transit: Diskte şifreli saklama (TDE) ve ağda şifreli taşıma (SSL/TLS).
 
 ---
 
 ## **1️⃣2️⃣ Backup, Restore & Reliability (Concept)**
 
-- Full / Differential / Log backup
-- Point-in-time recovery
-- Disaster recovery farkındalığı
+- Full / Differential / Log backup: Tam, Değişenler ve Log yedeği zinciri.
+- Point-in-time recovery: Log yedekleri sayesinde "Saat 14:05:00" anına dönebilme.
+- Disaster recovery farkındalığı: Sunucu tamamen giderse ne yapılacağı planı.
 
 # Mongo
 
 ## **1️⃣ MongoDB Fundamentals**
 
-- MongoDB nedir?
-- NoSQL ne demek?
-- MongoDB vs Relational DB farkları
-- MongoDB ne zaman tercih edilir?
-- MongoDB ne zaman KULLANILMAZ?
-- Schema-less kavramı (gerçek anlamı)
+- MongoDB nedir: JSON benzeri (BSON) belgeler saklayan NoSQL veritabanı.
+- NoSQL ne demek: "Not Only SQL" veya ilişkisel olmayan veritabanı yaklaşımı.
+- MongoDB vs Relational DB farkları: Sabit şema yok (Schema-less), tablo yok koleksiyon var, join yok embedding var.
+- MongoDB ne zaman tercih edilir: Hızlı geliştirme, esnek şema, büyük veri ve yüksek yazma hızı gerektiğinde.
+- MongoDB ne zaman KULLANILMAZ: Karmaşık transactionlar, çok fazla JOIN gerektiren raporlamalar için.
+- Schema-less kavramı: Veritabanı şemayı zorlamaz ama uygulama kodu yine de bir şema bekler.
 
 ---
 
 ## **2️⃣ Data Modeling (EN KRİTİK)**
 
-- Document yapısı
-- Embedded vs Reference
-- One-to-many modelleme
-- Many-to-many yaklaşımları
-- Document growth problemi
-- 16MB document limiti
+- Document yapısı: Key-value çiftlerinden oluşan JSON benzeri veri birimi.
+- Embedded vs Reference: Veriyi içine gömmek (Hızlı okuma) vs ID ile referans vermek (Veri tutarlılığı/Normalize).
+- One-to-many modelleme: Az sayıda ise Embedded (örn. Adresler), çok sayıda ise Reference (örn. Siparişler).
+- Many-to-many yaklaşımları: İki tarafta da ID dizisi tutarak referanslama.
+- Document growth problemi: Döküman güncellenip büyüdüğünde diskin yeniden yerleştirme yapması (Parçalanma).
+- 16MB document limiti: Tek bir dökümanın boyutu 16MB'ı geçemez (Büyük veriler için GridFS).
 
 ---
 
 ## **3️⃣ CRUD Operations**
 
-- insertOne / insertMany
-- find / findOne
-- updateOne / updateMany
-- deleteOne / deleteMany
-- upsert mantığı
-- Partial update ($set, $push)
+- insertOne / insertMany: Tek veya çoklu kayıt ekleme.
+- find / findOne: Sorgulama komutları.
+- updateOne / updateMany: Güncelleme komutları.
+- deleteOne / deleteMany: Silme komutları.
+- upsert mantığı: Kayıt varsa güncelle, yoksa yeni ekle (Update + Insert).
+- Partial update ($set, $push): Dökümanın tamamını değil, sadece değişen alanını veya diziye eleman eklemeyi güncelleme.
 
 ---
 
 ## **4️⃣ Indexing**
 
-- Single field index
-- Compound index
-- Multikey index
-- Text index
-- TTL index
-- Index selectivity
+- Single field index: Tek bir alana göre sıralama.
+- Compound index: Birden fazla alanı içeren index (Sıralama yönü önemlidir).
+- Multikey index: Dizi (Array) alanlarına index atma (Dizinin her elemanı için index giriş yapılır).
+- Text index: Metin içi arama yapmak için.
+- TTL index: Belirli bir süre sonra (Time To Live) dökümanın otomatik silinmesi (Log, Session vb.).
+- Index selectivity: Index'in ne kadar özgün veri içerdiği (Yüksek selectivity = Hızlı sorgu).
 
 ---
 
 ## **5️⃣ Query Performance & Explain**
 
-- explain() kullanımı
-- COLLSCAN vs IXSCAN
-- Covered query
-- Slow query tespiti
-- Index kullanım analizi
+- explain() kullanımı: Sorgunun nasıl çalıştığını (Index kullandı mı, kaç döküman taradı) analiz etme.
+- COLLSCAN vs IXSCAN: Collection Scan (Tüm tabloyu tara - Kötü) vs Index Scan (Indexle git - İyi).
+- Covered query: Sorgunun sadece index verisiyle cevaplanabilmesi (Dökümana gitmeye gerek yok - Çok hızlı).
+- Slow query tespiti: Belirli süreyi geçen sorguların loglanması (Profiler).
+- Index kullanım analizi: Oluşturulan indexlerin gerçekten kullanılıp kullanılmadığının kontrolü.
 
 ---
 
 ## **6️⃣ Aggregation Framework**
 
-- Pipeline mantığı
-- $match
-- $group
-- $project
-- $lookup
-- $unwind
-- Aggregation vs MapReduce
+- Pipeline mantığı: Veriyi aşama aşama (Stage) işleyerek dönüştürme (Linux pipe gibi).
+- $match: Filtreleme (SQL WHERE).
+- $group: Gruplama (SQL GROUP BY).
+- $project: İstenen alanları seçme veya yeni alan türetme (SQL SELECT).
+- $lookup: Başka koleksiyonla birleştirme (SQL LEFT OUTER JOIN).
+- $unwind: Dizi elemanlarını ayrı dökümanlara ayırma (Flatten).
+- Aggregation vs MapReduce: Aggregation daha hızlı ve modern, MapReduce eskidi (Legacy).
 
 ---
 
 ## **7️⃣ Transactions & Consistency**
 
-- Single-document atomicity
-- Multi-document transaction
-- ACID desteği
-- Transaction maliyeti
-- Transaction ne zaman KULLANILMAZ?
+- Single-document atomicity: Tek döküman üzerindeki işlemler her zaman atomiktir (Default).
+- Multi-document transaction: Birden fazla dökümanı/koleksiyonu kapsayan ACID transaction (v4.0+).
+- ACID desteği: MongoDB artık ilişkisel veritabanları gibi ACID destekler ama performans maliyeti vardır.
+- Transaction maliyeti: Kilitleme ve koordinasyon yükü getirdiği için throughput düşer.
+- Transaction ne zaman KULLANILMAZ: Mümkünse Data Model (Embedding) ile tek dökümanda iş bitirilmeli.
 
 ---
 
 ## **8️⃣ Concurrency & Locking**
 
-- Document-level locking
-- Write concern
-- Read concern
-- Isolation davranışı
+- Document-level locking: WiredTiger motoru döküman bazlı kilitleme yapar (Eskiden Collection level idi).
+- Write concern: Yazma işleminin ne kadar güvenli olacağı (1: Primary onayladı, Majority: Çoğunluk onayladı).
+- Read concern: Okunan verinin tutarlılık seviyesi (Local, Available, Majority).
+- Isolation davranışı: Transaction dışında dirty read yoktur, transaction içinde snapshot isolation vardır.
 
 ---
 
 ## **9️⃣ Replication & High Availability**
 
-- Replica set nedir?
-- Primary / Secondary
-- Failover süreci
-- Read preference
+- Replica set nedir: Verinin kopyasını tutan sunucu grubu (Otomatik failover sağlar).
+- Primary / Secondary: Yazma sadece Primary'e, okuma Secondary'den de yapılabilir.
+- Failover süreci: Primary çökerse Secondary'ler oylama yapıp yeni Primary seçer.
+- Read preference: Okumanın hangi node'dan yapılacağı tercihi (Primary, SecondaryPreferred vb.).
 
 ---
 
 ## **🔟 Sharding & Scalability (Senior)**
 
-- Sharding nedir?
-- Shard key seçimi
-- Hot shard problemi
-- Balancer nasıl çalışır?
+- Sharding nedir: Veriyi birden fazla sunucuya yatayda bölme (Horizontal Scaling).
+- Shard key seçimi: Verinin hangi parçaya gideceğini belirleyen anahtar (Kardinalitesi yüksek olmalı).
+- Hot shard problemi: Yanlış shard key seçimiyle tüm yükün tek sunucuya binmesi.
+- Balancer nasıl çalışır: Arka planda veriyi shard'lar arasında dengeli dağıtan işlem.
 
 ---
 
 ## **1️⃣1️⃣ Schema Design Patterns**
 
-- Bucket pattern
-- Attribute pattern
-- Polymorphic schema
-- Outlier pattern
+- Bucket pattern: Zaman serisi verilerini (IoT) tek tek değil, zaman dilimlerine göre gruplayıp (Bucket) saklama.
+- Attribute pattern: Dinamik özellikleri (Renk, Beden) key-value dizisi olarak saklayıp indexleme.
+- Polymorphic schema: Aynı koleksiyonda farklı tipte dökümanlar saklama (Ürün -> Kitap, Gömlek).
+- Outlier pattern: Çoğunluktan çok farklı (aşırı büyük) dökümanları ayrı yerde tutma.
 
 ---
 
 ## **1️⃣2️⃣ Validation & Schema Evolution**
 
-- Schema validation
-- Required fields
-- Versioned schema
-- Migration stratejileri
+- Schema validation: Koleksiyon seviyesinde kurallar tanımlayarak veri bütünlüğü sağlama (SQL constraint benzeri).
+- Required fields: Zorunlu alan kontrolü.
+- Versioned schema: Şema değişimlerini yönetmek için döküman içine versiyon alanı ekleme.
+- Migration stratejileri: Eski veriyi okurken güncelleme (Lazy migration) veya toplu script çalıştırma.
 
 ---
 
 ## **1️⃣3️⃣ MongoDB & .NET Kullanımı**
 
-- MongoClient lifecycle
-- Connection pooling
-- Async API kullanımı
-- BSON serialization
-- Index creation (code-first)
+- MongoClient lifecycle: Uygulama boyunca Singleton olmalıdır (Thread-safe ve connection pooling yönetir).
+- Connection pooling: Arka planda açık bağlantıları yönetir, el ile aç/kapa yapılmaz.
+- Async API kullanımı: Tüm G/Ç işlemleri async/await ile yapılmalıdır.
+- BSON serialization: C# nesnelerinin BSON formatına dönüşümü ve attribute kontrolü (`[BsonElement]`).
+- Index creation (code-first): Uygulama başlarken kod ile index tanımlama (Dikkatli kullanılmalı).
 
 ---
 
 ## **1️⃣4️⃣ Security (Concept)**
 
-- Authentication
-- Authorization
-- Network security
-- Encryption (at rest / in transit)
+- Authentication: Kullanıcı kimlik doğrulama (SCRAM-SHA, LDAP).
+- Authorization: Rol tabanlı yetkilendirme (RBAC).
+- Network security: IP whitelist, VPC peering.
+- Encryption (at rest / in transit): Disk şifreleme ve TLS kullanımı.
 
 ---
 
 ## **1️⃣5️⃣ MongoDB Ne Zaman KULLANILMAZ?**
 
-- Heavy transaction gerektiren sistemler
-- Complex JOIN ihtiyacı
-- Raporlama ağırlıklı sistemler
-- Strong consistency zorunluluğu
+- Heavy transaction gerektiren sistemler: Finansal defter kayıtları için zor olabilir.
+- Complex JOIN ihtiyacı: Veri modeli çok ilişkiliyse SQL daha iyidir.
+- Raporlama ağırlıklı sistemler: Analitik sorgularda SQL kadar güçlü değildir.
+- Strong consistency zorunluluğu: Dağıtık yapıda anlık tutarlılık maliyetlidir.
 
 # Elastic Search
 
 ## **1️⃣ Elasticsearch Fundamentals**
 
-- Elasticsearch nedir?
-- Full-text search ne demek?
-- Elasticsearch vs RDBMS farkları
-- Elasticsearch vs MongoDB farkları
-- Elasticsearch ne zaman tercih edilir?
-- Elasticsearch ne zaman KULLANILMAZ?
+- Elasticsearch nedir: Dağıtık, RESTful arama ve analiz motoru (Lucene üzerine kurulu).
+- Full-text search ne demek: Metin içindeki kelimeleri köklerine inerek (analiz) esnek arama.
+- Elasticsearch vs RDBMS farkları: Şema esnek, transaction yok, join yok, okuma çok hızlı.
+- Elasticsearch vs MongoDB farkları: ES bir arama motorudur, Mongo bir NoSQL DB'dir; ES'te veri kaybı riski daha fazladır.
+- Elasticsearch ne zaman tercih edilir: Gelişmiş arama (Autosuggest, Fuzzy), log analizi ve metrik takibi için.
+- Elasticsearch ne zaman KULLANILMAZ: Birincil veri kaynağı (Primary Data Store) olarak (güvenilirlik sorunu).
 
 🎤:
 
@@ -1246,11 +1246,11 @@ prod:user:profile:123:v2
 
 ## **2️⃣ Core Concepts (ÇOK SORULUR)**
 
-- Cluster nedir?
-- Node türleri
-- Index / Document / Field
-- Shard & Replica
-- Primary vs Replica shard
+- Cluster nedir: Bir veya daha fazla Node'dan oluşan ES kümesi.
+- Node türleri: Master (Yönetici), Data (Veri tutan), Ingest (Veri işleyen), Coordinator (Yönlendirici).
+- Index / Document / Field: RDBMS karşılığı -> Database / Row / Column.
+- Shard & Replica: Veriyi parçalara bölme (Shard) ve yedeğini alma (Replica).
+- Primary vs Replica shard: Yazma Primary'e, okuma hem Primary hem Replica'ya; Replica failover sağlar.
 
 🎤:
 
@@ -1261,11 +1261,11 @@ prod:user:profile:123:v2
 
 ## **3️⃣ Index & Mapping**
 
-- Mapping nedir?
-- Dynamic vs explicit mapping
-- Field data types
-- Text vs Keyword farkı
-- Analyzer nedir?
+- Mapping nedir: Verinin tipini (String, Int, Date) belirleyen şema tanımı.
+- Dynamic vs explicit mapping: Otomatik tip tanıma vs Elle (Strict) tanımlama (Explict önerilir).
+- Field data types: `text` (aranabilir), `keyword` (filtrelenebilir), `long`, `date` vb.
+- Text vs Keyword farkı: `text` analiz edilir (parçalanır), `keyword` olduğu gibi saklanır (exact match).
+- Analyzer nedir: Metni token'lara ayıran ve filtreleyen bileşen.
 
 📌 **Yanlış mapping = kötü performans**
 
@@ -1273,12 +1273,12 @@ prod:user:profile:123:v2
 
 ## **4️⃣ Analysis & Text Processing**
 
-- Analyzer bileşenleri
-- Tokenizer
-- Filter
-- Stop words
-- Stemming
-- Custom analyzer
+- Analyzer bileşenleri: Character Filter -> Tokenizer -> Token Filter.
+- Tokenizer: Metni kelimelere böler (Whitespace, Standard vb.).
+- Filter: Token'ları işler (Küçük harfe çevir, gereksizleri at).
+- Stop words: "ve", "ile", "the" gibi aramada önemsiz kelimelerin atılması.
+- Stemming: Kelimeyi köküne indirme ("koşuyorum" -> "koş").
+- Custom analyzer: İhtiyaca özel analiz zinciri kurma.
 
 🎤:
 
@@ -1289,13 +1289,13 @@ prod:user:profile:123:v2
 
 ## **5️⃣ Query DSL (🔥)**
 
-- match
-- term
-- bool
-- must / should / filter
-- range
-- multi-match
-- fuzzy search
+- match: Full-text arama yapar, metni analiz eder.
+- term: Exact match yapar, analiz etmez (ID, Status gibi alanlar).
+- bool: Birden fazla koşulu birleştirir (SQL AND/OR).
+- must / should / filter: Must (AND/Zorunlu), Should (OR/Skor artırır), Filter (Zorunlu ama skor hesaplamaz/Cached).
+- range: Sayısal veya tarih aralığı sorgusu.
+- multi-match: Aynı terimi birden fazla alanda arama.
+- fuzzy search: Yazım hatalarını tolere eden arama (Levenshtein distance).
 
 📌 **Filter context vs query context farkı çok sorulur**
 
@@ -1303,10 +1303,10 @@ prod:user:profile:123:v2
 
 ## **6️⃣ Relevance & Scoring**
 
-- TF-IDF / BM25
-- Score nasıl hesaplanır?
-- Boosting
-- Relevance tuning
+- TF-IDF / BM25: Kelimenin dökümanda geçme sıklığı (TF) ve geneldeki nadirliği (IDF) ile skor hesaplama algoritması.
+- Score nasıl hesaplanır: Arama kriterlerine ne kadar uyduğuna göre `_score` değeri üretilir.
+- Boosting: Belirli alanların (örn. Başlık) skora etkisini artırma (`title^2`).
+- Relevance tuning: Kullanıcıya en doğru sonucu göstermek için skor ayarlamaları.
 
 🎤:
 
@@ -1317,37 +1317,37 @@ prod:user:profile:123:v2
 
 ## **7️⃣ Aggregations**
 
-- Bucket aggregations
-- Metric aggregations
-- Nested aggregations
-- Aggregation vs SQL GROUP BY
+- Bucket aggregations: Veriyi gruplama (Terms, Datetime Histogram) -> SQL `GROUP BY`.
+- Metric aggregations: Hesaplama yapma (Avg, Sum, Max, Min).
+- Nested aggregations: İç içe gruplamalar yapma.
+- Aggregation vs SQL GROUP BY: ES aggregation çok daha hızlı ve yeteneklidir (Search sonuçları üzerinden çalışır).
 
 ---
 
 ## **8️⃣ Pagination & Performance**
 
-- from / size limitleri
-- Deep pagination problemi
-- search_after
-- scroll API ne zaman kullanılır?
+- from / size limitleri: Standart sayfalama (Skip/Take), derin sayfalarda (Deep Paging) performans sorunu ve 10K limiti vardır.
+- Deep pagination problemi: 10.000'den sonraki kayıtları çekmenin maliyetli olması.
+- search_after: Cursor mantığıyla, bir önceki sonucun son değerinden devam etme (Hızlı).
+- scroll API ne zaman kullanılır: Tüm veriyi çekmek (Dump/Backup) gerektiğinde.
 
 ---
 
 ## **9️⃣ Index Lifecycle & Data Management**
 
-- Index lifecycle management (ILM)
-- Rollover index
-- Time-based index
-- Retention stratejileri
+- Index lifecycle management (ILM): Indexlerin zamanla Hot -> Warm -> Cold -> Delete evrelerinden geçmesi.
+- Rollover index: Belirli boyuta veya süreye ulaşan indexin yenisine geçmesi (log-001 -> log-002).
+- Time-based index: Günlük/Aylık log indexleri (logs-2023.10).
+- Retention stratejileri: Eski verinin otomatik silinmesi veya arşive alınması.
 
 ---
 
 ## **🔟 Write & Ingestion**
 
-- Indexing süreci
-- Bulk API
-- Refresh interval
-- Near real-time search
+- Indexing süreci: Dökümanın analiz edilip Inverted Index'e yazılması.
+- Bulk API: Tek tek yerine toplu yazma (Performans için şart).
+- Refresh interval: Yazılan verinin aranabilir olma süresi (Default 1sn, artırılırsa yazma hızlanır).
+- Near real-time search: Verinin yazıldıktan kısa süre sonra (Refresh süresi) aranabilir olması.
 
 🎤:
 
@@ -1358,65 +1358,65 @@ prod:user:profile:123:v2
 
 ## **1️⃣1️⃣ Consistency & Reliability**
 
-- Refresh vs flush
-- Write consistency
-- Replication
-- Data loss senaryoları
+- Refresh vs flush: Refresh bellekteki segmenti açar, Flush diske (Lucene Commit) yazar.
+- Write consistency: `wait_for_active_shards` ayarı ile kaç kopyaya yazılacağının garantisi.
+- Replication: Veri yedekliliği.
+- Data loss senaryoları: Translog (Transaction Log) diske yazılmadan sunucu kapanırsa veri kaybı olabilir.
 
 ---
 
 ## **1️⃣2️⃣ Scaling & Performance (Senior)**
 
-- Shard sizing
-- Hot vs warm node
-- Rebalancing
-- Query vs indexing trade-off
+- Shard sizing: İdeal shard boyutu 10GB-50GB arasıdır.
+- Hot vs warm node: Hızlı SSD (Hot - Aktif yazma/okuma) vs Yavaş HDD (Warm - Arşiv).
+- Rebalancing: Node eklenip çıkarıldığında shardların otomatik dengelenmesi.
+- Query vs indexing trade-off: Indexleme hızı ile sorgu hızı ters orantılı olabilir (Refresh interval).
 
 ---
 
 ## **1️⃣3️⃣ Monitoring & Troubleshooting**
 
-- Slow query log
-- Cluster health
-- JVM heap kullanımı
-- GC problemleri
+- Slow query log: Belirli süreyi aşan sorguların loglanması.
+- Cluster health: Green (Her şey tam), Yellow (Replica eksik, veri tam), Red (Primary eksik, veri kaybı).
+- JVM heap kullanımı: Belleğin %50'si Heap'e, %50'si OS cache'e verilmeli (Max 32GB kuralı).
+- GC problemleri: Yetersiz bellek veya yanlış yapılandırma sonucu Stop-the-world GC duraksamaları.
 
 ---
 
 ## **1️⃣4️⃣ Security (Concept)**
 
-- Authentication
-- Authorization
-- TLS
-- Role-based access
+- Authentication: Kullanıcı girişi (Native, LDAP, OIDC).
+- Authorization: Index ve alan bazlı yetkilendirme.
+- TLS: Node'lar arası ve Client-Server arası şifreli iletişim.
+- Role-based access: Okuma/Yazma yetkilerinin rollere atanması.
 
 ---
 
 ## **1️⃣5️⃣ Elasticsearch & .NET Kullanımı**
 
-- NEST / Elasticsearch.Net
-- Connection management
-- Mapping (code-first)
-- Async search
+- NEST / Elasticsearch.Net: Eski `NEST` (High-level) vs Yeni `Elastic.Clients.Elasticsearch` kütüphanesi.
+- Connection management: Tek bir `ElasticClient` instance (Singleton) kullanılmalı.
+- Mapping (code-first): C# sınıflarından AutoMap veya Fluent API ile mapping oluşturma.
+- Async search: Network I/O olduğu için her zaman async metotlar kullanılmalı.
 
 ---
 
 ## **1️⃣6️⃣ Elasticsearch Ne Zaman KULLANILMAZ?**
 
-- Transactional sistemler
-- Strong consistency zorunluluğu
-- Primary data store ihtiyacı
-- Küçük dataset & basit arama
+- Transactional sistemler: Banka bakiyesi yönetimi için uygun değil.
+- Strong consistency zorunluluğu: Dağıtık yapısı gereği anlık tutarlılık zordur.
+- Primary data store ihtiyacı: Veri kaybı riski nedeniyle tek kaynak olmamalıdır.
+- Küçük dataset & basit arama: SQL `LIKE` sorgusu yetiyorsa gereksiz maliyettir.
 
 # Docker
 
 ## **1️⃣ Docker Fundamentals**
 
-- Docker nedir?
-- Container vs Virtual Machine
-- Docker hangi problemleri çözer?
-- Docker ne zaman KULLANILMAZ?
-- Image vs Container farkı
+- Docker nedir: Uygulamaları izole kaplarda (container) çalıştıran platform.
+- Container vs Virtual Machine: Container işletim sistemini paylaşır (Hafif), VM donanımı sanallaştırır (Ağır).
+- Docker hangi problemleri çözer: "Benim makinemde çalışıyordu" sorununu çözer, tutarlı ortam sağlar.
+- Docker ne zaman KULLANILMAZ: Grafik arayüzlü (GUI) masaüstü uygulamaları veya kernel modifikasyonu gereken işler için.
+- Image vs Container farkı: Image şablondur (Class), Container çalışan örnektir (Object).
 
 🎤:
 
@@ -1427,22 +1427,22 @@ prod:user:profile:123:v2
 
 ## **2️⃣ Docker Architecture**
 
-- Docker Engine
-- Docker Daemon
-- Docker Client
-- Docker Registry (Docker Hub)
-- Image layers mantığı
+- Docker Engine: Docker'ın çekirdek çalışma zamanı.
+- Docker Daemon: Arka planda çalışan, container'ları yöneten servis (`dockerd`).
+- Docker Client: Kullanıcının komut girdiği CLI (`docker build/run`).
+- Docker Registry (Docker Hub): Image'ların saklandığı depo (GitLab Registry, ACR).
+- Image layers mantığı: Her komutun (`RUN`, `COPY`) salt okunur bir katman oluşturması (Cache ve hız sağlar).
 
 ---
 
 ## **3️⃣ Docker Image & Dockerfile (🔥)**
 
-- Dockerfile nedir?
-- FROM / RUN / COPY / ADD
-- CMD vs ENTRYPOINT
-- EXPOSE
-- ENV / ARG farkı
-- .dockerignore
+- Dockerfile nedir: Image oluşturma tarifini içeren metin dosyası.
+- FROM / RUN / COPY / ADD: Baz image seç / Komut çalıştır / Dosya kopyala / URL'den dosya çek.
+- CMD vs ENTRYPOINT: `CMD` varsayılan komuttur (ezilebilir), `ENTRYPOINT` ana çalıştırıcıdır (argüman alır).
+- EXPOSE: Container'ın dinlediği portu belirtme (Dokümantasyon amaçlı).
+- ENV / ARG farkı: `ENV` çalışma zamanında (Runtime) var, `ARG` sadece build zamanında var.
+- .dockerignore: Gereksiz dosyaların (node_modules, .git) image'a girmesini engelleme.
 
 🎤:
 
@@ -1453,30 +1453,30 @@ prod:user:profile:123:v2
 
 ## **4️⃣ Image Optimization & Best Practices**
 
-- Multi-stage build
-- Küçük base image seçimi (alpine)
-- Layer caching mantığı
-- Gereksiz file kopyalamamak
-- Build context küçültme
+- Multi-stage build: Derleme (SDK) ve Çalıştırma (Runtime) aşamalarını ayırarak image boyutunu küçültme.
+- Küçük base image seçimi (alpine): Gereksiz araçlar barındırmayan minik Linux dağıtımları kullanma.
+- Layer caching mantığı: Değişmeyen katmanların (örn. `npm install`) tekrar build edilmemesi.
+- Gereksiz file kopyalamamak: Sadece gereken kodları kopyalamak.
+- Build context küçültme: Docker daemon'a gönderilen dosya boyutunu `.dockerignore` ile azaltma.
 
 ---
 
 ## **5️⃣ Container Lifecycle**
 
-- create / start / stop / restart
-- Container state’leri
-- Graceful shutdown
-- Restart policies
+- create / start / stop / restart: Container yaşam döngüsü komutları.
+- Container state’leri: Created, Running, Paused, Exited, Dead.
+- Graceful shutdown: Container'a `SIGTERM` sinyali gönderip kapanmasını bekleme.
+- Restart policies: Çöken container'ın otomatik yeniden başlatılması (`on-failure`, `always`).
 
 ---
 
 ## **6️⃣ Networking**
 
-- Bridge network
-- Host network
-- Overlay network (concept)
-- Port mapping
-- Container-to-container communication
+- Bridge network: Default ağ, aynı hosttaki container'lar haberleşir.
+- Host network: Container host'un ağını direkt kullanır (Port izolasyonu yok).
+- Overlay network (concept): Farklı sunuculardaki (Swarm/K8s) container'ları bağlar.
+- Port mapping: Host portunu container portuna yönlendirme (`-p 8080:80`).
+- Container-to-container communication: Docker ağı içinde container isimleriyle haberleşme (DNS).
 
 🎤:
 
@@ -1487,10 +1487,10 @@ prod:user:profile:123:v2
 
 ## **7️⃣ Volumes & Persistence (ÇOK SORULUR)**
 
-- Volume nedir?
-- Bind mount vs volume
-- Data persistence mantığı
-- Stateless container yaklaşımı
+- Volume nedir: Veriyi container dışında host üzerinde kalıcı saklama alanı.
+- Bind mount vs volume: Bind mount hosttaki belirli klasörü bağlar, Volume Docker tarafından yönetilen alanı bağlar.
+- Data persistence mantığı: Container silinse bile verinin (DB dosyaları) kaybolmaması.
+- Stateless container yaklaşımı: Container içinde veri tutmamak, veriyi volume veya DB servisine yıkmak.
 
 📌:
 
@@ -1501,75 +1501,75 @@ prod:user:profile:123:v2
 
 ## **8️⃣ Environment & Configuration**
 
-- ENV variables
-- Secrets yönetimi
-- Config injection
-- 12-factor app prensibi
+- ENV variables: Çalışma zamanında konfigürasyon geçme (`-e DB_HOST=localhost`).
+- Secrets yönetimi: Hassas verileri (şifreler) güvenli saklama (Docker Swarm/K8s özelliği).
+- Config injection: Config dosyalarını volume ile içeri atma.
+- 12-factor app prensibi: Konfigürasyonu koddan ayırma ve ortam değişkenleriyle yönetme.
 
 ---
 
 ## **9️⃣ Docker Compose**
 
-- docker-compose.yml
-- Multi-container setup
-- Service dependency
-- Network & volume tanımı
-- Local development senaryoları
+- docker-compose.yml: Çoklu container uygulamasını tanımlayan YAML dosyası.
+- Multi-container setup: API, DB, Cache gibi servisleri tek komutla (`up`) kaldırma.
+- Service dependency: `depends_on` ile açılış sırasını belirleme (DB kalkmadan API kalkmasın).
+- Network & volume tanımı: Servislerin ortak ağ ve volume'leri kullanması.
+- Local development senaryoları: Geliştirme ortamını tek tuşla ayağa kaldırma kolaylığı.
 
 ---
 
 ## **🔟 Security Best Practices**
 
-- Root user ile çalışmamak
-- Image scanning
-- Minimal image kullanımı
-- Secrets image içine koymamak
+- Root user ile çalışmamak: Container içinde `USER` komutu ile yetkisiz kullanıcıya geçmek.
+- Image scanning: Image içindeki güvenlik açıklarını taramak (Trivy, Snyk).
+- Minimal image kullanımı: Saldırı yüzeyini (Attack surface) azaltmak için gereksiz paketleri silmek.
+- Secrets image içine koymamak: Şifreleri Dockerfile içine GÖMMEMEK.
 
 ---
 
 ## **1️⃣1️⃣ Logging & Monitoring**
 
-- stdout / stderr logging
-- Log driver’lar
-- Container healthcheck
-- Resource usage (CPU / memory)
+- stdout / stderr logging: Logları dosyaya değil konsola basmak (Docker yakalar).
+- Log driver’lar: Logları dosya, Syslog, Fluentd veya AWS CloudWatch'a yönlendirme.
+- Container healthcheck: Uygulamanın sağlıklı çalıştığını kontrol eden komut (`HEALTHCHECK`).
+- Resource usage (CPU / memory): `docker stats` ile kaynak tüketimini izleme.
 
 ---
 
 ## **1️⃣2️⃣ Docker & CI/CD**
 
-- Docker build pipeline
-- Image tagging
-- Push / pull registry
-- Versioning strategy
+- Docker build pipeline: CI sunucusunda image build etme.
+- Image tagging: Versiyonlama (`v1.0.0`, `latest`, `git-sha`).
+- Push / pull registry: Image'ı depoya gönderme ve sunucuya çekme.
+- Versioning strategy: Her build için unique tag kullanma.
 
 ---
 
 ## **1️⃣3️⃣ Docker vs Kubernetes (Concept)**
 
-- Docker ne yapar?
-- Kubernetes ne yapar?
-- Ne zaman sadece Docker yeter?
-- Ne zaman K8s gerekir?
+- Docker ne yapar: Tekil container'ı çalıştırır ve paketler.
+- Kubernetes ne yapar: Binlerce container'ı yönetir (Orchestration).
+- Ne zaman sadece Docker yeter: Tek sunuculu, basit uygulamalar veya geliştirme ortamı için.
+- Ne zaman K8s gerekir: Çok sunuculu, yüksek erişilebilirlik, otomatik ölçeklenme gerektiğinde.
 
 ---
 
 ## **1️⃣4️⃣ Production Anti-Patterns**
 
-- Container içinde DB
-- Large image’lar
-- Hardcoded config
-- State tutan container
+- Container içinde DB: Veritabanını container'da çalıştırmak production için risklidir (Yönetimi zor).
+- Large image’lar: Yavaş deployment ve güvenlik riski yaratır.
+- Hardcoded config: Ortamlar arası taşımayı imkansız kılar.
+- State tutan container: Ölçeklenmeyi engeller (Stateless olmalı).
 
 # Kubernetes
 
 ## **1️⃣ Kubernetes Fundamentals**
 
-- Kubernetes nedir?
-- Kubernetes hangi problemi çözer?
-- Docker vs Kubernetes farkı
-- Kubernetes ne zaman GEREKLİ DEĞİL?
-- Kubernetes cluster kavramı
+- Kubernetes nedir: Container orchestration (yönetim) platformu (Google tarafından geliştirildi).
+- Kubernetes hangi problemi çözer: Çok sayıda container'ın deployment, scaling ve yönetim karmaşasını çözer.
+- Docker vs Kubernetes farkı: Docker uçaksa, Kubernetes havaalanı kulesidir.
+- Kubernetes ne zaman GEREKLİ DEĞİL: Küçük, tekil uygulamalar için (Overkill).
+- Kubernetes cluster kavramı: Master ve Worker node'lardan oluşan sunucu kümesi.
 
 🎤
 
@@ -1580,13 +1580,13 @@ prod:user:profile:123:v2
 
 ## **2️⃣ Kubernetes Architecture (ÇOK SORULUR)**
 
-- Control Plane nedir?
-- Node nedir?
-- Master / Worker node farkı
-- kube-apiserver
-- etcd
-- scheduler
-- controller-manager
+- Control Plane nedir: Cluster'ın beyni (Karar mekanizması).
+- Node nedir: Container'ların çalıştığı fiziksel veya sanal sunucu.
+- Master / Worker node farkı: Master yönetir, Worker işi yapar.
+- kube-apiserver: Tüm isteklerin geldiği API kapısı (Frontend).
+- etcd: Cluster'ın tüm verisini (konfigürasyon, state) tutan key-value veritabanı.
+- scheduler: Yeni oluşan Pod'un hangi Node'da çalışacağına karar verir.
+- controller-manager: İstenen durum (Desired State) ile mevcut durumu eşitleyen döngü.
 
 🎤
 
@@ -1599,24 +1599,24 @@ prod:user:profile:123:v2
 
 ### **🔹 Pod**
 
-- Pod nedir?
-- Pod neden container’dan farklı?
-- Pod lifecycle
-- Multi-container pod senaryosu
+- Pod nedir: Kubernetes'teki en küçük çalışma birimi (Bir veya daha fazla container).
+- Pod neden container’dan farklı: Pod, container'a IP, Volume ve Network paylaşımı sağlar (Container kılıfı).
+- Pod lifecycle: Pending, Running, Succeeded, Failed, Unknown.
+- Multi-container pod senaryosu: Ana uygulama ve yanına yardımcı (Sidecar) container (örn. Log toplayıcı).
 
 ### **🔹 Deployment**
 
-- Deployment nedir?
-- ReplicaSet ilişkisi
-- Rolling update
-- Rollback
+- Deployment nedir: Pod'ların güncellenmesini ve çoğaltılmasını yöneten obje.
+- ReplicaSet ilişkisi: Deployment, ReplicaSet'i yönetir; ReplicaSet, Pod sayısını sabit tutar.
+- Rolling update: Uygulamayı kesinti olmadan sırayla güncelleme stratejisi.
+- Rollback: Hatalı güncellemede eski versiyona tek komutla dönme.
 
 ### **🔹 Service**
 
-- ClusterIP
-- NodePort
-- LoadBalancer
-- Service discovery
+- ClusterIP: Sadece cluster içinden erişilebilen, Pod'lara sabit IP sağlayan servis (Default).
+- NodePort: Her Node üzerinde bir port açarak dış erişim sağlar.
+- LoadBalancer: Cloud provider'ın yük dengeleyicisini kullanarak dış erişim sağlar.
+- Service discovery: Pod IP'leri değişse bile Service ismiyle (DNS) ulaşım imkanı.
 
 🎤
 
@@ -1627,10 +1627,10 @@ prod:user:profile:123:v2
 
 ## **4️⃣ Configuration Management**
 
-- ConfigMap
-- Secret
-- Environment variable injection
-- Volume ile config bağlama
+- ConfigMap: Konfigürasyon verilerini (Key-Value) tutan obje.
+- Secret: Şifre, token gibi hassas verileri (Base64 encoded) tutan obje.
+- Environment variable injection: ConfigMap/Secret verisini Pod'a ortam değişkeni olarak verme.
+- Volume ile config bağlama: Config dosyasını Pod içine dosya olarak mount etme.
 
 📌
 
@@ -1641,11 +1641,11 @@ prod:user:profile:123:v2
 
 ## **5️⃣ Networking (🔥)**
 
-- Pod-to-pod communication
-- Service-to-pod routing
-- DNS (CoreDNS)
-- Ingress nedir?
-- Ingress Controller
+- Pod-to-pod communication: Her Pod'un kendi IP'si vardır ve NAT olmadan konuşabilirler.
+- Service-to-pod routing: Service trafiği arkasındaki Pod'lara (Labels/Selectors ile) dağıtır.
+- DNS (CoreDNS): Servis isimlerini IP'ye çeviren cluster içi DNS sunucusu.
+- Ingress nedir: HTTP/HTTPS trafiğini yöneten, domain bazlı yönlendirme yapan akıllı router.
+- Ingress Controller: Ingress kurallarını uygulayan sunucu (NGINX, Traefik).
 
 🎤
 
@@ -1656,11 +1656,11 @@ prod:user:profile:123:v2
 
 ## **6️⃣ Storage & Persistence**
 
-- Volume nedir?
-- PersistentVolume (PV)
-- PersistentVolumeClaim (PVC)
-- StorageClass
-- Stateful vs Stateless app
+- Volume nedir: Pod ömrü kadar yaşayan veri alanı.
+- PersistentVolume (PV): Cluster'daki fiziksel depolama kaynağı (Disk).
+- PersistentVolumeClaim (PVC): Uygulamanın depolama talebi (Bana 10GB disk ver).
+- StorageClass: Dinamik disk oluşturma profili (Fast SSD, Standard HDD).
+- Stateful vs Stateless app: Veri tutan (DB) vs Tutmayan (API) uygulama ayrımı.
 
 📌
 
@@ -1671,10 +1671,10 @@ prod:user:profile:123:v2
 
 ## **7️⃣ Scaling & Availability**
 
-- Replica count
-- Horizontal Pod Autoscaler (HPA)
-- CPU / Memory based scaling
-- Self-healing mantığı
+- Replica count: İstenen Pod kopya sayısı.
+- Horizontal Pod Autoscaler (HPA): CPU/RAM yüküne göre Pod sayısını otomatik artırıp azaltma.
+- CPU / Memory based scaling: Kaynak kullanım eşiklerine göre ölçekleme.
+- Self-healing mantığı: Çöken Pod'un yerine yenisinin otomatik başlatılması.
 
 🎤
 
@@ -1685,19 +1685,19 @@ prod:user:profile:123:v2
 
 ## **8️⃣ Resource Management**
 
-- CPU requests / limits
-- Memory requests / limits
-- OOMKilled nedir?
-- Resource starvation
+- CPU requests / limits: Pod'un garanti edilen (Request) ve aşamayacağı (Limit) işlemci gücü.
+- Memory requests / limits: Pod'un garanti edilen ve aşamayacağı RAM miktarı.
+- OOMKilled nedir: Limitinden fazla RAM tüketen Pod'un işletim sistemi tarafından öldürülmesi.
+- Resource starvation: Request tanımlanmazsa bazı Pod'ların kaynak bulamaması.
 
 ---
 
 ## **9️⃣ Health Checks (ÇOK SORULUR)**
 
-- Liveness probe
-- Readiness probe
-- Startup probe
-- Traffic yönetimi
+- Liveness probe: "Uygulama çöktü mü?" kontrolü. Başarısızsa Pod restart edilir.
+- Readiness probe: "Uygulama trafik almaya hazır mı?" kontrolü. Başarısızsa trafik almaz.
+- Startup probe: "Uygulama ayağa kalktı mı?" kontrolü (Yavaş başlayan uygulamalar için).
+- Traffic yönetimi: Readiness probe sayesinde bozuk Pod'a kullanıcı isteği gitmez.
 
 🎤
 
@@ -1708,29 +1708,29 @@ prod:user:profile:123:v2
 
 ## **🔟 Deployment Strategies (Senior Konu)**
 
-- Rolling update
-- Recreate
-- Blue-Green
-- Canary deployment
+- Rolling update: Yavaş yavaş eskiyi indirip yeniyi açma (Default, Zero Downtime).
+- Recreate: Hepsini kapatıp yenilerini açma (Downtime olur).
+- Blue-Green: Yeni versiyonu ayrı ortamda test edip trafiği birden kaydırma.
+- Canary deployment: Trafiğin küçük bir kısmını (%5) yeni versiyona yönlendirme.
 
 ---
 
 ## **1️⃣1️⃣ Security (Concept)**
 
-- RBAC
-- ServiceAccount
-- Namespace izolasyonu
-- Pod Security Context
-- Network Policy
+- RBAC: Role Based Access Control - Kimin ne yapabileceğini (Pod silebilsin vb.) belirleme.
+- ServiceAccount: Pod'ların (uygulamaların) API server ile konuşurken kullandığı kimlik.
+- Namespace izolasyonu: Kaynakları mantıksal gruplara ayırma (Dev, Test, Prod).
+- Pod Security Context: Pod'un hangi kullanıcı ID ile çalışacağını belirleme (Root olmasın).
+- Network Policy: Podlar arası trafiği kısıtlama (Firewall kuralları).
 
 ---
 
 ## **1️⃣2️⃣ Observability**
 
-- Logs (kubectl logs)
-- Metrics (Prometheus)
-- Tracing
-- Alerts
+- Logs (kubectl logs): Pod loglarını okuma.
+- Metrics (Prometheus): CPU, RAM ve uygulama metriklerini toplama.
+- Tracing: Servisler arası isteğin izini sürme (Jaeger).
+- Alerts: Sorun anında bildirim gönderme (Alertmanager).
 
 📌
 
@@ -1741,38 +1741,38 @@ prod:user:profile:123:v2
 
 ## **1️⃣3️⃣ Kubernetes & CI/CD**
 
-- Image tagging strategy
-- Deployment automation
-- Rollback senaryosu
-- GitOps (concept)
+- Image tagging strategy: Her commit/build için benzersiz tag kullanımı.
+- Deployment automation: Git push ile cluster'ın güncellenmesi.
+- Rollback senaryosu: Hatalı deployment'ın otomatik geri alınması.
+- GitOps (concept): Cluster durumunun Git reposunda tutulması (ArgoCD).
 
 ---
 
 ## **1️⃣4️⃣ Production Anti-Patterns**
 
-- Pod içinde state tutmak
-- Hardcoded config
-- Limits tanımlamamak
-- Tek replica critical service
+- Pod içinde state tutmak: Pod ölünce veri kaybolur.
+- Hardcoded config: ConfigMap kullanılmalı.
+- Limits tanımlamamak: Bir Pod tüm cluster kaynağını tüketebilir.
+- Tek replica critical service: Node çökerse hizmet durur (En az 2 replica olmalı).
 
 ---
 
 ## **1️⃣5️⃣ Kubernetes Ne Zaman KULLANILMAZ?**
 
-- Küçük projeler
-- Tek servis
-- Düşük trafik
-- Ops ekibi yoksa
+- Küçük projeler: Yönetim maliyeti faydasından fazladır.
+- Tek servis: Basit Docker veya PaaS yeterlidir.
+- Düşük trafik: Statik hosting veya Lambdalar daha ucuzdur.
+- Ops ekibi yoksa: Yönetimi zordur, yönetilen servisler (K8s Service) veya App Runner tercih edilmeli.
 
 # RabbitMQ
 
 ## **1️⃣ RabbitMQ Fundamentals**
 
-- RabbitMQ nedir?
-- Message broker kavramı
-- Queue vs Topic vs Exchange
-- RabbitMQ ne zaman tercih edilir?
-- RabbitMQ ne zaman KULLANILMAZ?
+- RabbitMQ nedir: AMQP protokolünü kullanan açık kaynak mesaj kuyruk sistemi.
+- Message broker kavramı: Mesajları göndericiden alıp alıcıya ileten aracı yazılım.
+- Queue vs Topic vs Exchange: Kuyruk (Depo), Konu (Kategori), Santral (Yönlendirici).
+- RabbitMQ ne zaman tercih edilir: Karmaşık yönlendirme, güvenilir teslimat ve önceliklendirme gerektiğinde.
+- RabbitMQ ne zaman KULLANILMAZ: Çok yüksek throughput (milyonlarca mesaj/sn) ve log saklama (Kafka işi) için.
 
 🎤
 
@@ -1783,23 +1783,23 @@ prod:user:profile:123:v2
 
 ## **2️⃣ Core Concepts**
 
-- Producer
-- Consumer
-- Queue
-- Exchange (Direct / Fanout / Topic / Headers)
-- Binding
-- Routing key
-- Virtual host (vhost)
+- Producer: Mesajı üreten ve RabbitMQ'ya gönderen uygulama.
+- Consumer: Kuyruktan mesajı alıp işleyen uygulama.
+- Queue: Mesajların beklediği tampon bölge.
+- Exchange (Direct / Fanout / Topic / Headers): Mesajı kuyruklara dağıtan yönlendirici (Postane).
+- Binding: Exchange ile Queue arasındaki bağlantı kuralı.
+- Routing key: Mesajın hangi yoldan gideceğini belirleyen etiket.
+- Virtual host (vhost): RabbitMQ içinde mantıksal izolasyon (Namespace gibi).
 
 ---
 
 ## **3️⃣ Messaging Patterns**
 
-- Work Queue (Task Queue)
-- Publish / Subscribe
-- Routing / Topic Exchange
-- RPC over RabbitMQ
-- Dead Letter Exchange
+- Work Queue (Task Queue): İş yükünü birden fazla işçiye (Consumer) dağıtma.
+- Publish / Subscribe: Bir mesajı ilgilenen tüm abonelere (Queue) iletme (Fanout).
+- Routing / Topic Exchange: Mesajı konusuna göre (`log.error`, `log.info`) ilgili kuyruklara gönderme.
+- RPC over RabbitMQ: Request/Response yapısını kuyruk üzerinden simüle etme.
+- Dead Letter Exchange: İşlenemeyen veya hatalı mesajların gönderildiği "Ölü Mektup" kuyruğu.
 
 🎤:
 
@@ -1810,30 +1810,30 @@ prod:user:profile:123:v2
 
 ## **4️⃣ Message Delivery Semantics**
 
-- At-most-once
-- At-least-once
-- Exactly-once (concept)
-- Acknowledgements (ACK / NACK)
-- Durable queues & persistent messages
+- At-most-once: Mesaj gönderilir, kaybolursa tekrar gönderilmez (En hızlı).
+- At-least-once: Mesajın en az bir kere ulaştığı garanti edilir (Consumer idempotent olmalı).
+- Exactly-once (concept): Mesajın tam olarak bir kere işlenmesi (RabbitMQ'da zordur).
+- Acknowledgements (ACK / NACK): Consumer'ın "Mesajı aldım, silebilirsin" onayı.
+- Durable queues & persistent messages: Sunucu kapansa bile mesajın diskte saklanması.
 
 ---
 
 ## **5️⃣ Queue & Exchange Management**
 
-- Queue durability
-- Auto-delete queue
-- Exclusive queue
-- TTL & message expiration
-- Max-length / max-priority
+- Queue durability: RabbitMQ restart olduğunda kuyruğun silinip silinmeyeceği.
+- Auto-delete queue: Son consumer ayrıldığında kuyruğun otomatik silinmesi.
+- Exclusive queue: Sadece oluşturan bağlantı (Connection) tarafından kullanılan özel kuyruk.
+- TTL & message expiration: Mesajın belirli sürede işlenmezse silinmesi.
+- Max-length / max-priority: Kuyruk boyutu ve mesaj önceliği sınırları.
 
 ---
 
 ## **6️⃣ Concurrency & Scaling**
 
-- Prefetch count
-- Multiple consumers per queue
-- Consumer acknowledgment
-- Load balancing across consumers
+- Prefetch count: Consumer'ın aynı anda işleyebileceği maksimum mesaj sayısı (Yük dengeleme).
+- Multiple consumers per queue: Aynı kuyruğu dinleyen birden fazla işçi ile paralel işleme (Competing Consumers).
+- Consumer acknowledgment: İşlem bitince ACK göndererek kuyruktan düşme.
+- Load balancing across consumers: Round-robin mantığıyla işlerin dağıtılması.
 
 🎤:
 
@@ -1844,200 +1844,170 @@ prod:user:profile:123:v2
 
 ## **7️⃣ Reliability & Fault Tolerance**
 
-- Mirrored / quorum queues
-- High availability cluster
-- Network partition handling
-- Publisher confirms
+- Mirrored / quorum queues: Kuyruğun kopyalarının farklı node'larda tutulması (HA).
+- High availability cluster: Birden fazla RabbitMQ sunucusu ile kesintisiz hizmet.
+- Network partition handling: Ağ kopması durumunda sunucuların nasıl davranacağı (Pause_minority vb.).
+- Publisher confirms: Mesajın broker'a ulaştığının teyidi.
 
 ---
 
 ## **8️⃣ Performance Tuning**
 
-- Connection & channel management
-- Batch publish
-- Consumer concurrency
-- Persistent vs transient messages trade-off
+- Connection & channel management: TCP bağlantısını sürekli açıp kapatmak yerine Channel kullanma.
+- Batch publish: Mesajları toplu gönderme.
+- Consumer concurrency: İşçi sayısını artırma.
+- Persistent vs transient messages trade-off: Diske yazma maliyeti vs Hız.
 
 ---
 
 ## **9️⃣ Monitoring & Observability**
 
-- RabbitMQ Management UI
-- Metrics (queue length, publish rate, consumer count)
-- Alerts (unacked messages, queue growth)
-- Logs
+- RabbitMQ Management UI: Web arayüzü ile kuyrukları izleme.
+- Metrics (queue length, publish rate, consumer count): Prometheus ile izlenecek kritik metrikler.
+- Alerts (unacked messages, queue growth): Mesaj birikmesi durumunda alarm üretme.
+- Logs: Hata ve uyarı logları.
 
 ---
 
 ## **🔟 Security**
 
-- Authentication & authorization
-- User / vhost permissions
-- TLS encryption
-- Policy management
+- Authentication & authorization: Kullanıcı adı/şifre ve izin yönetimi.
+- User / vhost permissions: Hangi kullanıcının hangi vhost'a erişebileceği.
+- TLS encryption: Mesaj trafiğinin şifrelenmesi.
+- Policy management: Kuralların merkezi yönetimi.
 
 ---
 
 ## **1️⃣1️⃣ RabbitMQ & .NET Integration**
 
-- RabbitMQ.Client usage
-- Connection / channel lifecycle
-- Async consumer
-- Retry & Dead-letter handling
+- RabbitMQ.Client usage: Resmi .NET kütüphanesi.
+- Connection / channel lifecycle: Connection singleton, Channel thread-safe değildir.
+- Async consumer: `EventingBasicConsumer` ile asenkron mesaj işleme.
+- Retry & Dead-letter handling: Polly ve DLX ile hata yönetimi.
 
 ---
 
 ## **1️⃣2️⃣ Anti-Patterns & Pitfalls**
 
-- Queue overload → OOM
-- Long-running consumer without ACK
-- Single point of failure (standalone RabbitMQ)
-- Persistent messages everywhere → disk IO bottleneck
+- Queue overload → OOM: Kuyruk çok şişerse RAM biter (Out Of Memory).
+- Long-running consumer without ACK: Mesaj uzun süre ACK beklemezse tekrar kuyruğa dönebilir.
+- Single point of failure (standalone RabbitMQ): Cluster kurulmazsa sunucu gidince her şey durur.
+- Persistent messages everywhere → disk IO bottleneck: Gereksiz yere her mesajı diske yazmak sistemi yavaşlatır.
 
 ---
 
 ## **1️⃣3️⃣ RabbitMQ Ne Zaman KULLANILMAZ?**
 
-- Çok düşük latency gereken işlem
-- Small-scale, simple CRUD
-- Strong consistency gerektiren transaction-heavy işlem
-- Stateful communication yeterli ise
+- Çok düşük latency gereken işlem: Doğrudan TCP/gRPC daha hızlıdır.
+- Small-scale, simple CRUD: Basit projeler için overkill olabilir.
+- Strong consistency gerektiren transaction-heavy işlem: Veritabanı daha uygundur.
+- Stateful communication yeterli ise: Redis pub/sub veya HTTP yeterli olabilir.
 
 # Kafka
 
-## **1️⃣ RabbitMQ Fundamentals**
+## **1️⃣ Kafka Fundamentals**
 
-- RabbitMQ nedir?
-- Message broker kavramı
-- Queue vs Topic vs Exchange
-- RabbitMQ ne zaman tercih edilir?
-- RabbitMQ ne zaman KULLANILMAZ?
+- Kafka nedir: Dağıtık streaming platformu (Log tabanlı).
+- Kafka vs RabbitMQ farkları: Kafka mesajı saklar (Retention), RabbitMQ siler (Queue). Kafka pull, RabbitMQ push modelidir.
+- Kafka ne zaman tercih edilir: Büyük veri akışı (Streaming), Log toplama, Event Sourcing.
+- Kafka ne zaman KULLANILMAZ: Karmaşık routing, anlık request/response işleri için.
+- Streaming platform kavramı: Veriyi sürekli akan bir nehir gibi işleme.
 
 🎤
 
-> “RabbitMQ uygulamalar arası asenkron iletişim sağlar.”
+> “Kafka bir message broker değil, event streaming platformudur.”
 > 
 
 ---
 
-## **2️⃣ Core Concepts**
+## **2️⃣ Kafka Architecture**
 
-- Producer
-- Consumer
-- Queue
-- Exchange (Direct / Fanout / Topic / Headers)
-- Binding
-- Routing key
-- Virtual host (vhost)
+- Broker: Kafka sunucusu.
+- Zookeeper / KRaft: Cluster yönetimi ve metadata saklama (KRaft ile Zookeeper kalkıyor).
+- Topic vs Queue farkı: Topic log dosyasıdır, silinmez; Queue geçici depodur.
+- Partitioning mantığı: Topic'in parçalara bölünerek paralel işlenmesi (Scaling).
+- Replication factor: Verinin kaç kopyasının tutulacağı (Fault tolerance).
+- Leader / Follower replica: Yazma/Okuma Leader'dan, Follower sadece takip eder.
 
 ---
 
-## **3️⃣ Messaging Patterns**
+## **3️⃣ Core Concepts**
 
-- Work Queue (Task Queue)
-- Publish / Subscribe
-- Routing / Topic Exchange
-- RPC over RabbitMQ
-- Dead Letter Exchange
+- Producer: Mesajı üreten.
+- Consumer: Mesajı okuyan.
+- Consumer Group: Aynı işi yapan consumer grubu (Her partition sadece bir üyeye atanır).
+- Offset kavramı (En önemli): Consumer'ın nerede kaldığını belirten işaretçi (Bookmark).
+- Log retention policy: Mesajların ne kadar süre (7 gün) veya boyut (1GB) saklanacağı.
 
-🎤:
+🎤
 
-> “Dead Letter Queue, mesaj işlenemezse başka kuyrukta toplanır.”
+> “Consumer offset’i kendisi yönetir.”
 > 
 
 ---
 
-## **4️⃣ Message Delivery Semantics**
+## **4️⃣ Data Modeling & Partitions**
 
-- At-most-once
-- At-least-once
-- Exactly-once (concept)
-- Acknowledgements (ACK / NACK)
-- Durable queues & persistent messages
-
----
-
-## **5️⃣ Queue & Exchange Management**
-
-- Queue durability
-- Auto-delete queue
-- Exclusive queue
-- TTL & message expiration
-- Max-length / max-priority
+- Key-based partitioning: Aynı Key'e sahip mesajların hep aynı partition'a gitmesi (Sıralama garantisi).
+- Ordering guarantee: Kafka sadece partition içinde sıralama garanti eder (Tüm topic'te değil).
+- Partition sayısı nasıl belirlenir: Hedeflenen throughput ve consumer sayısına göre.
+- Topic compaction: Aynı key için sadece en son değeri saklama (Kütüphane mantığı).
 
 ---
 
-## **6️⃣ Concurrency & Scaling**
+## **5️⃣ Writing Data (Producer)**
 
-- Prefetch count
-- Multiple consumers per queue
-- Consumer acknowledgment
-- Load balancing across consumers
+- acks=0, 1, all: Yazma onayı seviyeleri (Hiç bekleme, Leader bekle, Herkesi bekle).
+- Batch processing: Mesajları toplu gönderme (Network optimizasyonu).
+- Compression (gzip, snappy): Veriyi sıkıştırarak gönderme (Disk/Network tasarrufu).
+- Idempotent producer: Tekrar gönderilen mesajların (Retry) çiftlenmesini engelleme.
 
-🎤:
+---
 
-> “Prefetch sayısı tüketiciye düşen mesaj yükünü kontrol eder.”
+## **6️⃣ Reading Data (Consumer)**
+
+- Polling mechanism: Consumer veriyi kendisi çeker (Pull).
+- Consumer rebalancing: Yeni consumer gelince partitionların yeniden dağıtılması (Stop-the-world).
+- Auto-commit vs Manual commit: Offset'i otomatik kaydetme vs Elle güvenli kaydetme.
+- Lag monitoring: Consumer'ın ne kadar geriden geldiğinin takibi.
+
+🎤
+
+> “Rebalancing sırasında consumer’lar durur.”
 > 
 
 ---
 
-## **7️⃣ Reliability & Fault Tolerance**
+## **7️⃣ Kafka Ecosystem**
 
-- Mirrored / quorum queues
-- High availability cluster
-- Network partition handling
-- Publisher confirms
-
----
-
-## **8️⃣ Performance Tuning**
-
-- Connection & channel management
-- Batch publish
-- Consumer concurrency
-- Persistent vs transient messages trade-off
+- Kafka Connect: Veritabanı, S3 vb. kaynaklardan Kafka'ya veri aktarımı (Source/Sink).
+- Kafka Streams: Veriyi Kafka içinde işleme/dönüştürme kütüphanesi (Java/Scala).
+- KSQL (ksqlDB): Kafka üzerindeki veriye SQL sorgusu atma.
+- Schema Registry: Mesaj formatını (Avro, Protobuf) doğrulama ve versiyonlama.
 
 ---
 
-## **9️⃣ Monitoring & Observability**
+## **8️⃣ Performance & Reliability**
 
-- RabbitMQ Management UI
-- Metrics (queue length, publish rate, consumer count)
-- Alerts (unacked messages, queue growth)
-- Logs
-
----
-
-## **🔟 Security**
-
-- Authentication & authorization
-- User / vhost permissions
-- TLS encryption
-- Policy management
+- Zero-copy mechanism: Veriyi kernel seviyesinde kopyalayarak yüksek hız (Disk -> Network).
+- Sequential I/O: Diske sıralı yazma (Rastgele yazmadan çok daha hızlıdır).
+- Disk throughput: Kafka bellekten çok diski kullanır, hızlı disk önemlidir.
+- High Availability (HA): Broker çökse bile veri kaybını önleme.
 
 ---
 
-## **1️⃣1️⃣ RabbitMQ & .NET Integration**
+## **9️⃣ Kafka & .NET**
 
-- RabbitMQ.Client usage
-- Connection / channel lifecycle
-- Async consumer
-- Retry & Dead-letter handling
-
----
-
-## **1️⃣2️⃣ Anti-Patterns & Pitfalls**
-
-- Queue overload → OOM
-- Long-running consumer without ACK
-- Single point of failure (standalone RabbitMQ)
-- Persistent messages everywhere → disk IO bottleneck
+- Confluent.Kafka kütüphanesi: .NET için resmi client.
+- Producer/Consumer implementasyonu: `ProducerBuilder` ve `ConsumerBuilder` kullanımı.
+- Serialization (JSON, Avro, Protobuf): Veriyi byte dizisine çevirme yöntemleri.
+- Background service ile consumption: `BackgroundService` içinde sonsuz döngüde `Consume()`.
 
 ---
 
-## **1️⃣3️⃣ RabbitMQ Ne Zaman KULLANILMAZ?**
+## **🔟 Kafka Ne Zaman Gerekli?**
 
-- Çok düşük latency gereken işlem
-- Small-scale, simple CRUD
-- Strong consistency gerektiren transaction-heavy işlem
-- Stateful communication yeterli ise
+- Yüksek throughput (100k+ msg/sec): Devasa veri trafiği.
+- Event Sourcing: Tüm olay tarihçesini saklama.
+- Log aggregation: Tüm sistemin loglarını toplama.
+- Stream processing: Anlık veri analizi ve ETL işlemleri.
