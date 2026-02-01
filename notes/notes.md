@@ -18,14 +18,47 @@
 
 ## **📦 Array**
 
+
 - Array temel yapısı ve index erişimi: Sabit boyutlu, bellekte ardışık tutulan, index ile O(1) erişilen yapı.
+  ```csharp
+  int[] arr = new int[5];
+  arr[0] = 10; // O(1)
+  ```
 - Array insert / delete maliyeti: Araya ekleme/silme kaydırma gerektirdiğinden O(n) maliyetlidir.
-- Two Sum problemi: Toplamı hedef sayıya eşit iki elemanı bulma (Genelde HashMap ile O(n)).
+  ```csharp
+  // 2. indekse eleman eklemek için sonrakileri kaydır
+  for (int i = n; i > 2; i--) arr[i] = arr[i-1];
+  ```
+- Two Sum problemi: Bir dizide toplamları hedef sayıya (`Target`) eşit olan iki sayının indeksini bulma.
+  ```csharp
+  // O(n) Çözüm:
+  Dictionary<int, int> seen = new();
+  for (int i = 0; i < nums.Length; i++) {
+      int diff = target - nums[i];
+      if (seen.ContainsKey(diff)) return new int[] { seen[diff], i };
+      seen[nums[i]] = i;
+  }
+  ```
 - Array rotate: Diziyi sağa/sola kaydırma işlemi (Modülo aritmetiği veya ters çevirme yöntemi).
+  ```csharp
+  // [1,2,3,4,5] -> Sağ (2) -> [4,5,1,2,3]
+  Reverse(nums, 0, n-1); Reverse(nums, 0, k-1); Reverse(nums, k, n-1);
+  ```
 - Duplicate eleman bulma: Tekrar eden sayıları tespit etme (HashSet veya Sorting ile).
+  ```csharp
+  HashSet<int> set = new();
+  if (!set.Add(num)) return true; // Zaten varsa duplicate
+  ```
 - Max / Min eleman bulma: Tüm diziyi gezerek en küçük/büyük değeri bulma O(n).
+  ```csharp
+  int max = nums[0];
+  foreach (var n in nums) if (n > max) max = n;
+  ```
 - C# T[] kullanımı: `int[] numbers = new int[5];` şeklinde tanımlanan sabit dizi.
 - Span<T> nedir, ne zaman kullanılır: Bellek tahsisi yapmadan (heap allocation'sız) array dilimleme (slicing) için kullanılır.
+  ```csharp
+  Span<int> slice = nums.AsSpan().Slice(1, 3); // Copy yok, sadece pointer
+  ```
 
 ---
 
@@ -33,10 +66,19 @@
 
 - List vs Array farkları: List dinamik büyür, Array sabittir. List arkada Array kullanır.
 - Capacity vs Count: Capacity ayrılan yer, Count dolu olan eleman sayısıdır.
+  ```csharp
+  List<int> list = new(capacity: 100); // Resize maliyetini önlemek için
+  ```
 - Amortized Add() maliyeti: Kapasite dolunca yeni dizi açıp kopyalamak O(n), diğer eklemeler O(1)'dir; ortalama O(1).
 - Listeyi ters çevirme: Elemanların sırasını `Reverse()` ile döndürme O(n).
 - Duplicate silme: Tekrarlı elemanları `Distinct()` ile temizleme.
+  ```csharp
+  var uniqueList = list.Distinct().ToList();
+  ```
 - En sık geçen elemanı bulma: Frekans sayımı (Dictionary ile).
+  ```csharp
+  var mostFrequent = list.GroupBy(x => x).OrderByDescending(g => g.Count()).First().Key;
+  ```
 - C# List<T> metotları: `Add`, `Remove`, `Contains`, `Find` gibi yardımcı metotlar.
 
 ---
@@ -44,12 +86,30 @@
 ## **🔗 Linked List**
 
 - Singly Linked List mantığı: Her düğüm veriyi ve bir sonraki düğümün adresini tutar.
+  ```csharp
+  class Node { public int Data; public Node Next; }
+  ```
 - Doubly Linked List mantığı: Düğümler hem önceki hem sonraki düğüm adresini tutar.
 - Head / Tail kavramları: Listenin başı (Head) ve sonu (Tail).
 - Linked list traversal: Baştan sona düğümleri gezme O(n).
+  ```csharp
+  var current = head;
+  while (current != null) { Print(current.Data); current = current.Next; }
+  ```
 - Ortadaki elemanı bulma: Fast & Slow pointer tekniği ile (Biri 1, biri 2 gider).
+  ```csharp
+  // Slow ortadayken Fast sonda olur
+  while (fast != null && fast.Next != null) { slow = slow.Next; fast = fast.Next.Next; }
+  ```
 - Linked list reverse: Pointer'ların yönünü ters çevirerek listeyi döndürme.
+  ```csharp
+  // prev -> current -> next  ==>  prev <- current <- next
+  while (curr != null) { next = curr.Next; curr.Next = prev; prev = curr; curr = next; }
+  ```
 - Cycle detection: Listede döngü var mı? (Floyd’s Cycle Finding - Fast/Slow pointer).
+  ```csharp
+  if (slow == fast) return true; // Döngü var
+  ```
 - Array vs LinkedList karşılaştırması: Array erişimde O(1), eklemede O(n); LinkedList erişimde O(n), (konum belliyse) eklemede O(1).
 
 ---
@@ -58,7 +118,14 @@
 
 - Stack temel mantığı: Last In First Out (Son giren ilk çıkar).
 - Push / Pop / Peek: Ekle (Push), Çıkar (Pop), En üsttekine bak (Peek) - Hepsi O(1).
+  ```csharp
+  stack.Push(1); int val = stack.Pop(); int top = stack.Peek();
+  ```
 - Parantez kontrolü problemi: Açılan parantez kapananla eşleşiyor mu? (Valid Parentheses).
+  ```csharp
+  if (c == '(') stack.Push(')');
+  else if (stack.Count == 0 || stack.Pop() != c) return false;
+  ```
 - String ters çevirme: Karakterleri Stack'e atıp geri çekerek ters çevirme.
 - Undo / Redo senaryosu: Yapılan işlemleri Stack'te tutup geri alma.
 - Call stack nasıl çalışır: Fonksiyon çağrılarının bellekte tutulduğu yer (Recursive fonksiyonlar).
@@ -70,25 +137,43 @@
 
 - Queue temel mantığı: First In First Out (İlk giren ilk çıkar).
 - Enqueue / Dequeue: Ekle (Enqueue), Çıkar (Dequeue) - Hepsi O(1).
+  ```csharp
+  queue.Enqueue(1); int val = queue.Dequeue();
+  ```
 - Producer – Consumer problemi: Bir tarafın üretip diğer tarafın tükettiği asenkron yapı.
 - BFS algoritmasında queue kullanımı: Graf/Ağaç gezintisinde katman katman ilerlemek için kullanılır.
 - Queue vs Stack farkları: Sıralama farkı (Biri kuyruk, biri yığın).
 - C# Queue<T> kullanımı: `Queue<string> q = new Queue<string>();`
 - ConcurrentQueue<T> nedir: Thread-safe kuyruk yapısı (Lock-free mekanizmalar içerir).
 
+
 ---
 
 ## **🗂️ Dictionary / Hash Table ⭐**
 
 - Hashing mantığı: Key'i (anahtar) sayısal bir index'e dönüştürme fonksiyonu.
+  ```csharp
+  int index = GetHashCode(key) % arraySize;
+  ```
 - Collision nedir: Farklı key'lerin aynı hash değerini üretmesi (Çakışma).
 - Chaining vs Open Addressing: Çakışma çözme yöntemleri (Bağlı liste kullanma vs boş yer arama).
 - Lookup neden O(1): Hash fonksiyonu direkt adresi verdiği için (Çakışma yoksa).
 - Duplicate eleman bulma: Elemanları Dictionary key'i yaparak sayma.
 - Frequency counter: Bir dizide hangi elemandan kaç tane olduğunu bulma.
+  ```csharp
+  if (!counts.ContainsKey(num)) counts[num] = 0;
+  counts[num]++;
+  ```
 - Two Sum (Dictionary ile): Aranan farkı (`Target - Current`) Dictionary'de arayarak O(n) çözüm.
 - C# Dictionary<TKey, TValue>: Key-Value çiftleri tutan hash tablosu.
+  ```csharp
+  Dictionary<string, int> ages = new() { {"Ali", 25} };
+  if (ages.TryGetValue("Ali", out int age)) Console.WriteLine(age);
+  ```
 - ConcurrentDictionary kullanımı: Thread-safe dictionary (Çoklu okuma/yazma için).
+  ```csharp
+  concurrentDict.TryAdd("key", 1); // Locklamadan güvenli ekleme
+  ```
 - HashSet<T> farkı: Sadece Key tutar, Value yoktur. Unique eleman listesi.
 
 ---
@@ -98,13 +183,34 @@
 - Set temel mantığı: Benzersiz (Unique) elemanlar kümesi.
 - Unique eleman garantisi: Aynı elemandan birden fazla bulunamaz.
 - İki listede ortak eleman bulma: Intersection (Kesişim) işlemi.
-- Subset kontrolü: Bir küme diğerinin alt kümesi mi?
+  ```csharp
+  set1.IntersectWith(set2); // Ortakları set1'de bırakır
+  ```
+- Set difference / union: Fark (ExceptWith) ve Birleşim (UnionWith) işlemleri.
+- HashSet vs SortedSet: HashSet sırasız O(1), SortedSet sıralı O(log n) (Red-Black tree kullanır).
 - C# HashSet<T> kullanımı: Benzersiz elemanları performanslı saklamak için.
 
 ---
 
-## **🌳 Tree**
+## **🌳 Trees (BST, AVL, Red-Black)**
 
+- Binary Tree vs Binary Search Tree (BST): BST'de sol küçüktür, sağ büyüktür.
+- BST Insert / Search / Delete maliyeti: Dengeli ise O(log n), dengesiz (çizgi gibi) ise O(n).
+  ```csharp
+  // Search
+  if (val < root.val) Search(root.left, val); else Search(root.right, val);
+  ```
+- Balanced Tree ihtiyacı: Ağacın tek tarafa uzamasını (Skewed) engellemek için.
+- AVL Tree mantığı: Her eklemede dengeyi (Height difference <= 1) koruyan ağaç (Strictly balanced).
+- Red-Black Tree mantığı: AVL'den daha az katı kurallı, ekleme/silme daha hızlı (C# SortedDictionary bunu kullanır).
+- Tree Traversal (Preorder, Inorder, Postorder):
+  - **Inorder (Sol-Kök-Sağ):** BST'yi sıralı yazdırır.
+  - **Preorder (Kök-Sol-Sağ):** Ağacı kopyalamak için.
+  - **Postorder (Sol-Sağ-Kök):** Ağacı silmek için (Önce çocukları sil).
+  ```csharp
+  void InOrder(Node n) { if(n==null) return; InOrder(n.left); Print(n.val); InOrder(n.right); }
+  ```
+- Tree height hesabı: `1 + max(Height(left), Height(right))`.
 - Tree temel kavramları (root, leaf, height): Kök, yaprak (çocuğu olmayan), yükseklik.
 - Binary Tree: Her düğümün en fazla 2 çocuğu olduğu ağaç.
 - Binary Search Tree (BST): Sol çocuk küçük, sağ çocuk büyük kuralına uyan ağaç.
@@ -118,8 +224,20 @@
 
 ---
 
-## **⛰️ Heap / Priority Queue**
+## **HEAP (Binary Heap)**
 
+- Min-Heap vs Max-Heap: Min-Heap'te kök en küçük, Max-Heap'te kök en büyük.
+- Priority Queue mantığı: Öncelikli elemanın (Max/Min) hep sırada olduğu kuyruk.
+- Insert (Heapify Up) maliyeti: Sona ekleyip yukarı taşıma O(log n).
+- Extract Min/Max (Heapify Down) maliyeti: Kökü alıp sonuncuyu başa koyma ve aşağı itme O(log n).
+- Array ile Heap gösterimi: `Parent(i) = (i-1)/2`, `Left(i) = 2*i + 1`, `Right(i) = 2*i + 2`.
+- C# PriorityQueue<TElement, TPriority>: .NET 6 ile gelen yerleşik Heap yapısı.
+  ```csharp
+  var pq = new PriorityQueue<string, int>();
+  pq.Enqueue("Task1", 2); // Öncelik 2
+  pq.Enqueue("Task2", 1); // Öncelik 1 (Önce bu çıkar)
+  var item = pq.Dequeue(); // "Task2"
+  ```
 - Min Heap mantığı: Root en küçük değerdir, ebeveyn çocuktan küçüktür.
 - Max Heap mantığı: Root en büyük değerdir, ebeveyn çocuktan büyüktür.
 - En büyük K eleman problemi: Min Heap kullanarak akıştaki en büyük K sayıyı tutma.
@@ -129,8 +247,24 @@
 
 ---
 
-## **🕸️ Graph**
+## **🕸️ Graphs**
 
+- Graph türleri: Directed (Yönlü), Undirected (Yönsüz), Weighted (Ağırlıklı).
+- Adjacency Matrix vs Adjacency List:
+  - **Matrix:** `bool[V,V]` (Hızlı erişim, çok yer kaplar).
+  - **List:** `List<List<int>>` (Az yer kaplar, traverse kolay). C# genelde Dictionary kullanır: `Dictionary<int, List<int>>`.
+- BFS (Breadth-First Search): En kısa yol (Shortest Path) bulmada kullanılır. Queue ile yapılır.
+  ```csharp
+  // Katman katman gez
+  queue.Enqueue(start); visited.Add(start);
+  while(queue.Count > 0) { var node = queue.Dequeue(); ... }
+  ```
+- DFS (Depth-First Search): Labirent çözme, tüm yolları deneme. Stack veya Recursion ile yapılır.
+  ```csharp
+  // Dibine kadar git
+  visited.Add(node); foreach(var neighbor in adj[node]) if(!visited.Contains(neighbor)) DFS(neighbor);
+  ```
+- Shortest Path (Dijkstra): Ağırlıklı grafta en kısa yol (Priority Queue ile O(E log V)).
 - Graph temel kavramları: Düğümler (Vertex) ve kenarlar (Edge).
 - Directed vs Undirected graph: Yönlü (oklar var) vs Yönsüz bağlantılar.
 - Adjacency List: Her düğümün komşularını listede tutması (Sparse graph için iyi).
@@ -166,42 +300,78 @@
 
 ---
 
-## **🏗️ Creational Patterns**
+## **🏗️ Creational Patterns (Nesne Yaratma)**
 
-- Singleton – tanım ve kullanım amacı: Bir sınıftan sadece tek bir nesne üretilmesini garanti eder (örn. Logger, Config).
-- Singleton thread-safe implementasyon: `Lazy<T>` veya `lock` mekanizması ile çoklu thread kontrolü.
-- Singleton dezavantajları: Global state yaratır, test etmesi zordur (bağımlılık gizler).
-- Factory Method: Nesne yaratma işini alt sınıflara bırakan interface (Loose coupling sağlar).
-- Abstract Factory: Birbiriyle ilişkili nesne ailelerini yaratmak için kullanılır.
-- Builder: Karmaşık nesneleri adım adım oluşturmayı sağlar (Fluent interface).
-- Prototype: Mevcut bir nesneyi kopyalayarak (clone) yeni nesne üretir (Maliyetli üretimden kaçınmak için).
-- Dependency Injection ile ilişkisi: DI konteynerleri genelde nesne yaşam döngüsünü (Singleton/Transient) yöneterek bu pattern'leri soyutlar.
+- **Singleton:** Uygulama ömrü boyunca TEK bir nesne örneğinin (instance) olması.
+  ```csharp
+  public sealed class Singleton {
+      private static readonly Lazy<Singleton> lazy = new(() => new Singleton());
+      public static Singleton Instance => lazy.Value;
+  }
+  ```
+- **Factory Method:** Hangi sınıfın nesnesinin üretileceğine alt sınıfların karar vermesi.
+  ```csharp
+  public IProduct Create() => new ConcreteProduct(); // new anahtarını soyutlar
+  ```
+- **Abstract Factory:** Birbirleriyle ilişkili nesne ailelerini yaratma arayüzü. (Modern mobilya takımı vs Klasik mobilya takımı).
+- **Builder:** Karmaşık bir nesneyi (çok parametreli) adım adım inşa etme.
+  ```csharp
+  new CarBuilder().SetEngine("V8").SetColor("Red").Build();
+  ```
+- **Prototype:** Var olan bir nesneyi kopyalayarak (Clone) yenisini üretme maliyetini azaltma.
+  ```csharp
+  var copy = (MyClass)original.MemberwiseClone(); // Shallow copy
+  ```
 
 ---
 
-## **🧩 Structural Patterns**
+## **🧱 Structural Patterns (Yapısal)**
 
-- Adapter: Uyumsuz iki interface'i birbirine bağlar (Çevirici).
-- Facade: Karmaşık bir alt sistemi basitleştirilmiş bir arayüzle sunar.
-- Decorator: Nesneye dinamik olarak yeni özellik/davranış ekler (Inheritance yerine composition).
-- Proxy: Bir nesneye erişimi kontrol eden veya araya giren vekil nesne (Lazy loading, security).
-- Composite: Nesneleri ağaç yapısında (parça-bütün) hiyerarşik olarak tutar.
-- Bridge: Soyutlama (Abstraction) ile gerçekleştirmeyi (Implementation) birbirinden ayırır.
-- Flyweight: Çok sayıda benzer nesne için bellek optimizasyonu sağlar (Ortak veriyi paylaşarak).
-- Bu pattern’lerin gerçek proje senaryoları: Adapter (3. parti API), Proxy (Cache), Decorator (Middleware/Logging).
+- **Adapter:** Uyumsuz arayüzleri birbirine bağlama (Çevirici).
+  ```csharp
+  // IUsb portuna Lightning kablo takmak
+  public void Connect() => _oldSystem.LegacyConnect();
+  ```
+- **Decorator:** Nesneye çalışma zamanında dinamik olarak yeni özellikler ekleme.
+  ```csharp
+  // Kahve -> SütlüKahve -> ŞurupluSütlüKahve (Stream yapısı örneği)
+  var coffee = new MilkDecorator(new SimpleCoffee());
+  ```
+- **Facade:** Karmaşık bir alt sistemi basitleştirilmiş bir arayüzle sunma.
+  ```csharp
+  // OrderFacade: Stok düş, Ödeme al, Kargo çağır işlemlerini tek metodda toplar
+  public void PlaceOrder() { _stock.Check(); _payment.Process(); _shipping.Ship(); }
+  ```
+- **Proxy:** Bir nesneye erişimi kontrol etme veya araya girme (Lazy loading, Caching, Logging).
+- **Composite:** Nesneleri ağaç yapısında (Parça-Bütün) hiyerarşik olarak düzenleme (Klasör-Dosya yapısı).
 
 ---
 
-## **🔁 Behavioral Patterns ⭐**
+## **🚦 Behavioral Patterns (Davranışsal)**
 
-- Strategy: Bir işlemin algoritmasını çalışma zamanında değiştirmeyi sağlar (örn. Ödeme yöntemi seçimi).
-- Observer: Bir nesnedeki değişikliği, ona abone olan diğer nesnelere duyurur (Event-driven).
-- Command: İsteği bir nesneye (komut) dönüştürerek parametre olarak geçmeyi, sıraya koymayı sağlar.
-- Mediator: Nesneler arası kaotik iletişimi merkezi bir aracı üzerinden yönetir (MediatR).
-- Chain of Responsibility: Bir isteği, işleyebilecek nesneler zinciri boyunca iletir (Middleware mantığı).
-- State: Nesnenin iç durumuna göre davranışını değiştirmesini sağlar (State Machine).
-- Template Method: Algoritma iskeletini bir üst sınıfta tanımlayıp, detayları alt sınıflara bırakır.
-- Iterator: Bir koleksiyonun elemanlarına, iç yapısını bilmeden sırayla erişmeyi sağlar.
+- **Observer:** Bir nesnede değişiklik olduğunda abonelerine haber verme (Event mantığı).
+  ```csharp
+  // Youtube Kanalı (Subject) -> Abone (Observer)
+  subject.OnChange += () => observer.Update();
+  ```
+- **Strategy:** Bir algoritmayı çalışma zamanında seçilebilir ve değiştirilebilir yapma.
+  ```csharp
+  // Ödeme yöntemi seçimi
+  context.SetStrategy(new CreditCardPayment()); context.Pay(100);
+  ```
+- **Command:** İsteği nesneye çevirerek parametre olarak geçme, kuyruğa atma veya geri alma (Undo).
+  ```csharp
+  // ICommand: Execute(), Undo()
+  commandQueue.Enqueue(new SaveCommand());
+  ```
+- **Iterator:** Bir koleksiyonun elemanlarına (nasıl tutulduğunu bilmeden) sırayla erişme (`foreach`).
+- **Template Method:** Algoritmanın iskeletini üst sınıfta kurup, bazı adımları alt sınıflara bırakma.
+- **State:** Nesnenin durumuna göre davranışını değiştirmesi (Sipariş: Hazırlanıyor -> Kargoda -> Teslim).
+  ```csharp
+  order.State.Next(order); // State değişimi
+  ```
+- **Mediator:** Nesneler arasındaki karmaşık iletişimi tek bir merkezden yönetme (Havalimanı Kulesi).
+- **Chain of Responsibility:** İsteği işleyebilecek nesneler zincirine gönderme (Middleware mantığı).
 - Visitor: Sınıfları değiştirmeden, üzerlerinde yeni işlemler tanımlamayı sağlar.
 - Behavioral pattern’ler ne zaman tercih edilir: Nesneler arası iletişim ve sorumluluk ataması karmaşıklaştığında.
 
@@ -307,82 +477,173 @@
 - Large Object Heap (LOH): 85KB'dan büyük nesneler buraya gider, burası nadiren ve parçalı (fragmented) temizlenir.
 
 ---
+## **1️⃣ Runtime & Type System**
 
-## **🧵 Async & Concurrency (C# Seviyesi)**
-
-- async / await çalışma mantığı: I/O işlemlerinde thread'i bloklamadan iş bitince devam etmesini sağlar (State Machine).
-- Task vs Thread: Task iş birimidir (Promise), Thread onu çalıştıran işçidir.
-- Task.Run ne zaman kullanılmalı: CPU-bound (işlemci yoran) işleri arka planda yapmak için.
-- Deadlock senaryosu: UI/Context thread'ini bekleyen async metodun, o thread tarafından bloklanması.
-- lock keyword: Kritik bölgeye (Critical Section) aynı anda tek thread girmesini sağlar.
-- SemaphoreSlim: Eşzamanlı giriş sayısını sınırlayan (Async uyumlu) kilit mekanizması.
-- Thread-safe collections: `ConcurrentDictionary`, `ConcurrentQueue` gibi kilit gerektirmeyen yapılar.
-- ConfigureAwait(false): Bağlamı (Context) koruma zorunluluğunu kaldırarak deadlock riskini azaltır (Kütüphane kodlarında).
-
----
-
-## **🧩 Delegates, Events, Lambdas**
-
-- Delegate nedir: Metodu işaret eden (pointer) tip güvenli nesne.
-- Func / Action / Predicate: Hazır delegate türleri (Dönüşlü / Dönüşsüz / Boolean dönüşlü).
-- Multicast delegate: Birden fazla metodu sırayla çağıran delegate.
-- Event mantığı: Delegate üzerine kurulu, publish-subscribe mekanizması (Sadece sahibi tetikleyebilir).
-- Event vs Delegate farkı: Event, delegate'in kapsüllenmiş (encapsulated) halidir.
-- Custom event yazma: `EventHandler<T>` kullanarak olay tanımlama.
-- Lambda expression kullanımı: `x => x > 5` gibi isimsiz, kısa fonksiyon yazımı.
+- **Managed vs Unmanaged Code:** Managed CLR kontrolündedir (GC var), Unmanaged işletim sistemi kontrolündedir (C++ gibi, `unsafe`).
+- **CLR, JIT, IL:** Kod -> IL (Intermediate Language) -> JIT (Just-In-Time) -> Makine Kodu. JIT çalışma zamanında derler.
+- **Value Type vs Reference Type:** Stack (Hızlı, kopyalanır) vs Heap (GC yönetir, referans taşır).
+  ```csharp
+  int a = 5; // Value
+  class U { } // Reference
+  ```
+- **Stack vs Heap:** Stack: LIFO, hızlı, yerel değişkenler. Heap: Global, dağınık, nesneler.
+- **Boxing / Unboxing:** Value -> Ref (Boxing/Maliyetli), Ref -> Value (Unboxing/Riskli).
+  ```csharp
+  object o = 10; // Boxing
+  int i = (int)o; // Unboxing
+  ```
+- **struct vs class:** Struct value type'tır (inheritance yok, stackte), Class reference type'tır.
+- **record vs class:** Record immutable veri taşıyıcıdır, `Equals` değer tabanlıdır.
+  ```csharp
+  public record Person(string Name, int Age); // Value equality
+  ```
 
 ---
 
-## **🧮 LINQ**
+## **2️⃣ OOP & Interfaces**
 
-- LINQ to Objects: Bellekteki koleksiyonları sorgulama.
-- Deferred execution: Sorgunun tanımlandığı an değil, sonucun istendiği an (foreach, ToList) çalışması.
-- Immediate execution: `ToList()`, `Count()` gibi metotlarla sorgunun hemen çalışması.
-- Select, Where, Any, All: Dönüştürme, Filtreleme, Var mı, Hepsi mi kontrolü.
-- First, FirstOrDefault: İlk elemanı getir, yoksa hata ver / default dön.
-- Single vs First: `Single` tek bir eleman bekler, birden fazla varsa hata verir.
-- GroupBy: Veriyi belirli bir alana göre gruplama.
-- Join: İlişkisel verileri birleştirme.
-- LINQ performans tuzakları: Gereksiz `ToList()`, N+1 sorguları, veritabanına gidemeyen sorgular.
-
----
-
-## **🧰 Collections (C# / .NET)**
-
-- Array: Sabit boyut, en hızlı.
-- List<T>: Dinamik boyut, genel kullanım.
-- Dictionary<TKey, TValue>: Key ile hızlı erişim (Hash map).
-- HashSet<T>: Benzersiz eleman kümesi, hızlı `Contains`.
-- Stack<T>: LIFO yapısı.
-- Queue<T>: FIFO yapısı.
-- ConcurrentDictionary: Thread-safe dictionary.
-- Immutable collections: Değiştirilemez koleksiyonlar (Builder pattern ile üretilir).
-- Doğru collection seçimi: Okuma/yazma sıklığı, thread-safety ve sıralama ihtiyacına göre.
+- **Abstract class vs Interface:** Abstract kod/field içerebilir, Interface sadece imza (C# 8.0+ default impl hariç). Çoklu kalıtım sadece Interface ile.
+- **Explicit interface implementation:** Aynı isimli iki metodu ayırt etmek için.
+  ```csharp
+  interface IA { void Log(); }
+  interface IB { void Log(); }
+  class MyClass : IA, IB {
+      void IA.Log() { /* IA'ya özel */ }
+      void IB.Log() { /* IB'ye özel */ }
+  }
+  ```
+- **Extension methods:** Var olan sınıfa (kaynağı kapalı olsa bile) yeni metot ekleme (`this` keyword'ü ile).
+  ```csharp
+  public static class IntExtensions {
+      public static bool IsEven(this int i) => i % 2 == 0;
+  }
+  // Kullanım: int num = 4; num.IsEven();
+  ```
+- **Virtual vs Abstract vs Sealed:** Virtual ezilebilir, Abstract ezilmek ZORUNDA, Sealed ezilemez/türetilemez.
+- **Polymorphism:** Referansın (Base) tuttuğu nesneye (Derived) göre farklı davranması (`virtual`/`override`).
 
 ---
 
-## **⚠️ Exception Handling**
+## **3️⃣ Memory Management (GC)**
 
-- try / catch / finally: Hata yakalama blokları. `finally` her durumda çalışır.
-- Exception propagation: Hatanın call stack boyunca yukarı fırlatılması.
-- Custom exception yazma: `Exception` sınıfından türeterek özel hata tipleri oluşturma.
-- Checked vs unchecked exception: C#'ta Java gibi zorunlu (checked) exception yoktur, hepsi uncheck.
-- Exception performance etkisi: `throw` işlemi maliyetlidir (Stack trace oluşturur), akış kontrolü için kullanılmamalıdır.
-- Exception best practices: Sadece beklenmedik durumlarda kullan, `catch (Exception)`'dan kaçın.
+- **Garbage Collector Generations (0, 1, 2):**
+  - **Gen 0:** Yeni nesneler, sık temizlenir.
+  - **Gen 1:** Tampon bölge.
+  - **Gen 2:** Uzun yaşayanlar, nadir temizlenir (Maliyetli).
+- **Large Object Heap (LOH):** 85KB+ nesneler buraya gider, buradaki GC maliyetlidir ve fragmantasyon olabilir.
+- **IDisposable & using:** Unmanaged kaynakları (Dosya, SQL) temizlemek için. `Finalize` GC çağırır, `Dispose` biz çağırırız.
+  ```csharp
+  using (var fs = new FileStream("path", FileMode.Open)) {
+      // Dosya işlemleri
+  } // Otomatik Dispose çağrılır
+  ```
+- **Finalizer (~Method):** GC nesneyi silerken çalışır, kaçış noktasıdır, performans düşürür.
+- **Memory Leak neden olur:** Static listelere sürekli ekleme, event'lere abone olup çıkmama.
 
 ---
 
-## **🧠 Advanced C#**
+## **4️⃣ Async / Concurrency**
 
-- Generics: Tip bağımsız kod yazma (`List<T>`), tip güvenliği ve performans (boxing yok) sağlar.
-- Generic constraints: `where T : class` gibi kısıtlamalar.
-- Covariance / Contravariance: Tipler arası uyumluluk (`IEnumerable<Derived>` -> `IEnumerable<Base>`).
-- Reflection: Çalışma zamanında tip bilgilerini inceleme ve dinamik kod çalıştırma (Yavaştır).
-- Attributes: Metadata (veri hakkında bilgi) ekleme (`[Obsolete]`, `[Serializable]`).
-- Expression Trees: Kodu veri ağacı olarak temsil etme (LINQ provider'ları kullanır).
-- Span / Memory: Bellek yönetimi optimizasyonu, kopyalamasız dilimleme.
-- ValueTask: Tahsis (allocation) gerektirmeyen Task (Değer döndüren async hot-path metodlar için).
-- Unsafe code (temel seviye): Pointer kullanımı, GC kontrolü dışına çıkma (`unsafe` blokları).
+- **Thread vs Task:** Thread OS kaynağıdır (Ağır), Task CLR tarafından yönetilen iş birimidir (Hafif).
+- **ThreadPool mantığı:** Hazırda bekleyen thread havuzu, sürekli thread açıp kapatma maliyetini önler.
+- **async / await:** Asenkron programlama, thread'i bloklamadan I/O beklemeyi sağlar.
+  ```csharp
+  public async Task DoSomethingAsync() {
+      await Task.Delay(1000); // Thread havuza döner, 1sn sonra geri gelir
+      Console.WriteLine("1 saniye geçti.");
+  }
+  ```
+- **Sync over Async (Deadlock):** `.Result` veya `.Wait()` ile asenkron kodu senkron beklemek deadlock yaratabilir.
+- **Task.WhenAll vs WaitAll:** `WhenAll` non-blocking (awaitable), `WaitAll` blocking.
+- **CancellationToken:** İşlemi iptal etmek için kullanılan yapı.
+  ```csharp
+  CancellationTokenSource cts = new CancellationTokenSource();
+  // ...
+  if (cts.Token.IsCancellationRequested) {
+      cts.Token.ThrowIfCancellationRequested();
+  }
+  ```
+
+---
+
+## **5️⃣ Delegates, Events & Lambdas**
+
+- **Delegate:** Metot adresini tutan referans (Function pointer).
+- **Action, Func, Predicate:**
+  - `Action`: Dönüş yok (`void`).
+  - `Func<T, Result>`: Parametre alır, değer döner.
+  - `Predicate<T>`: `bool` döner (Filtreleme).
+  ```csharp
+  Func<int, int, int> add = (a, b) => a + b;
+  Action<string> log = message => Console.WriteLine(message);
+  Predicate<int> isEven = num => num % 2 == 0;
+  ```
+- **Event:** Delegate'in sarmalanmış, sadece `+=` ve `-=` yapılabilen hali (Observer pattern).
+- **Lambda Expressions:** Anonim metot yazma sözdizimi (`x => x > 5`).
+
+---
+
+## **6️⃣ LINQ & Collections**
+
+- **IEnumerable vs IQueryable:**
+  - `IEnumerable`: Veriyi belleğe çeker (Memory-bound), filter client'ta yapılır.
+  - `IQueryable`: Sorguyu veritabanına atar (SQL üretir), filter sunucuda yapılır.
+- **Yield return:** Elemanları tek tek, istendikçe (lazy) üretir.
+  ```csharp
+  IEnumerable<int> GetNumbers() {
+      yield return 1;
+      yield return 2;
+      yield return 3;
+  }
+  ```
+- **Lazy evaluation (Deferred Execution):** Sorgu tanımlandığında değil, `ToList()` veya `foreach` dendiğinde çalışır.
+- **Dictionary internals:** Bucket array ve Linked list (chaining) yapısı.
+
+---
+
+## **7️⃣ Exception Handling**
+
+- **try-catch-finally:** Hata yakalama bloğu. `finally` her zaman çalışır (Kaynak temizliği).
+- **throw vs throw ex:** `throw` stack trace'i korur, `throw ex` stack trace'i siler/sıfırlar (KÖTÜ).
+- **Custom Exception:** `Exception` sınıfından türeterek özel hata tipleri oluşturma.
+- **Global Exception Handling:** Middleware ile tüm hataları tek bir yerden yakalama ve loglama.
+
+---
+
+## **8️⃣ Advanced Topics**
+
+- **Reflection:** Çalışma zamanında tip (Type) bilgilerini okuma ve dinamik kod çalıştırma.
+  ```csharp
+  Type type = typeof(MyClass);
+  object obj = Activator.CreateInstance(type);
+  var method = type.GetMethod("Log");
+  method.Invoke(obj, null);
+  ```
+- **Attributes:** Metadata ekleme yöntemi (`[Obsolete]`, `[Serializable]`).
+- **Middleware (ASP.NET):** Request/Response hattına giren ara yazılımlar (Auth, Log, Error).
+  ```csharp
+  app.Use(async (context, next) => {
+      // İstek öncesi
+      await next(); // Sonraki middleware'i çağır
+      // İstek sonrası
+  });
+  ```
+- **Dependency Injection (DI):** Bağımlılıkları dışarıdan verme (Loose coupling). .NET Core'da built-in gelir (`AddTransient`, `AddScoped`, `AddSingleton`).
+- **Expression Trees:** Kodu veri ağacı olarak temsil etme (LINQ provider'ları kullanır).
+- **Span / Memory:** Bellek yönetimi optimizasyonu, kopyalamasız dilimleme.
+- **ValueTask:** Tahsis (allocation) gerektirmeyen Task (Değer döndüren async hot-path metodlar için).
+- **Unsafe code (temel seviye):** Pointer kullanımı, GC kontrolü dışına çıkma (`unsafe` blokları).
+
+## **9️⃣ ASP.NET Core Fundamentals**
+
+- **Program.cs & Startup:** Uygulamanın giriş noktası ve konfigürasyon merkezi.
+- **Dependency Injection Service Lifetimes:**
+  - **Transient:** Her istendiğinde yeni instance (Hafif servisler).
+  - **Scoped:** Request başına bir instance (Veritabanı contexti).
+  - **Singleton:** Uygulama boyunca tek instance (Cache servisi).
+- **Middleware Pipeline:** Sıra önemlidir! (Exception -> HSTS -> StaticFiles -> Routing -> Auth -> Endpoints).
+- **Filters:** Action çalışmadan önce/sonra araya girme (Validation, Exception, Resource filters).
+- **Configuration (appsettings.json):** `IConfiguration` ile okunan ayarlar. `IOptions<T>` ile strongly-typed erişim.
 
 ---
 
@@ -437,46 +698,54 @@
 
 ### **🔹 S — Single Responsibility Principle**
 
-- Bir class’ın **tek değişme sebebi** ne demek: Bir sınıf sadece tek bir işten sorumlu olmalıdır, iş mantığı ve görünü/DB ayrılmalıdır.
-- SRP ihlali örneklerini tanıyabilme: Bir sınıfın hem rapor oluşturup hem de mail atması.
+- Bir class’ın **tek değişme sebebi** ne demek: Bir sınıf sadece tek bir işten sorumlu olmalıdır.
+  ```csharp
+  // Kötü: Hem rapor üret, hem mail at
+  class ReportService { void Generate(); void SendEmail(); }
+  // İyi: Ayrılmış sorumluluklar
+  class ReportGenerator { void Generate(); }
+  class EmailSender { void Send(); }
+  ```
+- SRP ihlali örneklerini tanıyabilme: Bir Controller'ın hem validation, hem database erişimi, hem de mapping yapması.
 - Service + Validator + Mapper ayrımı: İş mantığı, doğrulama ve veri dönüşümü ayrı sınıflarda olmalıdır.
-- “Fat Service” problemini anlatabilme: Service'lerin her işi yapan devasa sınıflara dönüşmesi (Anti-pattern).
-
----
 
 ### **🔹 O — Open / Closed Principle**
 
 - Mevcut kodu değiştirmeden genişletme: Yeni özellik eklerken var olan kodu değiştirmek yerine, yeni kod ekleyerek yapılmalıdır.
 - Strategy Pattern ile OCP: Farklı algoritmaları ayrı sınıflara bölerek (Strategy) ana sınıfı değiştirmeden yeni algoritma ekleyebilme.
-- Polymorphism vs if/else zinciri: `if (type == A) ... else if (type == B)` yerine A ve B'nin `Execute()` metodunu override etmesi.
-- Feature eklerken neden refactor gerekmez: OCP'ye uyulduğunda, yeni class eklenir, eski kod bozulmaz.
-
----
+  ```csharp
+  // Yeni indirim türü eklemek için Discount sınıfını değiştirmek yerine:
+  public class BlackFridayDiscount : IDiscountStrategy { ... }
+  ```
 
 ### **🔹 L — Liskov Substitution Principle**
 
 - Base class yerine derived class kullanıldığında bozulma: Alt sınıf, üst sınıfın yerine geçtiğinde programın davranışı bozulmamalıdır.
+  ```csharp
+  // Kare bir Dikdörtgen değildir (Matematiksel evet, OOP hayır)
+  rect.SetWidth(5); // Kare ise height de değişir, beklenmedik davranış!
+  ```
 - Exception fırlatma kuralları: Alt sınıf, üst sınıfın beklemediği bir hata fırlatmamalıdır.
-- Precondition / Postcondition ihlali: Alt sınıf, üst sınıfın kurallarını (girdi/çıktı şartları) gevşetmemeli veya daraltmamalıdır.
-- Gerçek hayatta LSP örnekleri: `Kare` sınıfının `Dikdörtgen` sınıfından türetilmesi (Kare'de en/boy bağımsız değişemez -> LSP ihlali).
-
----
 
 ### **🔹 I — Interface Segregation Principle**
 
 - “Fat interface” problemi: İçinde çok fazla ve alakasız metot barındıran interface'ler.
-- Küçük, amaç odaklı interface’ler: İhtiyaca özel, bölünmüş interface'ler (`IPrinter`, `IScanner` vs `IMultiFunctionDevice`).
-- Read / Write interface ayrımı: `IReadable`, `IWritable` gibi ayırarak sadece gerekli yetkileri verme.
-- ISP ihlalinin test yazmayı zorlaştırması: Kullanılmayan metotları mock'lamak zorunda kalmak.
-
----
+- Küçük, amaç odaklı interface’ler: İhtiyaca özel, bölünmüş interface'ler.
+  ```csharp
+  // Kötü: IWorker { Work(); Eat(); } (Robot yemek yemez)
+  // İyi: IWorkable { Work(); }, IFeedable { Eat(); }
+  ```
 
 ### **🔹 D — Dependency Inversion Principle**
 
 - High-level module → abstraction bağımlılığı: Üst seviye modüller, alt seviye modüllere (detaylara) değil, soyutlamalara (interface) bağlı olmalıdır.
 - Constructor injection: Bağımlılıkların sınıf oluşturulurken verilmesi.
-- DIP vs DI farkı: DIP prensiptir (soyuta bağlı ol), DI bu prensibi uygulama tekniğidir (container kullan).
-- Mock edilebilirlik: Interface bağımlılığı sayesinde testlerde sahte (mock) nesne verebilme imkanı.
+  ```csharp
+  public class OrderService {
+      private readonly IRepository _repo;
+      public OrderService(IRepository repo) => _repo = repo; // DI
+  }
+  ```
 
 ---
 
@@ -485,119 +754,89 @@
 ### **🔹 Microservices Fundamentals**
 
 - Monolith vs Microservice: Tek parça büyük uygulama vs küçük, bağımsız, ağ üzerinden konuşan servisler.
-- Service boundary nasıl çizilir: Domain (Bounded Context) sınırlarına göre servisleri ayırma (DDD).
-- Database per service neden önemli: Servislerin birbirinin verisine doğrudan erişmemesi (Loose coupling) için.
-- Distributed system trade-off’ları: Karmaşıklık artar, consistency zorlaşır ama ölçeklenebilirlik artar.
-
----
+- Service boundary nasıl çizilir: Domain (Bounded Context) sınırlarına göre (Order, Payment, Shipping).
+- Database per service neden önemli: Servislerin birbirinin verisine doğrudan erişmemesi (Loose coupling).
 
 ### **🔹 API Communication Patterns**
 
-- Synchronous vs Asynchronous: Anında cevap bekleyen (HTTP REST) vs Beklemeyen (Messaging/Queue).
-- REST vs Messaging: REST (Request/Response) vs Event/Message (Fire & Forget).
-- API Gateway rolü: Tek giriş noktası, routing, auth, rate limiting gibi cross-cutting işleri yönetir.
-- Backward compatibility: API güncellemelerinde eski client'ların bozulmaması için versiyonlama.
-
----
+- Synchronous vs Asynchronous:
+  - **Sync:** HTTP/gRPC (Cevabı bekle).
+  - **Async:** RabbitMQ/Kafka (Mesajı at, unut).
+- API Gateway rolü: Tek giriş noktası (Ocelot, YARP).
 
 ### **🔹 Resiliency Patterns**
 
 - Circuit Breaker: Sürekli hata alan servisi devreden çıkarıp sistemin geri kalanını koruma.
+  ```csharp
+  // Polly:
+  Policy.Handle<Exception>().CircuitBreaker(3, TimeSpan.FromSeconds(10));
+  ```
 - Retry with backoff: Hata durumunda bekleme süresini artırarak (exponential) tekrar deneme.
-- Timeout stratejileri: Cevap gelmeyen isteği belirli sürede kesip kaynağı serbest bırakma.
-- Bulkhead pattern: Sistemi bölmelere ayırarak bir parçadaki çökmenin diğerlerini etkilemesini önleme.
-
-👉 **Mülakat sorusu:**
-
-“Bir servis çökerse sistemi nasıl ayakta tutarsın?”
-
----
+  ```csharp
+  Policy.Handle<Exception>().WaitAndRetry(3, retry => TimeSpan.FromSeconds(Math.Pow(2, retry)));
+  ```
 
 ### **🔹 Consistency & Reliability**
 
-- CAP Theorem: Consistency (Tutarlılık), Availability (Erişilebilirlik), Partition Tolerance (Bölünme Toleransı) - Sadece ikisi seçilebilir (Genelde CP veya AP).
+- CAP Theorem: Consistency (Tutarlılık), Availability (Erişilebilirlik), Partition Tolerance. Sadece 2'si seçilebilir.
 - Eventual consistency: Verinin hemen değil, bir süre sonra tüm sistemde tutarlı hale gelmesi.
-- Idempotency: Aynı işlemin birden fazla kez yapılması durumunda sonucun değişmemesi (Güvenli retry).
-- Exactly-once mümkün mü: Teorik olarak zor, genelde "at-least-once" + "idempotency" ile sağlanır.
-
----
 
 ### **🔹 Saga Pattern**
 
-- Choreography vs Orchestration: Dağıtık servislere olayı kimin haber vereceği (Merkezi vs Kendi aralarında).
-- Compensating transaction: Bir adım başarısız olursa, önceki başarılı adımları geri alan işlem (Rollback).
-- Saga ne zaman tercih edilir: Dağıtık transaction gerektiren uzun iş süreçlerinde (Sipariş -> Ödeme -> Stok).
-- Distributed transaction neden kötü: 2PC (Two-phase commit) yavaştır, kilitlenme riski yüksektir, ölçeklenemez.
+- Choreography vs Orchestration:
+  - **Choreography:** Servisler event fırlatır, birbirini tetikler (Merkezi olmayan).
+  - **Orchestration:** Bir yönetici (Orchestrator) sırayla servisleri çağırır (MassTransit Saga State Machine).
 
 ---
 
 ## **3️⃣ Cache Stratejileri (Redis’e Girmeden)**
 
-### **🔹 Cache Temelleri**
-
-- Cache neden kullanılır: Performansı artırmak, DB yükünü azaltmak ve latency düşürmek için.
-- Cache ne zaman KULLANILMAZ: Veri çok sık değişiyorsa veya tutarlılık (consistency) çok kritikse.
-- Data consistency riskleri: Cache ile DB arasındaki veri farkı (Stale read).
-- Cache eviction mantığı: Cache dolduğunda hangi verinin silineceği (LRU - Least Recently Used, LFU).
-
----
-
 ### **🔹 Cache Patterns**
 
-- Cache Aside (Lazy loading): Uygulama önce Cache'e bakar, yoksa DB'den okur ve Cache'e yazar.
-- Read Through: Cache provider DB'den okumayı kendi yapar, uygulama sadece Cache ile konuşur.
-- Write Through: Uygulama Cache'e yazar, Cache senkron olarak DB'ye yazar (Garanti ama yavaş).
-- Write Behind: Uygulama Cache'e yazar, Cache asenkron olarak (arkada) DB'ye yazar (Hızlı ama veri kaybı riski).
-
-👉 **En sık kullanılan:** Cache Aside
-
----
+- Cache Aside (Lazy loading): Önce Cache'e bak, yoksa DB'den al ve Cache'e yaz.
+  ```csharp
+  var val = cache.Get(key);
+  if (val == null) { val = db.Get(id); cache.Set(key, val); }
+  ```
+- Read Through: Cache provider DB'den okumayı kendi yapar.
+- Write Through: Uygulama Cache'e yazar, Cache DB'ye yazar (Senkron).
+- Write Behind: Uygulama Cache'e yazar, Cache DB'ye yazar (Asenkron).
 
 ### **🔹 Invalidation Stratejileri**
 
-- TTL kullanımı: Veriye ömür biçme (Time To Live), süre bitince silinir.
-- Manual invalidation: Veri güncellendiğinde kodla cache'i silme.
-- Versioned cache key: Key sonuna versiyon (v1, v2) ekleyerek eski veriyi yetim bırakma.
-- Event-based invalidation: Veri değiştiğinde event fırlatıp consumer ile cache temizleme.
+- TTL kullanımı: Veriye ömür biçme (`AbsoluteExpiration`).
+- Cache stampede problemi: Cache süresi bittiğinde binlerce isteğin aynı anda DB'ye saldırması (Locking veya Jitter ile çözülür).
 
 ---
-
-### **🔹 Cache Scope**
-
-- In-memory cache: Uygulamanın kendi RAM'inde (Hızlı ama dağıtık değil, Restartta gider).
-- Distributed cache: Redis/Memcached gibi harici servis (Kalıcı, paylaşılabilir, network latency var).
-- Per-user vs global cache: Kullanıcıya özel veri (Session) vs Herkesin gördüğü veri (Ürün listesi).
-- Cache stampede problemi: Cache süresi bittiğinde binlerce isteğin aynı anda DB'ye saldırması.
 
 ## **4️⃣ N+1 Problem**
 
 - N+1 query problemi nedir: Bir ana kayıt (1) ve ilişkili N kayıt için N adet ayrı SQL sorgusu atılması.
-- ORM kullanırken nasıl ortaya çıkar: Lazy loading açıkken döngü içinde ilişkili tabloya erişildiğinde.
-- Lazy loading vs Eager loading çözümü: Veriyi ihtiyaç anında çekmek (Lazy) vs Baştan join ile çekmek (Eager).
-- Batch fetch / Include / Join kullanımı: `.Include(x => x.Orders)` diyerek tek sorguda veriyi almak.
-
-🎤
-
-> “N+1 problemi performans düşmanı, ORM’de eager loading ile çözülür.”
-> 
+  ```csharp
+  var users = db.Users.ToList(); // 1 Sorgu
+  foreach(var u in users) { var orders = u.Orders.ToList(); } // N Sorgu
+  ```
+- Lazy loading vs Eager loading çözümü: Veriyi `.Include()` ile baştan çekmek (Eager).
+  ```csharp
+  var users = db.Users.Include(u => u.Orders).ToList(); // Tek JOIN sorgusu
+  ```
 
 ---
 
 ## **5️⃣ REST & API Design**
 
-- RESTful API prensipleri: Kaynağa yönelim, Client-Server ayrımı, Stateless yapı, Cachelenebilirlik.
-- Stateless API: Sunucunun client durumunu (session) tutmaması, her isteğin kendi kendine yetmesi.
-- Resource vs Endpoint: Resource "Ürün"dür, Endpoint ona ulaşım adresidir (`/products/123`).
-- HTTP Methods (GET, POST, PUT, DELETE): Veri almak, yaratmak, güncellemek ve silmek için standart fiiller.
-- Status code kullanımı (200, 201, 204, 400, 401, 404, 500): İşlem sonucunu evrensel kodlarla bildirme.
-- HATEOAS (concept): Sunucunun client'a yapabileceği sonraki işlemleri link olarak dönmesi.
+- HTTP Methods:
+  - `GET`: Okuma (Idempotent).
+  - `POST`: Yaratma.
+  - `PUT`: Güncelleme (Idempotent, tüm kaynak).
+  - `PATCH`: Kısmi güncelleme.
+  - `DELETE`: Silme.
+- Status Codes:
+  - `200 OK`, `201 Created`, `204 No Content`.
+  - `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+  - `500 Internal Server Error`.
+- Stateless API: Her istek, sunucunun onu işlemesi için gereken tüm bilgiyi taşımalıdır (Token vb.).
 
-🎤
-
-> “REST API tasarımında resource-first ve stateless yaklaşım önemlidir.”
-> 
-
----
 
 ## **6️⃣ gRPS (Global Requests Per Second / Throughput)**
 
@@ -960,118 +1199,6 @@ prod:user:profile:123:v2
 
 > “Yanlış index, index olmamasından kötüdür.”
 > 
-
----
-
-## **3️⃣ Execution Plan & Query Optimization**
-
-- Execution plan nasıl okunur: Sorgunun izlediği yol haritası (Hangi index kullanıldı, ne kadar sürdü).
-- Cost nedir: İşlemcinin ve diskin harcadığı tahmini kaynak maliyeti.
-- Key lookup problemi: Non-clustered index kullandıktan sonra asıl veriye gitmek için tabloya (Clustered Index) sıçrama maliyeti.
-- Parameter sniffing: İlk çalıştırılan parametreye göre plan oluşturulup, sonraki farklı parametrelerde o planın kötü çalışması.
-- Statistics önemi: SQL Server'ın veri dağılımını bilmesini sağlar, optimizasyon için kritiktir.
-
-📌 **Gerçek senior konusu**
-
----
-
-## **4️⃣ Transaction Management**
-
-- ACID nedir: Atomicity (Hepsi/Hiçbiri), Consistency (Tutarlılık), Isolation (Yalıtım), Durability (Kalıcılık).
-- BEGIN / COMMIT / ROLLBACK: Transaction başlatma, onaylama ve geri alma komutları.
-- Nested transaction gerçek mi: Hayır, SQL Server'da `@@TRANCOUNT` artar ama sadece en dıştaki Commit/Rollback gerçektir.
-- Long-running transaction riskleri: Log dosyasını şişirir, tabloyu kilitler (Blocking).
-
-🎤:
-
-> “Uzun transaction lock süresini uzatır.”
-> 
-
----
-
-## **5️⃣ Locking & Concurrency (🔥)**
-
-- Shared / Exclusive lock: Okuma kilidi (Shared - başkaları okuyabilir) vs Yazma kilidi (Exclusive - kimse erişemez).
-- Deadlock nedir: İki işlemin birbirinin kilitlediği kaynağı beklemesi ve kilitlenmesi.
-- Deadlock nasıl tespit edilir: SQL Error 1205 veya Extended Events / Profiler ile.
-- Isolation levels: Transactionların birbirini ne kadar etkileyeceğini belirleyen seviyeler.
-
-### **Isolation Levels**
-
-- Read Uncommitted: Kirli okuma (Dirty Read) yapar, kilit koymaz (En hızlı, en güvensiz).
-- Read Committed: Sadece commitlenmiş veriyi okur (Default).
-- Repeatable Read: Okunan veri transaction bitene kadar değişmez (Update kilidi koyar).
-- Serializable: Tam yalıtım, araya yeni kayıt (Phantom Read) bile giremez (En yavaş).
-- Snapshot Isolation: Versiyonlama kullanarak kilit koymadan tutarlı okuma sağlar (TempDB kullanır).
-
-🎤:
-
-> “Isolation level performans ve tutarlılık trade-off’udur.”
-> 
-
----
-
-## **6️⃣ Stored Procedure vs Ad-hoc Query**
-
-- Execution plan reuse: SP'lerin planı cachelenir ve tekrar kullanılır (Performans sağlar).
-- Security avantajı: Kullanıcıya tabloya değil, SP'ye yetki verilir; SQL Injection riski azalır.
-- Versiyonlama zorlukları: Kodu veritabanında saklamak Git ile takibi ve deployment'ı zorlaştırır.
-- Ne zaman SP, ne zaman ORM: Karmaşık raporlar ve toplu işlemler için SP; CRUD için ORM.
-
----
-
-## **7️⃣ Data Modeling**
-
-- Normalization (1NF–3NF): Veri tekrarını önleme ve tutarlılığı sağlama kuralları.
-- Denormalization ne zaman: Okuma performansını artırmak için bilerek veri tekrarı yapma (Reporting vb.).
-- Surrogate vs Natural key: Yapay artan ID (Surrogate) vs TC Kimlik/Email (Natural).
-- Soft delete vs hard delete: `IsDeleted=1` yapmak (Soft) vs Veriyi fiziksel silmek (Hard).
-
----
-
-## **8️⃣ Pagination & Large Data**
-
-- OFFSET / FETCH: Standart sayfalama (`Skip/Take`), büyük sayfalarda yavaştır.
-- Keyset pagination: `WHERE Id > LastId` diyerek son kalınan yerden devam etme (Çok hızlıdır).
-- Large table scan riskleri: Büyük tabloda indexsiz arama (Scan) veritabanını kilitler.
-- Batch processing: Büyük işlemleri küçük parçalara (Chunk) bölerek yapma.
-
-🎤:
-
-> “Offset pagination büyük tablolarda performans sorunu yaratır.”
-> 
-
----
-
-## **9️⃣ Performance & Scalability**
-
-- Read replica (concept): Okuma yükünü başka sunucuya dağıtma.
-- Partitioning: Büyük tabloları fiziksel olarak parçalara bölme (Yıla göre vb.).
-- TempDB kullanımı: Geçici tablolar ve sıralama işlemleri için kullanılan sistem veritabanı.
-- Connection pooling: Veritabanı bağlantılarını kapatmayıp havuzda tutarak tekrar kullanma.
-- IO vs CPU bottleneck: Sorunun diskte mi işlemcide mi olduğunu anlama.
-
----
-
-## **🔟 Error Handling (SQL Server)**
-
-- TRY / CATCH: T-SQL içinde hata yakalama blokları.
-- THROW vs RAISERROR: `THROW` hatayı olduğu gibi fırlatır, `RAISERROR` özelleştirilebilir ama eskidir.
-- Transaction rollback: Hata durumunda `ROLLBACK` çağırmanın önemi.
-- Error propagation: Hatanın C# tarafına nasıl iletildiği.
-
----
-
-## **1️⃣1️⃣ Security**
-
-- SQL Injection: Kötü niyetli kodun SQL sorgusuna enjekte edilmesi.
-- Parameterized query: Parametre kullanarak injection'ı %100 engelleme.
-- Least privilege: Kullanıcıya sadece ihtiyacı olan en az yetkiyi verme prensibi.
-- Encryption at rest / in transit: Diskte şifreli saklama (TDE) ve ağda şifreli taşıma (SSL/TLS).
-
----
-
-## **1️⃣2️⃣ Backup, Restore & Reliability (Concept)**
 
 - Full / Differential / Log backup: Tam, Değişenler ve Log yedeği zinciri.
 - Point-in-time recovery: Log yedekleri sayesinde "Saat 14:05:00" anına dönebilme.
@@ -1437,141 +1564,6 @@ prod:user:profile:123:v2
 
 ## **3️⃣ Docker Image & Dockerfile (🔥)**
 
-- Dockerfile nedir: Image oluşturma tarifini içeren metin dosyası.
-- FROM / RUN / COPY / ADD: Baz image seç / Komut çalıştır / Dosya kopyala / URL'den dosya çek.
-- CMD vs ENTRYPOINT: `CMD` varsayılan komuttur (ezilebilir), `ENTRYPOINT` ana çalıştırıcıdır (argüman alır).
-- EXPOSE: Container'ın dinlediği portu belirtme (Dokümantasyon amaçlı).
-- ENV / ARG farkı: `ENV` çalışma zamanında (Runtime) var, `ARG` sadece build zamanında var.
-- .dockerignore: Gereksiz dosyaların (node_modules, .git) image'a girmesini engelleme.
-
-🎤:
-
-> “Dockerfile ne kadar küçükse o kadar iyidir.”
-> 
-
----
-
-## **4️⃣ Image Optimization & Best Practices**
-
-- Multi-stage build: Derleme (SDK) ve Çalıştırma (Runtime) aşamalarını ayırarak image boyutunu küçültme.
-- Küçük base image seçimi (alpine): Gereksiz araçlar barındırmayan minik Linux dağıtımları kullanma.
-- Layer caching mantığı: Değişmeyen katmanların (örn. `npm install`) tekrar build edilmemesi.
-- Gereksiz file kopyalamamak: Sadece gereken kodları kopyalamak.
-- Build context küçültme: Docker daemon'a gönderilen dosya boyutunu `.dockerignore` ile azaltma.
-
----
-
-## **5️⃣ Container Lifecycle**
-
-- create / start / stop / restart: Container yaşam döngüsü komutları.
-- Container state’leri: Created, Running, Paused, Exited, Dead.
-- Graceful shutdown: Container'a `SIGTERM` sinyali gönderip kapanmasını bekleme.
-- Restart policies: Çöken container'ın otomatik yeniden başlatılması (`on-failure`, `always`).
-
----
-
-## **6️⃣ Networking**
-
-- Bridge network: Default ağ, aynı hosttaki container'lar haberleşir.
-- Host network: Container host'un ağını direkt kullanır (Port izolasyonu yok).
-- Overlay network (concept): Farklı sunuculardaki (Swarm/K8s) container'ları bağlar.
-- Port mapping: Host portunu container portuna yönlendirme (`-p 8080:80`).
-- Container-to-container communication: Docker ağı içinde container isimleriyle haberleşme (DNS).
-
-🎤:
-
-> “Container’lar default olarak isolated network’te çalışır.”
-> 
-
----
-
-## **7️⃣ Volumes & Persistence (ÇOK SORULUR)**
-
-- Volume nedir: Veriyi container dışında host üzerinde kalıcı saklama alanı.
-- Bind mount vs volume: Bind mount hosttaki belirli klasörü bağlar, Volume Docker tarafından yönetilen alanı bağlar.
-- Data persistence mantığı: Container silinse bile verinin (DB dosyaları) kaybolmaması.
-- Stateless container yaklaşımı: Container içinde veri tutmamak, veriyi volume veya DB servisine yıkmak.
-
-📌:
-
-> “Container stateless, data dışarıda.”
-> 
-
----
-
-## **8️⃣ Environment & Configuration**
-
-- ENV variables: Çalışma zamanında konfigürasyon geçme (`-e DB_HOST=localhost`).
-- Secrets yönetimi: Hassas verileri (şifreler) güvenli saklama (Docker Swarm/K8s özelliği).
-- Config injection: Config dosyalarını volume ile içeri atma.
-- 12-factor app prensibi: Konfigürasyonu koddan ayırma ve ortam değişkenleriyle yönetme.
-
----
-
-## **9️⃣ Docker Compose**
-
-- docker-compose.yml: Çoklu container uygulamasını tanımlayan YAML dosyası.
-- Multi-container setup: API, DB, Cache gibi servisleri tek komutla (`up`) kaldırma.
-- Service dependency: `depends_on` ile açılış sırasını belirleme (DB kalkmadan API kalkmasın).
-- Network & volume tanımı: Servislerin ortak ağ ve volume'leri kullanması.
-- Local development senaryoları: Geliştirme ortamını tek tuşla ayağa kaldırma kolaylığı.
-
----
-
-## **🔟 Security Best Practices**
-
-- Root user ile çalışmamak: Container içinde `USER` komutu ile yetkisiz kullanıcıya geçmek.
-- Image scanning: Image içindeki güvenlik açıklarını taramak (Trivy, Snyk).
-- Minimal image kullanımı: Saldırı yüzeyini (Attack surface) azaltmak için gereksiz paketleri silmek.
-- Secrets image içine koymamak: Şifreleri Dockerfile içine GÖMMEMEK.
-
----
-
-## **1️⃣1️⃣ Logging & Monitoring**
-
-- stdout / stderr logging: Logları dosyaya değil konsola basmak (Docker yakalar).
-- Log driver’lar: Logları dosya, Syslog, Fluentd veya AWS CloudWatch'a yönlendirme.
-- Container healthcheck: Uygulamanın sağlıklı çalıştığını kontrol eden komut (`HEALTHCHECK`).
-- Resource usage (CPU / memory): `docker stats` ile kaynak tüketimini izleme.
-
----
-
-## **1️⃣2️⃣ Docker & CI/CD**
-
-- Docker build pipeline: CI sunucusunda image build etme.
-- Image tagging: Versiyonlama (`v1.0.0`, `latest`, `git-sha`).
-- Push / pull registry: Image'ı depoya gönderme ve sunucuya çekme.
-- Versioning strategy: Her build için unique tag kullanma.
-
----
-
-## **1️⃣3️⃣ Docker vs Kubernetes (Concept)**
-
-- Docker ne yapar: Tekil container'ı çalıştırır ve paketler.
-- Kubernetes ne yapar: Binlerce container'ı yönetir (Orchestration).
-- Ne zaman sadece Docker yeter: Tek sunuculu, basit uygulamalar veya geliştirme ortamı için.
-- Ne zaman K8s gerekir: Çok sunuculu, yüksek erişilebilirlik, otomatik ölçeklenme gerektiğinde.
-
----
-
-## **1️⃣4️⃣ Production Anti-Patterns**
-
-- Container içinde DB: Veritabanını container'da çalıştırmak production için risklidir (Yönetimi zor).
-- Large image’lar: Yavaş deployment ve güvenlik riski yaratır.
-- Hardcoded config: Ortamlar arası taşımayı imkansız kılar.
-- State tutan container: Ölçeklenmeyi engeller (Stateless olmalı).
-
-# Kubernetes
-
-## **1️⃣ Kubernetes Fundamentals**
-
-- Kubernetes nedir: Container orchestration (yönetim) platformu (Google tarafından geliştirildi).
-- Kubernetes hangi problemi çözer: Çok sayıda container'ın deployment, scaling ve yönetim karmaşasını çözer.
-- Docker vs Kubernetes farkı: Docker uçaksa, Kubernetes havaalanı kulesidir.
-- Kubernetes ne zaman GEREKLİ DEĞİL: Küçük, tekil uygulamalar için (Overkill).
-- Kubernetes cluster kavramı: Master ve Worker node'lardan oluşan sunucu kümesi.
-
-🎤
 
 > “Kubernetes container orchestration platformudur.”
 > 
@@ -1774,20 +1766,28 @@ prod:user:profile:123:v2
 - RabbitMQ ne zaman tercih edilir: Karmaşık yönlendirme, güvenilir teslimat ve önceliklendirme gerektiğinde.
 - RabbitMQ ne zaman KULLANILMAZ: Çok yüksek throughput (milyonlarca mesaj/sn) ve log saklama (Kafka işi) için.
 
-🎤
-
-> “RabbitMQ uygulamalar arası asenkron iletişim sağlar.”
-> 
-
 ---
 
 ## **2️⃣ Core Concepts**
 
 - Producer: Mesajı üreten ve RabbitMQ'ya gönderen uygulama.
+  ```csharp
+  channel.BasicPublish(exchange: "", routingKey: "task_queue", body: body);
+  ```
 - Consumer: Kuyruktan mesajı alıp işleyen uygulama.
+  ```csharp
+  var consumer = new EventingBasicConsumer(channel);
+  consumer.Received += (model, ea) => { ... };
+  ```
 - Queue: Mesajların beklediği tampon bölge.
 - Exchange (Direct / Fanout / Topic / Headers): Mesajı kuyruklara dağıtan yönlendirici (Postane).
+  ```csharp
+  channel.ExchangeDeclare("logs", ExchangeType.Fanout);
+  ```
 - Binding: Exchange ile Queue arasındaki bağlantı kuralı.
+  ```csharp
+  channel.QueueBind(queue: "my_queue", exchange: "logs", routingKey: "");
+  ```
 - Routing key: Mesajın hangi yoldan gideceğini belirleyen etiket.
 - Virtual host (vhost): RabbitMQ içinde mantıksal izolasyon (Namespace gibi).
 
@@ -1798,23 +1798,28 @@ prod:user:profile:123:v2
 - Work Queue (Task Queue): İş yükünü birden fazla işçiye (Consumer) dağıtma.
 - Publish / Subscribe: Bir mesajı ilgilenen tüm abonelere (Queue) iletme (Fanout).
 - Routing / Topic Exchange: Mesajı konusuna göre (`log.error`, `log.info`) ilgili kuyruklara gönderme.
-- RPC over RabbitMQ: Request/Response yapısını kuyruk üzerinden simüle etme.
-- Dead Letter Exchange: İşlenemeyen veya hatalı mesajların gönderildiği "Ölü Mektup" kuyruğu.
-
-🎤:
-
-> “Dead Letter Queue, mesaj işlenemezse başka kuyrukta toplanır.”
-> 
+- RPC over RabbitMQ: Request/Response yapısını kuyruk üzerinden simüle etme. (`ReplyTo` ve `CorrelationId` propertyleri ile).
+- Dead Letter Exchange (DLX): İşlenemeyen mesajların yönlendirildiği hata kuyruğu.
+  ```csharp
+  var args = new Dictionary<string, object> { { "x-dead-letter-exchange", "dlx_exchange" } };
+  channel.QueueDeclare("main_queue", arguments: args);
+  ```
 
 ---
 
 ## **4️⃣ Message Delivery Semantics**
 
-- At-most-once: Mesaj gönderilir, kaybolursa tekrar gönderilmez (En hızlı).
-- At-least-once: Mesajın en az bir kere ulaştığı garanti edilir (Consumer idempotent olmalı).
-- Exactly-once (concept): Mesajın tam olarak bir kere işlenmesi (RabbitMQ'da zordur).
-- Acknowledgements (ACK / NACK): Consumer'ın "Mesajı aldım, silebilirsin" onayı.
-- Durable queues & persistent messages: Sunucu kapansa bile mesajın diskte saklanması.
+- At-most-once: Mesaj kaybolabilir, asla çift gitmez (AutoAck = true).
+- At-least-once: Mesaj kaybolmaz, çift gidebilir (AutoAck = false, manuel Ack).
+- Acknowledgements (ACK / NACK):
+  ```csharp
+  channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+  ```
+- Durable queues & persistent messages: Sunucu restart olsa bile veriyi koruma.
+  ```csharp
+  // Durable Queue ve Persistent Message (prop.Persistent = true)
+  channel.QueueDeclare("task_queue", durable: true, ...);
+  ```
 
 ---
 
@@ -1823,22 +1828,23 @@ prod:user:profile:123:v2
 - Queue durability: RabbitMQ restart olduğunda kuyruğun silinip silinmeyeceği.
 - Auto-delete queue: Son consumer ayrıldığında kuyruğun otomatik silinmesi.
 - Exclusive queue: Sadece oluşturan bağlantı (Connection) tarafından kullanılan özel kuyruk.
-- TTL & message expiration: Mesajın belirli sürede işlenmezse silinmesi.
-- Max-length / max-priority: Kuyruk boyutu ve mesaj önceliği sınırları.
+- TTL & message expiration: Mesajın ömrü.
+  ```csharp
+  // 60 saniye ömürlü mesaj
+  props.Expiration = "60000";
+  ```
+- Max-length / max-priority: Kuyruk boyutu ve öncelik sınırları.
 
 ---
 
 ## **6️⃣ Concurrency & Scaling**
 
 - Prefetch count: Consumer'ın aynı anda işleyebileceği maksimum mesaj sayısı (Yük dengeleme).
+  ```csharp
+  channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false); // Tek tek al
+  ```
 - Multiple consumers per queue: Aynı kuyruğu dinleyen birden fazla işçi ile paralel işleme (Competing Consumers).
 - Consumer acknowledgment: İşlem bitince ACK göndererek kuyruktan düşme.
-- Load balancing across consumers: Round-robin mantığıyla işlerin dağıtılması.
-
-🎤:
-
-> “Prefetch sayısı tüketiciye düşen mesaj yükünü kontrol eder.”
-> 
 
 ---
 
@@ -1846,168 +1852,123 @@ prod:user:profile:123:v2
 
 - Mirrored / quorum queues: Kuyruğun kopyalarının farklı node'larda tutulması (HA).
 - High availability cluster: Birden fazla RabbitMQ sunucusu ile kesintisiz hizmet.
-- Network partition handling: Ağ kopması durumunda sunucuların nasıl davranacağı (Pause_minority vb.).
 - Publisher confirms: Mesajın broker'a ulaştığının teyidi.
+  ```csharp
+  channel.ConfirmSelect(); // Confirm modunu aç
+  channel.WaitForConfirmsOrDie();
+  ```
 
 ---
 
 ## **8️⃣ Performance Tuning**
 
-- Connection & channel management: TCP bağlantısını sürekli açıp kapatmak yerine Channel kullanma.
+- Connection & channel management: Connection pahalıdır (TCP handshake), Channel ucuzdur. Connection tek (Singleton), Channel çoklu kullanılmalı.
 - Batch publish: Mesajları toplu gönderme.
-- Consumer concurrency: İşçi sayısını artırma.
 - Persistent vs transient messages trade-off: Diske yazma maliyeti vs Hız.
 
 ---
 
-## **9️⃣ Monitoring & Observability**
+## **9️⃣ RabbitMQ & .NET Integration**
 
-- RabbitMQ Management UI: Web arayüzü ile kuyrukları izleme.
-- Metrics (queue length, publish rate, consumer count): Prometheus ile izlenecek kritik metrikler.
-- Alerts (unacked messages, queue growth): Mesaj birikmesi durumunda alarm üretme.
-- Logs: Hata ve uyarı logları.
-
----
-
-## **🔟 Security**
-
-- Authentication & authorization: Kullanıcı adı/şifre ve izin yönetimi.
-- User / vhost permissions: Hangi kullanıcının hangi vhost'a erişebileceği.
-- TLS encryption: Mesaj trafiğinin şifrelenmesi.
-- Policy management: Kuralların merkezi yönetimi.
+- RabbitMQ.Client usage: Resmi düşük seviye driver.
+- Connection / channel lifecycle: Connection ömürlük, Channel işlem bazlı (ama tekrar kullan).
+- Async consumer: `EventingBasicConsumer` veya `AsyncEventingBasicConsumer` kullanımı.
+- Retry & Dead-letter handling: Polly ile retry mekanizması kurup, başarısız olanı DLX'e atma.
 
 ---
-
-## **1️⃣1️⃣ RabbitMQ & .NET Integration**
-
-- RabbitMQ.Client usage: Resmi .NET kütüphanesi.
-- Connection / channel lifecycle: Connection singleton, Channel thread-safe değildir.
-- Async consumer: `EventingBasicConsumer` ile asenkron mesaj işleme.
-- Retry & Dead-letter handling: Polly ve DLX ile hata yönetimi.
-
----
-
-## **1️⃣2️⃣ Anti-Patterns & Pitfalls**
-
-- Queue overload → OOM: Kuyruk çok şişerse RAM biter (Out Of Memory).
-- Long-running consumer without ACK: Mesaj uzun süre ACK beklemezse tekrar kuyruğa dönebilir.
-- Single point of failure (standalone RabbitMQ): Cluster kurulmazsa sunucu gidince her şey durur.
-- Persistent messages everywhere → disk IO bottleneck: Gereksiz yere her mesajı diske yazmak sistemi yavaşlatır.
-
----
-
-## **1️⃣3️⃣ RabbitMQ Ne Zaman KULLANILMAZ?**
-
-- Çok düşük latency gereken işlem: Doğrudan TCP/gRPC daha hızlıdır.
-- Small-scale, simple CRUD: Basit projeler için overkill olabilir.
-- Strong consistency gerektiren transaction-heavy işlem: Veritabanı daha uygundur.
-- Stateful communication yeterli ise: Redis pub/sub veya HTTP yeterli olabilir.
 
 # Kafka
 
 ## **1️⃣ Kafka Fundamentals**
 
 - Kafka nedir: Dağıtık streaming platformu (Log tabanlı).
-- Kafka vs RabbitMQ farkları: Kafka mesajı saklar (Retention), RabbitMQ siler (Queue). Kafka pull, RabbitMQ push modelidir.
-- Kafka ne zaman tercih edilir: Büyük veri akışı (Streaming), Log toplama, Event Sourcing.
-- Kafka ne zaman KULLANILMAZ: Karmaşık routing, anlık request/response işleri için.
+- Kafka vs RabbitMQ: Kafka mesajı saklar (Retention), RabbitMQ siler. Kafka Pull, RabbitMQ Push.
+- Kafka ne zaman tercih edilir: Büyük veri (Big Data), Log toplama, Event Sourcing, Stream Processing.
 - Streaming platform kavramı: Veriyi sürekli akan bir nehir gibi işleme.
-
-🎤
-
-> “Kafka bir message broker değil, event streaming platformudur.”
-> 
 
 ---
 
 ## **2️⃣ Kafka Architecture**
 
 - Broker: Kafka sunucusu.
-- Zookeeper / KRaft: Cluster yönetimi ve metadata saklama (KRaft ile Zookeeper kalkıyor).
-- Topic vs Queue farkı: Topic log dosyasıdır, silinmez; Queue geçici depodur.
-- Partitioning mantığı: Topic'in parçalara bölünerek paralel işlenmesi (Scaling).
-- Replication factor: Verinin kaç kopyasının tutulacağı (Fault tolerance).
-- Leader / Follower replica: Yazma/Okuma Leader'dan, Follower sadece takip eder.
+- Zookeeper / KRaft: Küme durumunu yöneten koordinatör.
+- Topic vs Queue: Topic log dosyasıdır (silinmez), Queue geçicidir.
+- Partitioning mantığı: Topic'i parçalara bölme (Paralellik birimi).
+- Replication factor: Verinin kopyalanma sayısı (Yedeklilik).
+- Leader / Follower replica: Okuma/Yazma Leader'dan yapılır, Follower yedektir.
 
 ---
 
 ## **3️⃣ Core Concepts**
 
-- Producer: Mesajı üreten.
-- Consumer: Mesajı okuyan.
-- Consumer Group: Aynı işi yapan consumer grubu (Her partition sadece bir üyeye atanır).
-- Offset kavramı (En önemli): Consumer'ın nerede kaldığını belirten işaretçi (Bookmark).
-- Log retention policy: Mesajların ne kadar süre (7 gün) veya boyut (1GB) saklanacağı.
-
-🎤
-
-> “Consumer offset’i kendisi yönetir.”
-> 
+- Producer: Mesajı anahtarlı/anahtarsız gönderen.
+- Consumer: Mesajı offset ile okuyan.
+- Consumer Group: Ölçeklenme birimi. Bir grupta her partition sadece 1 consumer tarafından okunur.
+- Offset kavramı: Consumer'ın kitap ayracı. Nerede kaldığını bilir.
+- Log retention policy: Mesaj saklama süresi (Varsayılan 7 gün).
 
 ---
 
 ## **4️⃣ Data Modeling & Partitions**
 
-- Key-based partitioning: Aynı Key'e sahip mesajların hep aynı partition'a gitmesi (Sıralama garantisi).
-- Ordering guarantee: Kafka sadece partition içinde sıralama garanti eder (Tüm topic'te değil).
-- Partition sayısı nasıl belirlenir: Hedeflenen throughput ve consumer sayısına göre.
-- Topic compaction: Aynı key için sadece en son değeri saklama (Kütüphane mantığı).
+- Key-based partitioning: Aynı Key'e sahip mesajlar aynı partition'a gider (Sıralama garantisi).
+  ```csharp
+  // Message Key = "Order-123" -> Hep Partition 0'a gider
+  producer.ProduceAsync("orders", new Message<string, string> { Key = "123", Value = "..." });
+  ```
+- Ordering guarantee: Kafka SADECE partition bazında sıra garantisi verir, topic genelinde vermez.
+- Partition sayısı: Tüketim hızını belirler (Partition sayısı = Maksimum paralel consumer sayısı).
 
 ---
 
 ## **5️⃣ Writing Data (Producer)**
 
-- acks=0, 1, all: Yazma onayı seviyeleri (Hiç bekleme, Leader bekle, Herkesi bekle).
-- Batch processing: Mesajları toplu gönderme (Network optimizasyonu).
-- Compression (gzip, snappy): Veriyi sıkıştırarak gönderme (Disk/Network tasarrufu).
-- Idempotent producer: Tekrar gönderilen mesajların (Retry) çiftlenmesini engelleme.
+- acks=0, 1, all:
+  - `0`: Gönder ve unut (En hızlı, kayıp riski).
+  - `1`: Leader kaydetti (Orta).
+  - `all`: Tüm replikalar kaydetti (En güvenli, yavaş).
+  ```csharp
+  var config = new ProducerConfig { Acks = Acks.All };
+  ```
+- Compression (gzip, snappy): Veriyi sıkıştırarak gönderme (Network tasarrufu).
 
 ---
 
 ## **6️⃣ Reading Data (Consumer)**
 
-- Polling mechanism: Consumer veriyi kendisi çeker (Pull).
-- Consumer rebalancing: Yeni consumer gelince partitionların yeniden dağıtılması (Stop-the-world).
-- Auto-commit vs Manual commit: Offset'i otomatik kaydetme vs Elle güvenli kaydetme.
-- Lag monitoring: Consumer'ın ne kadar geriden geldiğinin takibi.
-
-🎤
-
-> “Rebalancing sırasında consumer’lar durur.”
-> 
+- Polling mechanism: Consumer actively veriyi çeker (Pull).
+  ```csharp
+  while (true) {
+      var cr = consumer.Consume(cts.Token);
+      Process(cr.Message.Value);
+  }
+  ```
+- Consumer rebalancing: Gruba üye girip çıktığında partitionların yeniden dağıtılması.
+- Auto-commit vs Manual commit:
+  - `EnableAutoCommit = true`: Kolay ama riskli (İşlenmeden kaybolabilir).
+  - `Manual Commit`: İşledikten sonra `Commit()` çağırma (Güvenli).
+  ```csharp
+  consumer.Commit(consumeResult);
+  ```
 
 ---
 
 ## **7️⃣ Kafka Ecosystem**
 
-- Kafka Connect: Veritabanı, S3 vb. kaynaklardan Kafka'ya veri aktarımı (Source/Sink).
-- Kafka Streams: Veriyi Kafka içinde işleme/dönüştürme kütüphanesi (Java/Scala).
-- KSQL (ksqlDB): Kafka üzerindeki veriye SQL sorgusu atma.
+- Kafka Connect: DB -> Kafka (Source) ve Kafka -> Elastic (Sink) gibi entegrasyonlar.
+- Kafka Streams: Java kütüphanesi ile stream işleme (`map`, `filter`, `join`).
+- KSQL (ksqlDB): Kafka üzerinde SQL sorgusu çalıştırma.
+  ```sql
+  SELECT userId, COUNT(*) FROM clicks WINDOW TUMBLING (SIZE 5 MINUTES) GROUP BY userId;
+  ```
 - Schema Registry: Mesaj formatını (Avro, Protobuf) doğrulama ve versiyonlama.
 
 ---
 
-## **8️⃣ Performance & Reliability**
+## **8️⃣ Kafka & .NET**
 
-- Zero-copy mechanism: Veriyi kernel seviyesinde kopyalayarak yüksek hız (Disk -> Network).
-- Sequential I/O: Diske sıralı yazma (Rastgele yazmadan çok daha hızlıdır).
-- Disk throughput: Kafka bellekten çok diski kullanır, hızlı disk önemlidir.
-- High Availability (HA): Broker çökse bile veri kaybını önleme.
+- Confluent.Kafka kütüphanesi: Resmi .NET istemcisi.
+- Producer/Consumer implementasyonu: `ProducerBuilder` ve `ConsumerBuilder`.
+- Serialization (JSON, Avro): Veriyi byte dizisine çevirme (`ISerializer`).
+- Background Service kullanımı: `IHostedService` içinde sonsuz döngüde `Consume()`.
 
----
-
-## **9️⃣ Kafka & .NET**
-
-- Confluent.Kafka kütüphanesi: .NET için resmi client.
-- Producer/Consumer implementasyonu: `ProducerBuilder` ve `ConsumerBuilder` kullanımı.
-- Serialization (JSON, Avro, Protobuf): Veriyi byte dizisine çevirme yöntemleri.
-- Background service ile consumption: `BackgroundService` içinde sonsuz döngüde `Consume()`.
-
----
-
-## **🔟 Kafka Ne Zaman Gerekli?**
-
-- Yüksek throughput (100k+ msg/sec): Devasa veri trafiği.
-- Event Sourcing: Tüm olay tarihçesini saklama.
-- Log aggregation: Tüm sistemin loglarını toplama.
-- Stream processing: Anlık veri analizi ve ETL işlemleri.
