@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ../../../src/BasicsLab/BackendLab.Api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Use a small Max Pool Size to trigger exhaustion easily
+      - ConnectionStrings__DefaultConnection=Server=mssql;Database=master;User Id=sa;Password=VeryStrongPassword123!;TrustServerCertificate=True;Max Pool Size=10;
+    depends_on:
+      - mssql
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=VeryStrongPassword123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1435:1433"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'VeryStrongPassword123!' -Q 'SELECT 1' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Load generator
+  k6:
+    image: grafana/k6
+    volumes:
+      - .:/scripts
+    command: run /scripts/test.js
+    depends_on:
+      api:
+        condition: service_healthy
