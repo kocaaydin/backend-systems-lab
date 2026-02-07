@@ -1,0 +1,1 @@
+EXEC sp_configure 'remote query timeout', 0 
