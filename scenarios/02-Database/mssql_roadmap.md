@@ -38,7 +38,7 @@ Bilerek yanlış yap:
 
 - PK olmayan tablolar
 - Clustered index'siz büyük tablolar
-- `NVARCHAR(MAX)` ile join
+- Non-SARGable filtreler (`YEAR`, `ISNULL`, `COALESCE`, `LEFT`, `CAST`)
 - Tarih alanı üzerinde fonksiyon kullanılan sorgular
 - Aynı kolon üzerinde 5 farklı nonclustered index
 
