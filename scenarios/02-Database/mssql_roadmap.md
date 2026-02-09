@@ -11,17 +11,6 @@ Bu lab'in amacı, MSSQL tarafında şu refleksleri geliştirmektir:
 - IO / CPU / Memory etkilerini sezgisel olarak kavrama
 - "Bu niye yavaş?" sorusuna içgüdüsel cevap verebilme
 
-**Hedef:** "Bu sistem neden yavaş?" sorusunu 3 dakikada kök sebebe indirebilen biri olmak.
-
----
-
-## Ortam
-
-- SQL Server Developer Edition (Local)
-- SSMS
-- Query Store: ON
-- `LabDb` adında bir database
-
 ### Veri modeli
 
 Basit bir e-ticaret simülasyonu:
