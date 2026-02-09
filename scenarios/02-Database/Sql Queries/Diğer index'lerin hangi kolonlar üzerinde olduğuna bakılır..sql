@@ -1,1 +1,0 @@
-exec('sp_helpindex ''Mellivo_FaturaDetay'' ')
