@@ -2,19 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "outbound-request-limit-check", "outbound-request-limit-check", "{06569756-814C-E569-4CA5-B6ACF18E1AFB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestLimitsCheck.Net10", "outbound-request-limit-check\RequestLimitsCheck.Net10\RequestLimitsCheck.Net10.csproj", "{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestLimitsCheck.Net7", "outbound-request-limit-check\RequestLimitsCheck.Net7\RequestLimitsCheck.Net7.csproj", "{65F2B83D-64B2-CE56-CD37-C65FF23D94D4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestLimitsCheck.Net8", "outbound-request-limit-check\RequestLimitsCheck.Net8\RequestLimitsCheck.Net8.csproj", "{FF932494-00B9-481C-9BC9-445F7791FFC5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestLimitsCheck.Net9", "outbound-request-limit-check\RequestLimitsCheck.Net9\RequestLimitsCheck.Net9.csproj", "{0400F1FA-39E0-2B74-5BC7-687D3F9516C4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TargetApi", "outbound-request-limit-check\TargetApi\TargetApi.csproj", "{53F131A3-D741-935C-082B-55C1626FCF07}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BasicsLab", "BasicsLab", "{82A4D9FA-40BC-2ECA-C01E-B461A402A24E}"
 EndProject
@@ -72,26 +60,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65F2B83D-64B2-CE56-CD37-C65FF23D94D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65F2B83D-64B2-CE56-CD37-C65FF23D94D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65F2B83D-64B2-CE56-CD37-C65FF23D94D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65F2B83D-64B2-CE56-CD37-C65FF23D94D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF932494-00B9-481C-9BC9-445F7791FFC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF932494-00B9-481C-9BC9-445F7791FFC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF932494-00B9-481C-9BC9-445F7791FFC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF932494-00B9-481C-9BC9-445F7791FFC5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0400F1FA-39E0-2B74-5BC7-687D3F9516C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0400F1FA-39E0-2B74-5BC7-687D3F9516C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0400F1FA-39E0-2B74-5BC7-687D3F9516C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0400F1FA-39E0-2B74-5BC7-687D3F9516C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{53F131A3-D741-935C-082B-55C1626FCF07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53F131A3-D741-935C-082B-55C1626FCF07}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53F131A3-D741-935C-082B-55C1626FCF07}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53F131A3-D741-935C-082B-55C1626FCF07}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C348F4D2-2939-6572-82E0-FA1F143ECAD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C348F4D2-2939-6572-82E0-FA1F143ECAD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C348F4D2-2939-6572-82E0-FA1F143ECAD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -165,11 +133,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F5B46FC3-1F3B-065C-64D1-AD97743AA7FE} = {06569756-814C-E569-4CA5-B6ACF18E1AFB}
-		{65F2B83D-64B2-CE56-CD37-C65FF23D94D4} = {06569756-814C-E569-4CA5-B6ACF18E1AFB}
-		{FF932494-00B9-481C-9BC9-445F7791FFC5} = {06569756-814C-E569-4CA5-B6ACF18E1AFB}
-		{0400F1FA-39E0-2B74-5BC7-687D3F9516C4} = {06569756-814C-E569-4CA5-B6ACF18E1AFB}
-		{53F131A3-D741-935C-082B-55C1626FCF07} = {06569756-814C-E569-4CA5-B6ACF18E1AFB}
 		{82A4D9FA-40BC-2ECA-C01E-B461A402A24E} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{C348F4D2-2939-6572-82E0-FA1F143ECAD0} = {82A4D9FA-40BC-2ECA-C01E-B461A402A24E}
 		{F2BCCA6F-D729-4993-F7AE-BC0769B16946} = {82A4D9FA-40BC-2ECA-C01E-B461A402A24E}
