@@ -29,12 +29,12 @@ Her laboratuvarın içinde `README.md` dosyasında detaylı senaryolar bulunmakt
 ### 1. Storage Lab (Veri Tutarlılığı)
 *   **Deadlock Testi:** `curl http://localhost:8082/experiments/storage/deadlock/bad`
 *   **Slow Query:** `curl http://localhost:8082/experiments/storage/slow-query/bad`
-*   **Çıktılar:** `src/StorageLab/results/` klasörüne yazılır.
+*   **Çıktılar:** `scenarios/09-Storage/results/StorageLab/` klasörüne yazılır.
 
 ### 2. Resilience Lab (Dayanıklılık)
 *   **Akıllı Retry (Polly):** `curl http://localhost:8084/experiments/resilience/retry/smart`
 *   **DB Bağlantı Kopması:** `curl "http://localhost:8084/experiments/resilience/db/connect?useRetry=true&host=invalid"`
-*   **Çıktılar:** `src/ResilienceLab/results/` klasörüne yazılır.
+*   **Çıktılar:** `scenarios/04-Resilience/results/ResilienceLab/` klasörüne yazılır.
 
 ### 3. Observability Lab (Gözlemlenebilirlik)
 *   **Zincirleme İstek:** `curl http://localhost:8083/experiments/microservice/chain`
@@ -47,7 +47,7 @@ Her laboratuvarın içinde `README.md` dosyasında detaylı senaryolar bulunmakt
 *   **RabbitMQ Testi:** `curl "http://localhost:8086/experiments/microservice/queue/publish?message=HelloRabbit"`
 *   **Kafka Testi:** `curl "http://localhost:8086/experiments/microservice/kafka/produce?message=HelloKafka"`
     *   *Akış:* Gateway -> Kafka (Topic) -> Worker (Consumer).
-*   **Çıktılar:** `src/ObservabilityLab/results/` (Gateway) ve `src/BasicsLab/results/` (Worker) altında.
+*   **Çıktılar:** `scenarios/08-Observability/results/ObservabilityLab/` (Gateway) ve `scenarios/01-Threading/k6/BasicsLab/experiments/` (Worker) altında.
 
 ## 📁 Proje Yapısı
 
