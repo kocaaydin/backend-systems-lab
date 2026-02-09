@@ -52,6 +52,12 @@ Bilerek yanlış yap:
 
 **Amaç:** Planı gördüğün anda "Bu Seek olmalıydı" diyebilmek.
 
+**Bu testte kullan:**
+
+- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/BadDesignSetup/bad_design_setup.sql` (Kurulum/seed)
+- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/query_performance_queries.sql` (Yavaş sorgu örnekleri)
+- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/BadDesignSetup/bad_design_compare_queries.sql` (Önce/sonra fark analizi)
+
 ---
 
 ### 2. Update / Write Path Ayrıştırma Lab'i

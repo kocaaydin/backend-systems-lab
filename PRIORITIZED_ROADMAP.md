@@ -1,6 +1,6 @@
 # Kişiselleştirilmiş Öncelik Sıralaması (Roadmap of Roadmaps)
 
-## 1. Öncelik: Yangın Söndürme & Temeller (Mevcut İş İçin Acil)
+## 1. Öncelik: Yangın Söndürme & Temeller 
 * Performanslı uygulama geliştirmen için önce veritabanı ve kaynak yönetimi konularını halletmen gerek.*
 
 *   **Kaynak:** `storage_consistency_roadmap.md`
@@ -8,7 +8,7 @@
 *   **Kaynak:** `experiments_roadmap.md`
     *   **Odak:** **Thread Starvation** (Bu .NET performansının en kritik konusudur).
 
-## 2. Öncelik: Sistem Sağlamlığı (Senior Mülakatları İçin)
+## 2. Öncelik: Sistem Sağlamlığı 
 *Yeni iş mülakatlarında "Sistemin çökünce ne yapıyorsun?" sorusuna cevap verebilmek için.*
 
 *   **Kaynak:** `resilience_roadmap.md`
