@@ -2,12 +2,19 @@
 set -e
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-APP_DIR="$ROOT_DIR/dotnet/K6TargetApi"
+cd "$ROOT_DIR"
 
-if ! command -v dotnet >/dev/null 2>&1; then
-  echo "dotnet bulunamadi. .NET SDK gerekli."
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker bulunamadi."
   exit 1
 fi
 
-cd "$APP_DIR"
-dotnet run
+echo "k6 target api compose ile baslatiliyor..."
+docker compose up -d --build k6-target-api
+
+echo "API health bekleniyor..."
+until curl -sf http://localhost:5080/health >/dev/null; do
+  sleep 1
+done
+
+echo "API hazir: http://localhost:5080"
