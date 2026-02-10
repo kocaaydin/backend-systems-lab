@@ -11,5 +11,6 @@ services:
     container_name: cpu-bound-k6
     volumes:
       - ./k6:/scripts
+      - ./results:/results
     profiles:
       - tools

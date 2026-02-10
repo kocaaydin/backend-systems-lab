@@ -45,6 +45,6 @@ docker compose down
 - `http_req_failed > 0`: Hata orani vardir, endpoint/ag tarafi incelenir.
 
 ## Bu Lab Sonucu Nasil Yorumlanir?
-- `01_smoke`: Basarili olursa endpoint ayakta ve temel check'ler geciyor demektir.
-- `02_stages`: Basarili olursa kademeli yukte servis stabil kalmis demektir.
-- `03_threshold_fail`: Bilerek sikı threshold kullanildigi icin fail olmasi normaldir; amac threshold ihlali durumunu gostermektir.
+- `01_smoke` (ornek): `checks=100%`, `http_req_failed=0%`, `p95<1ms` gorursen servis ayakta ve temel davranis dogru demektir.
+- `02_stages` (ornek): VU arttikca `p95` biraz yukselir ama hata oranı `0%` kalıyorsa servis yuk altinda stabil demektir.
+- `03_threshold_fail` (ornek): `p95=56ms` iken threshold `p95<10ms` ise test fail olur; bu normaldir ve threshold ihlali gostermek icin yapilir.

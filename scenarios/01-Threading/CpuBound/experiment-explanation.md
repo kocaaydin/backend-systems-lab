@@ -14,7 +14,7 @@ Bu deneyin amacı, sistemin **I/O beklemesi yerine işlemci (CPU) darboğazına*
     *   Senaryo, sürekli olarak `/experiments/cpu` endpoint'ine istek gönderir.
     *   Her istekte `n=20000` parametresi gönderilerek işlemcinin her seferinde ciddi bir hesaplama yapması sağlanır.
 
-3.  **Otomasyon Scripti Hazırlandı (`run-experiment-2-cpu.sh`)**
+3.  **Otomasyon Scripti Hazırlandı (`scripts/run.sh`)**
     *   Deneyi otomatize etmek için bir Bash script yazıldı.
     *   Sistem sırasıyla **5 RPS**, **20 RPS** ve **50 RPS** yük altında test edilir.
 

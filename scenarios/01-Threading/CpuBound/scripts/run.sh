@@ -2,20 +2,21 @@
 set -e
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$ROOT_DIR"
+BASE_DIR="$(cd "$ROOT_DIR/.." && pwd)"
+COMPOSE_FILE="$BASE_DIR/docker-compose.yml"
+cd "$BASE_DIR"
 
-OUTPUT_FILE="$ROOT_DIR/cpu_result.json"
-SUMMARY_FILE="$ROOT_DIR/k6/summary-cpu.json"
+OUTPUT_FILE="$BASE_DIR/results/cpu_result.json"
+SUMMARY_FILE="$BASE_DIR/results/summary-cpu.json"
 
-if [ ! -f "$OUTPUT_FILE" ]; then
-  echo "[]" > "$OUTPUT_FILE"
-fi
+mkdir -p "$BASE_DIR/results"
+echo "[]" > "$OUTPUT_FILE"
 
 echo "Environment: $(pwd)"
 echo "Output: $OUTPUT_FILE"
 
 echo "Rebuilding CpuBound API..."
-docker compose up -d --build cpu-bound-api
+docker compose -f "$COMPOSE_FILE" up -d --build cpu-bound-api
 
 echo "Waiting API health..."
 until curl -sf http://localhost:8085/health >/dev/null; do
@@ -26,9 +27,9 @@ run_test() {
   RPS="$1"
   echo "Running CPU Bound test for $RPS RPS..."
 
-  docker compose run --rm --profile tools -e RPS="$RPS" k6 \
+  docker compose -f "$COMPOSE_FILE" run --rm --profile tools -e RPS="$RPS" k6 \
     run /scripts/cpu-bound.js \
-    --summary-export=/scripts/summary-cpu.json || true
+    --summary-export=/results/summary-cpu.json || true
 
   python3 -c "
 import json
