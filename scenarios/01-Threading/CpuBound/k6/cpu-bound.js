@@ -2,6 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 const targetRps = Number(__ENV.RPS || 10);
+const duration = __ENV.DURATION || '30s';
+const targetN = Number(__ENV.N || 20000);
 
 export const options = {
   scenarios: {
@@ -9,7 +11,7 @@ export const options = {
       executor: 'constant-arrival-rate',
       rate: targetRps,
       timeUnit: '1s',
-      duration: '20s',
+      duration,
       preAllocatedVUs: 20,
       maxVUs: 300,
     },
@@ -22,7 +24,7 @@ export const options = {
 const baseUrl = __ENV.BASE_URL || 'http://cpu-bound-api:8085';
 
 export default function () {
-  const res = http.get(`${baseUrl}/experiments/cpu?n=20000`);
+  const res = http.get(`${baseUrl}/experiments/cpu?n=${targetN}`);
   check(res, {
     'status 200': (r) => r.status === 200,
   });
