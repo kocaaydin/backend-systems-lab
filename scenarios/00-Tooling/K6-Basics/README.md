@@ -43,3 +43,8 @@ docker compose down
 - `checks < 100%`: Beklenen davranislardan biri gecmedi.
 - `http_req_duration p(95)`: Isteklerin %95'inin gecikme ust siniri.
 - `http_req_failed > 0`: Hata orani vardir, endpoint/ag tarafi incelenir.
+
+## Bu Lab Sonucu Nasil Yorumlanir?
+- `01_smoke`: Basarili olursa endpoint ayakta ve temel check'ler geciyor demektir.
+- `02_stages`: Basarili olursa kademeli yukte servis stabil kalmis demektir.
+- `03_threshold_fail`: Bilerek sikı threshold kullanildigi icin fail olmasi normaldir; amac threshold ihlali durumunu gostermektir.

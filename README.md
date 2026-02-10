@@ -47,7 +47,7 @@ Her laboratuvarın içinde `README.md` dosyasında detaylı senaryolar bulunmakt
 *   **RabbitMQ Testi:** `curl "http://localhost:8086/experiments/microservice/queue/publish?message=HelloRabbit"`
 *   **Kafka Testi:** `curl "http://localhost:8086/experiments/microservice/kafka/produce?message=HelloKafka"`
     *   *Akış:* Gateway -> Kafka (Topic) -> Worker (Consumer).
-*   **Çıktılar:** `scenarios/08-Observability/results/ObservabilityLab/` (Gateway) ve `scenarios/01-Threading/k6/BasicsLab/experiments/` (Worker) altında.
+*   **Çıktılar:** `scenarios/08-Observability/results/ObservabilityLab/` (Gateway), `scenarios/01-Threading/CpuBound/results/` ve `scenarios/01-Threading/LatencyBaseline/results/` altında.
 
 ## 📁 Proje Yapısı
 
