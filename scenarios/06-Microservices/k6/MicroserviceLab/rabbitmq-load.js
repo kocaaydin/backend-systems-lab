@@ -15,7 +15,7 @@ export const options = {
 };
 
 export default function () {
-    const res = http.post('http://microservice-gateway-api:8080/experiments/microservice/queue/publish?message=LoadTest');
+    const res = http.post('http://gateway-api:8080/experiments/microservice/queue/publish?message=LoadTest');
     check(res, { 'RabbitMQ Publish OK': (r) => r.status == 200 });
     sleep(0.5);
 }

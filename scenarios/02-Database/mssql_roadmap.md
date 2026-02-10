@@ -55,8 +55,7 @@ Bilerek yanlış yap:
 **Bu testte kullan:**
 
 - `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/BadDesignSetup/bad_design_setup.sql` (Kurulum/seed)
-- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/query_performance_queries.sql` (Yavaş sorgu örnekleri)
-- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/BadDesignSetup/bad_design_compare_queries.sql` (Önce/sonra fark analizi)
+- `/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/02-Database/QueryPerformance/BadDesignSetup/bad_design_case_flow.sql` (Önce/sonra fark analizi)
 
 ---
 

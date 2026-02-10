@@ -1,0 +1,7 @@
+AuthN vs AuthZ kontrol listesi
+- 401: kimlik dogrulanmadi (token yok/gecersiz)
+- 403: kimlik var ama yetki yok
+
+Ornek curl (API'ne gore URL degistir):
+curl -i http://localhost:5000/api/admin/report
+curl -i -H 'Authorization: Bearer <token>' http://localhost:5000/api/admin/report

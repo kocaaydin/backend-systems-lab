@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS stock (
+  sku TEXT PRIMARY KEY,
+  available INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reservations (
+  id BIGSERIAL PRIMARY KEY,
+  order_id BIGINT NOT NULL UNIQUE,
+  sku TEXT NOT NULL,
+  quantity INT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+INSERT INTO stock (sku, available)
+VALUES ('SKU-1', 100)
+ON CONFLICT (sku) DO NOTHING;

@@ -1,0 +1,20 @@
+=== KARSILASTIRMA ===
+[BAD] readiness/startup yok, liveness endpoint hatali.
+[GOOD] readiness+liveness+startup var, request/limit dengeli.
+
+Bad probe satirlari:
+20:          resources:
+21:            requests:
+24:          livenessProbe:
+26:              path: /not-exists
+
+Good probe satirlari:
+20:          resources:
+21:            requests:
+24:            limits:
+27:          readinessProbe:
+29:              path: /
+33:          livenessProbe:
+35:              path: /
+39:          startupProbe:
+41:              path: /

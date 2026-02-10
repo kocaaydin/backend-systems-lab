@@ -47,3 +47,10 @@ Her deney için şu döngü takip edilecektir:
 2.  **Deney:** Senaryonun çalıştırılması.
 3.  **Ölçüm:** Gerçek davranışın gözlemlenmesi (Dashboard & Logs).
 4.  **Analiz:** Beklenen ve gerçekleşen arasındaki farkların nedenlerinin dokümante edilmesi.
+
+## 📁 Bu Repodaki Çalıştırılabilir Örnekler
+- `scenarios/02-Database/StorageConsistency/README.md`
+- `scenarios/02-Database/StorageConsistency/setup_storage_consistency.sql`
+- `scenarios/02-Database/StorageConsistency/replica_lag_stale_read_demo.sql`
+- `scenarios/02-Database/StorageConsistency/write_skew_lost_update_demo.sql`
+- `scenarios/02-Database/StorageConsistency/run_storage_consistency.sh`

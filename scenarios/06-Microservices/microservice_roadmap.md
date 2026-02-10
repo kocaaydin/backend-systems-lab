@@ -1,43 +1,66 @@
-# Microservice Observability Lab
+# Microservice Roadmap
 
 ## 🎯 Amaç
-Bu laboratuvarın amacı, dağıtık sistemlerde **gözlemlenebilirlik (observability)** reflekslerini geliştirmek ve farklı iletişim desenlerinin (HTTP, RabbitMQ, Kafka) sistem davranışına etkilerini canlı olarak deneyimlemektir.
+Mikroservislerde sadece endpoint degil, **pattern secimlerinin** sistem davranisini nasil degistirdigini gostermek.
 
-Hedef; araç öğrenmek değil, "Trace nerede koptu?", "Consumer yavaşlarsa ne olur?", "Collector çökerse veri kaybı yaşanır mı?" gibi sorulara yanıt verebilen bir mühendislik sezgisi kazandırmaktır.
+## 🧩 Kavramlar (Nedir?)
+- `API Gateway`: Client'in tum backend'e tek kapidan erismesi.
+- `Database per Service`: Her servisin kendi veritabani var, paylasilan tablo yok.
+- `Idempotency`: Ayni istek tekrar geldiginde ayni sonuc donup duplicate is olusmamasini saglar.
+- `Outbox`: Islem transaction'i icinde event'i DB'ye yazar, sonra broker'a publish eder.
+- `Consumer`: Event dinleyip kendi bounded context'inde isleyen servis.
+- `Saga/Orchestration`: Dagitik islemlerde adim adim telafi veya surec yonetimi.
 
-## 🏗️ Mimari ve Senaryolar
-Laboratuvar ortamı, en az üç servisli bir zincir akışı üzerine kuruludur:
-`Gateway` → `Core Service` → `Downstream Service` (veya Queue)
+## 🧪 Senaryo Seti (MicroservicePatternsLab)
 
-### 1. Senaryo A: Senkron Zincir (HTTP)
-*   **Akış:** Gateway -> (HTTP) -> Core -> (HTTP) -> Downstream
-*   **Odak:** Distributed Tracing, Context Propagation, Latency analizi.
-*   **Deneyler:**
-    *   Trace Context'in bir servisten diğerine (Header ile) taşınması.
-    *   Bir servis yavaşladığında zincirdeki diğer servislerin durumu.
+### 1. API Gateway + Sync HTTP Chain
+- **Case A (Bad):** Client her servisi dogrudan cagiriyor.
+- **Case B (Good):** Tum trafik gateway uzerinden geciyor.
+- **Fark:** Guvenlik/policy/limit ve gozlem tek noktadan yonetilir.
 
-### 2. Senaryo B: Asenkron Akış (RabbitMQ)
-*   **Akış:** Gateway -> (Publish Message) -> RabbitMQ -> (Consumer) -> Core Service
-*   **Odak:** Asenkron iletişimde trace takibi, Producer-Consumer hız farkları.
-*   **Deneyler:**
-    *   RabbitMQ down olduğunda veri kaybı.
-    *   Consumer Lag analizi.
+### 2. Database Per Service
+- **Case A (Bad):** Servisler ayni DB tablosunu paylasiyor.
+- **Case B (Good):** Order/Payment/Inventory ayri DB kullaniyor.
+- **Fark:** Bagimsiz deploy ve hata izolasyonu artar.
 
-### 3. Senaryo C: Asenkron Akış (Kafka)
-*   **Akış:** Gateway -> (Produce Event) -> Kafka -> (Consume) -> Core Service
-*   **Odak:** Yüksek throughput, Log-based storage davranışı.
-*   **Deneyler:**
-    *   Kafka Broker down simülasyonu.
-    *   Partitioning ve Ordering etkileri.
+### 3. Idempotency Key
+- **Case A (Bad):** Retry oldugunda duplicate order.
+- **Case B (Good):** `Idempotency-Key` ile dedup.
+- **Fark:** Ag timeout/retry durumlarinda veri tutarliligi korunur.
 
-## 🧪 Kaos ve Failure Senaryoları
-*   **Collector Down:** OpenTelemetry Collector devre dışı bırakıldığında uygulama performansı etkilenir mi? Veri tamponlanır mı?
-*   **Network Partition:** Servisler arası iletişim koptuğunda trace bütünlüğü.
-*   **Backpressure:** Downstream servis yavaşladığında kuyrukların (Queue) davranışı.
+### 4. Outbox Pattern
+- **Case A (Bad):** DB commit oldu ama event publish olmadi.
+- **Case B (Good):** Event outbox tablosuna transaction icinde yazilir.
+- **Fark:** En kritik kayip penceresi daralir.
 
-## ⚙️ Değişkenler
-*   **Sampling Rate:** %1 vs %100 örnekleme oranının hata yakalamaya etkisi.
-*   **Buffer Size:** OTel Exporter bellek limitleri.
+### 5. Async Eventing (RabbitMQ)
+- **Case A (Bad):** Sync zincir uzuyor ve bagimlilik artiyor.
+- **Case B (Good):** `order.created` event'i ile gevsek bagli akis.
+- **Fark:** Servisler kendi hizinda ilerler, backpressure daha yonetilebilir olur.
 
-## 📝 Çıktı ve Analiz
-Sonuçlar, diğer lablarda olduğu gibi `results/microservice_lab_results.json` dosyasına kaydedilecektir.
+### 6. Consumer Pattern (Payment/Inventory)
+- **Case A (Bad):** Tek consumer butun isi yapiyor.
+- **Case B (Good):** Her bounded-context kendi queue/tuketici akisini yonetiyor.
+- **Fark:** Is kurallari ayrisir, domain karisikligi azalir.
+
+## 🛠️ Çalıştırma
+```bash
+cd scenarios/06-Microservices/MicroservicePatternsLab
+./scripts/run.sh
+```
+
+## Dosya Referanslari
+- Compose: `scenarios/06-Microservices/MicroservicePatternsLab/docker-compose.yml`
+- Gateway: `scenarios/06-Microservices/MicroservicePatternsLab/services/GatewayApi/Program.cs`
+- Order (Idempotency + Outbox): `scenarios/06-Microservices/MicroservicePatternsLab/services/OrderApi/Program.cs`
+- Payment Consumer: `scenarios/06-Microservices/MicroservicePatternsLab/services/PaymentApi/Program.cs`
+- Inventory Consumer: `scenarios/06-Microservices/MicroservicePatternsLab/services/InventoryApi/Program.cs`
+- k6: `scenarios/06-Microservices/MicroservicePatternsLab/k6/MicroservicePatternsLab/create-orders.js`
+- Kafka production notu: `scenarios/06-Microservices/MicroservicePatternsLab/docs/kafka_production_patterns.md`
+
+## 📊 Ölçülecek Metrikler
+- Order create p95/p99
+- Duplicate order oranı (idempotency test)
+- Outbox publish gecikmesi
+- Payment consume gecikmesi
+- Inventory stock reserve başarım oranı

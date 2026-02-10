@@ -1,0 +1,2 @@
+TLS kontrol: https://example.com
+Sertifika okunamadi. Local ag/TLS erisimi kisitli olabilir.

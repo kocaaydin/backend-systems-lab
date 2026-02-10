@@ -1,0 +1,93 @@
+services:
+  gateway-api:
+    build:
+      context: ./MicroservicePatternsLab/services/GatewayApi
+    container_name: patterns-gateway-api
+    environment:
+      - ORDER_API_URL=http://order-api:8080
+    ports:
+      - "8090:8080"
+    depends_on:
+      - order-api
+
+  order-api:
+    build:
+      context: ./MicroservicePatternsLab/services/OrderApi
+    container_name: patterns-order-api
+    environment:
+      - ORDER_DB=Host=order-db;Port=5432;Database=orderdb;Username=order;Password=orderpwd
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - order-db
+      - rabbitmq
+
+  payment-api:
+    build:
+      context: ./MicroservicePatternsLab/services/PaymentApi
+    container_name: patterns-payment-api
+    environment:
+      - PAYMENT_DB=Host=payment-db;Port=5432;Database=paymentdb;Username=payment;Password=paymentpwd
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8092:8080"
+    depends_on:
+      - payment-db
+      - rabbitmq
+
+  inventory-api:
+    build:
+      context: ./MicroservicePatternsLab/services/InventoryApi
+    container_name: patterns-inventory-api
+    environment:
+      - INVENTORY_DB=Host=inventory-db;Port=5432;Database=inventorydb;Username=inventory;Password=inventorypwd
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8093:8080"
+    depends_on:
+      - inventory-db
+      - rabbitmq
+
+  order-db:
+    image: postgres:16-alpine
+    container_name: patterns-order-db
+    environment:
+      - POSTGRES_USER=order
+      - POSTGRES_PASSWORD=orderpwd
+      - POSTGRES_DB=orderdb
+    volumes:
+      - ./MicroservicePatternsLab/db/order/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  payment-db:
+    image: postgres:16-alpine
+    container_name: patterns-payment-db
+    environment:
+      - POSTGRES_USER=payment
+      - POSTGRES_PASSWORD=paymentpwd
+      - POSTGRES_DB=paymentdb
+    volumes:
+      - ./MicroservicePatternsLab/db/payment/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  inventory-db:
+    image: postgres:16-alpine
+    container_name: patterns-inventory-db
+    environment:
+      - POSTGRES_USER=inventory
+      - POSTGRES_PASSWORD=inventorypwd
+      - POSTGRES_DB=inventorydb
+    volumes:
+      - ./MicroservicePatternsLab/db/inventory/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: patterns-rabbitmq
+    ports:
+      - "15682:15672"
+      - "5674:5672"
+
+  k6:
+    image: grafana/k6:0.49.0
+    working_dir: /scripts
+    volumes:
+      - ./MicroservicePatternsLab/k6/MicroservicePatternsLab:/scripts
+    profiles:
+      - tools

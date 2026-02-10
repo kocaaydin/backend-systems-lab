@@ -1,0 +1,15 @@
+services:
+  cpu-bound-api:
+    build:
+      context: ./CpuBoundApi
+    container_name: cpu-bound-api
+    ports:
+      - "8085:8085"
+
+  k6:
+    image: grafana/k6:0.49.0
+    container_name: cpu-bound-k6
+    volumes:
+      - ./k6:/scripts
+    profiles:
+      - tools

@@ -15,7 +15,7 @@ export const options = {
 };
 
 export default function () {
-    const res = http.get('http://microservice-gateway-api:8080/experiments/microservice/chain');
+    const res = http.get('http://gateway-api:8080/experiments/microservice/chain');
     check(res, { 'HTTP Chain OK': (r) => r.status == 200 });
     sleep(1);
 }

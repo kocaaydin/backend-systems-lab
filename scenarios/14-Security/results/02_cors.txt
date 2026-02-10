@@ -1,0 +1,10 @@
+[BAD] AllowAnyOrigin + AllowCredentials
+services.AddCors(o => o.AddPolicy("bad", p =>
+  p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+
+[GOOD] Explicit origin list
+services.AddCors(o => o.AddPolicy("good", p =>
+  p.WithOrigins("https://app.company.com")
+   .WithMethods("GET","POST")
+   .WithHeaders("Authorization","Content-Type")
+   .AllowCredentials()));

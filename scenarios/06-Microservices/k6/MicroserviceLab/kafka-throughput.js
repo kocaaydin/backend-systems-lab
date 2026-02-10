@@ -15,7 +15,7 @@ export const options = {
 };
 
 export default function () {
-    const res = http.post('http://microservice-gateway-api:8080/experiments/microservice/kafka/produce?message=HighThroughput');
+    const res = http.post('http://gateway-api:8080/experiments/microservice/kafka/produce?message=HighThroughput');
     check(res, { 'Kafka Produce OK': (r) => r.status == 200 });
     sleep(0.2);
 }

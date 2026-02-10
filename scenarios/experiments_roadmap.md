@@ -12,7 +12,7 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
 - [x] **Deney #2.1: Thread Starvation Senaryosu**
   - *Kavram:* ThreadPool üzerinde çalışan worker'ların, içeride Thread + Task.Run + .Wait() kombinasyonu ve SemaphoreSlim kısıtı nedeniyle, yine ThreadPool'dan çalışacak task'ları bekleyerek kendi kendini kilitlemesi (Thread Starvation).
   - *Amaç:* Aynı anda 50 worker tetiklendiğinde, ThreadPool thread'lerinin bloklanmasıyla task'ların ilerleyemediği, sistemin fiilen durduğu anı ayrıntılı log'larla gözle görünür hale getirmek.
-  - ✅ **Uygulama:** BackendLab.Api içine [ThreadStarvationService](src/BasicsLab/BackendLab.Api/Services/ThreadStarvationService.cs) entegre edildi
+  - ✅ **Uygulama:** Thread starvation deneyi senaryo klasörlerinde çalıştırılabilir hale getirildi
   - 📍 **Endpoint:** `POST /experiments/thread-starvation`
 - [/] **Deney #3: Outgoing Limits & Concurrency**
   - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
@@ -47,3 +47,14 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
 - [ ] **Deney #10: Distributed Tracing**
   - *Kavram:* Observability.
   - *Amaç:* Mikroservisler arasında kaybolan bir isteği bulmak.
+
+## Bölüm 5: notes.md'den Eklenen Yeni Başlıklar
+- `scenarios/10-Redis/redis_roadmap.md`
+- `scenarios/11-Mongo/mongo_roadmap.md`
+- `scenarios/12-Elasticsearch/elasticsearch_roadmap.md`
+- `scenarios/13-Platform/docker_k8s_roadmap.md`
+- `scenarios/14-Security/security_api_roadmap.md`
+
+## Bölüm 6: k6 Temel Öğrenme Lab'i
+- `scenarios/00-k6-Basics/README.md`
+- Çalıştırma: `cd scenarios/00-k6-Basics && ./scripts/run.sh`

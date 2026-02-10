@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-bad
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-bad
+  template:
+    metadata:
+      labels:
+        app: api-bad
+    spec:
+      containers:
+        - name: api
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+          livenessProbe:
+            httpGet:
+              path: /not-exists
+              port: 80
+            initialDelaySeconds: 2
+            periodSeconds: 3
