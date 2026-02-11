@@ -5,6 +5,20 @@
 - "Teoride biliyorum"dan çıkıp,
 - "Yanlış tasarımın sistemi nasıl boğduğunu gözümle gördüm" seviyesine gelmek.
 
+## 0. Thread Türleri (Temel Harita)
+
+Bu roadmap'e girmeden önce hangi thread'in ne yaptığını ayırt et:
+
+- `Main Thread`: Uygulamanın başlangıç thread'i.
+- `ThreadPool Thread`: Runtime tarafından yönetilen, tekrar kullanılan worker thread'leri.
+- `Dedicated Thread` (`new Thread(...)`): Uygulamaya özel, manuel yaşam döngülü thread.
+- `GC Threads`: Garbage Collector'ın kullandığı thread'ler.
+- `Finalizer Thread`: Finalizer kuyruğunu işleyen özel thread.
+
+Kısa not:
+- En kritik mimari karar çoğunlukla `ThreadPool` vs `Dedicated Thread` ayrımıdır.
+- Thread starvation problemleri çoğunlukla `ThreadPool` üzerinde görünür.
+
 ## 1. Tek Pool ile Başla
 
 API içinde:
@@ -73,6 +87,29 @@ Amaç:
 
 - "Asılı kalan task" nasıl oluşur?
 - Bunu mimari olarak nasıl engellersin?
+
+## 6. Thread Türleri Deneyi (ThreadPool vs Dedicated)
+
+Amaç:
+- Aynı işi farklı thread modeliyle koşturup davranış farkını görmek.
+
+Kurulum:
+- Aynı CPU-heavy işi iki endpoint ile sun:
+  - `/cpu-heavy-threadpool`
+  - `/cpu-heavy-dedicated`
+
+Test:
+- Aynı yük profili ile iki endpoint'i ayrı ayrı çalıştır.
+- Paralelde `/fast` endpoint'ini de gözlemle.
+
+Gözle:
+- ThreadPool modelinde starvation belirtileri ne zaman başlıyor?
+- Dedicated modelinde latency, context switch ve kaynak maliyeti nasıl değişiyor?
+- Hangi noktada dedicated thread avantajdan çok maliyet üretmeye başlıyor?
+
+Beklenen çıktı:
+- "Thread sayısı arttı = her zaman hızlı" yanılgısını kırmak.
+- Hangi iş tipi için hangi thread modelinin uygun olduğunu netleştirmek.
 
 ## Bu Roadmap'i Bitirdiğinde
 

@@ -14,6 +14,10 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
   - *Amaç:* Aynı anda 50 worker tetiklendiğinde, ThreadPool thread'lerinin bloklanmasıyla task'ların ilerleyemediği, sistemin fiilen durduğu anı ayrıntılı log'larla gözle görünür hale getirmek.
   - ✅ **Uygulama:** Thread starvation deneyi senaryo klasörlerinde çalıştırılabilir hale getirildi
   - 📍 **Endpoint:** `POST /experiments/thread-starvation`
+- [ ] **Deney #2.2: Thread Türleri ve Model Seçimi (ThreadPool vs Dedicated)**
+  - *Kavram:* Main Thread, ThreadPool Thread, Dedicated Thread, GC/Finalizer Thread.
+  - *Amaç:* CPU-heavy işlerde ThreadPool ve Dedicated yaklaşımının latency/starvation/maliyet farklarını görmek.
+  - 📍 **Roadmap:** `scenarios/01-Threading/thread_roadmap.md`
 - [/] **Deney #3: Outgoing Limits (Network) + Concurrency**
   - **Concurrency Odaklı (01-Threading):**
     - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
