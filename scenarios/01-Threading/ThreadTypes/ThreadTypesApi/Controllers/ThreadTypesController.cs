@@ -38,18 +38,17 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("io-async")]
     public async Task<IActionResult> IoAsync([FromQuery] int delayMs = 250, CancellationToken cancellationToken = default)
     {
-        var safeDelay = Math.Clamp(delayMs, 1, 10000);
         var sw = Stopwatch.StartNew();
-        LogStart("io-async", $"delayMs={safeDelay}");
+        LogStart("io-async", $"delayMs={delayMs}");
 
-        await Task.Delay(safeDelay, cancellationToken);
+        await Task.Delay(delayMs, cancellationToken);
 
         sw.Stop();
-        LogEnd("io-async", sw.ElapsedMilliseconds, $"delayMs={safeDelay}");
+        LogEnd("io-async", sw.ElapsedMilliseconds, $"delayMs={delayMs}");
         return Ok(new
         {
             endpoint = "io-async",
-            delayMs = safeDelay,
+            delayMs,
             elapsedMs = sw.ElapsedMilliseconds,
             managedThreadId = Thread.CurrentThread.ManagedThreadId,
             isThreadPoolThread = Thread.CurrentThread.IsThreadPoolThread
@@ -59,18 +58,17 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("cpu-heavy-threadpool")]
     public async Task<IActionResult> CpuHeavyThreadPool([FromServices] CpuCalculator calculator, [FromQuery] int n = 20000)
     {
-        var safeN = Math.Clamp(n, 1000, 300000);
         var sw = Stopwatch.StartNew();
-        LogStart("cpu-heavy-threadpool", $"n={safeN}");
+        LogStart("cpu-heavy-threadpool", $"n={n}");
 
-        var result = await Task.Run(() => calculator.CountPrimes(safeN));
+        var result = await Task.Run(() => calculator.CountPrimes(n));
 
         sw.Stop();
-        LogEnd("cpu-heavy-threadpool", sw.ElapsedMilliseconds, $"n={safeN}");
+        LogEnd("cpu-heavy-threadpool", sw.ElapsedMilliseconds, $"n={n}");
         return Ok(new
         {
             endpoint = "cpu-heavy-threadpool",
-            n = safeN,
+            n,
             primeCount = result,
             elapsedMs = sw.ElapsedMilliseconds,
             managedThreadId = Thread.CurrentThread.ManagedThreadId,
@@ -81,16 +79,15 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("cpu-heavy-dedicated")]
     public async Task<IActionResult> CpuHeavyDedicated([FromServices] CpuCalculator calculator, [FromQuery] int n = 20000)
     {
-        var safeN = Math.Clamp(n, 1000, 300000);
         var sw = Stopwatch.StartNew();
-        LogStart("cpu-heavy-dedicated", $"n={safeN}");
+        LogStart("cpu-heavy-dedicated", $"n={n}");
 
         var tcs = new TaskCompletionSource<(int PrimeCount, int ThreadId, bool IsPool)>(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
         {
             try
             {
-                var count = calculator.CountPrimes(safeN);
+                var count = calculator.CountPrimes(n);
                 tcs.SetResult((count, Thread.CurrentThread.ManagedThreadId, Thread.CurrentThread.IsThreadPoolThread));
             }
             catch (Exception ex)
@@ -107,11 +104,11 @@ public sealed class ThreadTypesController : ControllerBase
         var result = await tcs.Task;
 
         sw.Stop();
-        LogEnd("cpu-heavy-dedicated", sw.ElapsedMilliseconds, $"n={safeN}");
+        LogEnd("cpu-heavy-dedicated", sw.ElapsedMilliseconds, $"n={n}");
         return Ok(new
         {
             endpoint = "cpu-heavy-dedicated",
-            n = safeN,
+            n,
             primeCount = result.PrimeCount,
             elapsedMs = sw.ElapsedMilliseconds,
             requestThreadId = Thread.CurrentThread.ManagedThreadId,
@@ -124,18 +121,17 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("starvation/blocking")]
     public IActionResult StarvationBlocking([FromQuery] int blockMs = 3000)
     {
-        var safeBlock = Math.Clamp(blockMs, 1, 15000);
         var sw = Stopwatch.StartNew();
-        LogStart("starvation/blocking", $"blockMs={safeBlock}");
+        LogStart("starvation/blocking", $"blockMs={blockMs}");
 
-        Thread.Sleep(safeBlock);
+        Thread.Sleep(blockMs);
 
         sw.Stop();
-        LogEnd("starvation/blocking", sw.ElapsedMilliseconds, $"blockMs={safeBlock}");
+        LogEnd("starvation/blocking", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
         return Ok(new
         {
             endpoint = "starvation/blocking",
-            blockMs = safeBlock,
+            blockMs,
             elapsedMs = sw.ElapsedMilliseconds,
             managedThreadId = Thread.CurrentThread.ManagedThreadId,
             isThreadPoolThread = Thread.CurrentThread.IsThreadPoolThread
@@ -145,21 +141,19 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("cpu-cancellable")]
     public IActionResult CpuCancellable([FromServices] CpuCalculator calculator, [FromQuery] int n = 250000, [FromQuery] int checkEvery = 200, CancellationToken cancellationToken = default)
     {
-        var safeN = Math.Clamp(n, 1000, 500000);
-        var safeCheckEvery = Math.Clamp(checkEvery, 1, 10000);
         var sw = Stopwatch.StartNew();
-        LogStart("cpu-cancellable", $"n={safeN},checkEvery={safeCheckEvery}");
+        LogStart("cpu-cancellable", $"n={n},checkEvery={checkEvery}");
 
         try
         {
-            var count = calculator.CountPrimesCancellable(safeN, cancellationToken, safeCheckEvery);
+            var count = calculator.CountPrimesCancellable(n, cancellationToken, checkEvery);
             sw.Stop();
-            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={safeN},completed=true");
+            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={n},completed=true");
             return Ok(new
             {
                 endpoint = "cpu-cancellable",
-                n = safeN,
-                checkEvery = safeCheckEvery,
+                n,
+                checkEvery,
                 primeCount = count,
                 elapsedMs = sw.ElapsedMilliseconds,
                 cancelled = false
@@ -168,11 +162,11 @@ public sealed class ThreadTypesController : ControllerBase
         catch (OperationCanceledException)
         {
             sw.Stop();
-            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={safeN},completed=false");
+            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={n},completed=false");
             return StatusCode(499, new
             {
                 endpoint = "cpu-cancellable",
-                n = safeN,
+                n,
                 elapsedMs = sw.ElapsedMilliseconds,
                 cancelled = true
             });
@@ -182,13 +176,11 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpPost("queue/enqueue")]
     public async Task<IActionResult> Enqueue([FromServices] WorkQueue queue, [FromQuery] int items = 10, [FromQuery] int workMs = 300, CancellationToken cancellationToken = default)
     {
-        var safeItems = Math.Clamp(items, 1, 5000);
-        var safeWorkMs = Math.Clamp(workMs, 1, 10000);
-        LogStart("queue/enqueue", $"items={safeItems},workMs={safeWorkMs}");
+        LogStart("queue/enqueue", $"items={items},workMs={workMs}");
 
-        for (var i = 0; i < safeItems; i++)
+        for (var i = 0; i < items; i++)
         {
-            await queue.EnqueueAsync(new QueuedWork(safeWorkMs, DateTime.UtcNow), cancellationToken);
+            await queue.EnqueueAsync(new QueuedWork(workMs, DateTime.UtcNow), cancellationToken);
         }
 
         var snapshot = queue.Snapshot();
@@ -196,8 +188,8 @@ public sealed class ThreadTypesController : ControllerBase
         return Ok(new
         {
             endpoint = "queue/enqueue",
-            items = safeItems,
-            workMs = safeWorkMs,
+            items,
+            workMs,
             snapshot
         });
     }
@@ -215,10 +207,9 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpPost("finalizer/create")]
     public IActionResult CreateFinalizerSamples([FromQuery] int count = 10000)
     {
-        var safeCount = Math.Clamp(count, 1, 2_000_000);
-        LogStart("finalizer/create", $"count={safeCount}");
+        LogStart("finalizer/create", $"count={count}");
 
-        for (var i = 0; i < safeCount; i++)
+        for (var i = 0; i < count; i++)
         {
             _ = new FinalizerProbe();
         }
@@ -228,7 +219,7 @@ public sealed class ThreadTypesController : ControllerBase
         return Ok(new
         {
             endpoint = "finalizer/create",
-            count = safeCount,
+            count,
             created = snapshot.Created,
             finalized = snapshot.Finalized
         });

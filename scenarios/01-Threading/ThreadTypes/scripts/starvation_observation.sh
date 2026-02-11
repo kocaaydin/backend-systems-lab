@@ -5,10 +5,16 @@ set -euo pipefail
 # - ThreadPool'da bloklayici islerin /fast endpoint'ini nasil yavaslattigini gormek.
 # - Birden fazla blocking request'i paralel basip sonra /fast suresine bakmak.
 
-BASE_URL="${BASE_URL:-http://localhost:8091}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "${SCRIPT_DIR}/_common.sh"
+
 BLOCK_COUNT="${BLOCK_COUNT:-20}"
 BLOCK_MS="${BLOCK_MS:-4000}"
 
+start_api
+trap stop_api EXIT
+
+step "Starvation senaryosunu baslatma"
 echo "Starting starvation demo: BLOCK_COUNT=$BLOCK_COUNT BLOCK_MS=$BLOCK_MS"
 
 for _ in $(seq 1 "$BLOCK_COUNT"); do
@@ -17,6 +23,7 @@ done
 
 sleep 1
 
+step "/fast latency kontrolu"
 echo "Checking /fast latency under blocking pressure..."
 for i in 1 2 3 4 5; do
   echo "fast call $i"
@@ -25,4 +32,5 @@ for i in 1 2 3 4 5; do
 done
 
 wait
+step "Starvation tamamlandi"
 echo "Starvation demo completed."

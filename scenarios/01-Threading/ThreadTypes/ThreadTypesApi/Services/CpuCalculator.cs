@@ -18,6 +18,11 @@ public sealed class CpuCalculator
 
     public int CountPrimesCancellable(int n, CancellationToken cancellationToken, int checkEvery = 200)
     {
+        if (checkEvery <= 0)
+        {
+            checkEvery = 1;
+        }
+
         var count = 0;
         for (var i = 2; i <= n; i++)
         {
