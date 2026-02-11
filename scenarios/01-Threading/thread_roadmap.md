@@ -112,6 +112,16 @@ Beklenen çıktı:
 - "Thread sayısı arttı = her zaman hızlı" yanılgısını kırmak.
 - Hangi iş tipi için hangi thread modelinin uygun olduğunu netleştirmek.
 
+Not (bizim gözlem):
+- Hızlı turda aşağıdaki çıktıları aldık:
+  - `GET /thread-types/info` -> `{"managedThreadId":13,"isThreadPoolThread":true,"processorCount":11}`
+  - `GET /thread-types/cpu-heavy-threadpool?n=200000` -> `{"endpoint":"cpu-heavy-threadpool","n":200000,"primeCount":17984,"elapsedMs":6,...}`
+  - `GET /thread-types/cpu-heavy-dedicated?n=200000` -> `{"endpoint":"cpu-heavy-dedicated","n":200000,"primeCount":17984,"elapsedMs":6,...}`
+- Sonuç:
+  - Bu ölçümde süreler benzer çıktı (6 ms vs 6 ms).
+  - Yorum: düşük yükte ve kısa işte thread modeli farkı belirginleşmeyebilir.
+  - Fark genelde yüksek paralellikte, uzun CPU işi altında ve queue/bekleme başladığında görünür.
+
 ## 7. Mevcut Test Eşleşmesi (Güncel)
 
 Kullandığımız script ve endpoint eşleşmesi:
@@ -132,6 +142,7 @@ Kullandığımız script ve endpoint eşleşmesi:
 Not:
 - Bu aşamadaki hedef kavramı görmek olduğu için k6 zorunlu değil.
 - Sayısal benchmark kıyası gerektiğinde k6 ayrıca eklenebilir.
+- `quick_overview.sh` ile aldığımız benzer süre sonucu, "boşta sistemde fark az olabilir" gözlemini doğruluyor.
 
 ## Bu Roadmap'i Bitirdiğinde
 

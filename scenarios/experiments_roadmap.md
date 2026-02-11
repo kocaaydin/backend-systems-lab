@@ -18,6 +18,10 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
   - *Kavram:* Main Thread, ThreadPool Thread, Dedicated Thread, GC/Finalizer Thread.
   - *Amaç:* CPU-heavy işlerde ThreadPool ve Dedicated yaklaşımının latency/starvation/maliyet farklarını görmek.
   - 📍 **Roadmap:** `scenarios/01-Threading/thread_roadmap.md`
+  - 📝 **Saha Notu (ilk ölçüm):**
+    - `cpu-heavy-threadpool` ve `cpu-heavy-dedicated` aynı testte yaklaşık aynı sürdü (`elapsedMs: 6` / `elapsedMs: 6`).
+    - İlk yorum: düşük yükte "belirgin fark yok" normaldir.
+    - Farkı görmek için daha yüksek paralellik, daha uzun CPU işi ve kuyruk/bekleme davranışı gözlenmelidir.
 - [/] **Deney #3: Outgoing Limits (Network) + Concurrency**
   - **Concurrency Odaklı (01-Threading):**
     - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
