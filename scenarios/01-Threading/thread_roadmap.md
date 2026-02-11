@@ -23,8 +23,8 @@ Kısa not:
 
 API içinde:
 
-- `/fast`
-- `/cpu-heavy` (loop, hash, vs.)
+- `/thread-types/fast`
+- `/thread-types/cpu-heavy-threadpool` (loop, hash, vs.)
 
 Her şey aynı thread pool'da çalışsın.
 
@@ -40,8 +40,8 @@ Gözle:
 ## 2. Starvation'ı Bilinçli Üret
 
 - Pool size: örn. 10 thread
-- 10 tane `/cpu-heavy` isteği at
-- Ardından `/fast` çağır
+- 10+ tane `/thread-types/starvation/blocking` isteği at
+- Ardından `/thread-types/fast` çağır
 
 Beklenen:
 
@@ -69,7 +69,7 @@ Gözle:
 
 Test:
 
-- Queue'yu bilinçli şişir.
+- `/thread-types/queue/enqueue` ile queue'yu bilinçli şişir.
 - Worker sayısını azalt / artır.
 
 Şunu net gör:
@@ -95,8 +95,9 @@ Amaç:
 
 Kurulum:
 - Aynı CPU-heavy işi iki endpoint ile sun:
-  - `/cpu-heavy-threadpool`
-  - `/cpu-heavy-dedicated`
+  - `/thread-types/cpu-heavy-threadpool`
+  - `/thread-types/cpu-heavy-dedicated`
+- Önerilen proje: `scenarios/01-Threading/ThreadTypes/ThreadTypesApi`
 
 Test:
 - Aynı yük profili ile iki endpoint'i ayrı ayrı çalıştır.
@@ -110,6 +111,27 @@ Gözle:
 Beklenen çıktı:
 - "Thread sayısı arttı = her zaman hızlı" yanılgısını kırmak.
 - Hangi iş tipi için hangi thread modelinin uygun olduğunu netleştirmek.
+
+## 7. Mevcut Test Eşleşmesi (Güncel)
+
+Kullandığımız script ve endpoint eşleşmesi:
+
+- Hızlı genel tur:
+  - `scenarios/01-Threading/ThreadTypes/scripts/quick_overview.sh`
+  - Endpointler: `info`, `cpu-heavy-threadpool`, `cpu-heavy-dedicated`, `queue/enqueue`, `queue/status`
+- Starvation gözlemi:
+  - `scenarios/01-Threading/ThreadTypes/scripts/starvation_observation.sh`
+  - Endpointler: `starvation/blocking` + `fast`
+- Cancellation gözlemi:
+  - `scenarios/01-Threading/ThreadTypes/scripts/cancellation_observation.sh`
+  - Endpoint: `cpu-cancellable`
+- Finalizer/GC gözlemi:
+  - `scenarios/01-Threading/ThreadTypes/scripts/finalizer_observation.sh`
+  - Endpointler: `finalizer/create`, `finalizer/stats`, `finalizer/collect`
+
+Not:
+- Bu aşamadaki hedef kavramı görmek olduğu için k6 zorunlu değil.
+- Sayısal benchmark kıyası gerektiğinde k6 ayrıca eklenebilir.
 
 ## Bu Roadmap'i Bitirdiğinde
 
