@@ -185,6 +185,40 @@ Beklenen:
 - Deploy/restart sırasında yarım kalan iş sayısı düşer.
 - Kapanış davranışı öngörülebilir hale gelir.
 
+## 11. Hangi Örnek Neyi Gösterir?
+
+1. Thread türü bilgisi
+- `GET /thread-types/info`
+- Request'in hangi thread tipinde çalıştığını (`managedThreadId`, `isThreadPoolThread`) görürsün.
+
+2. ThreadPool vs Dedicated CPU işi
+- `GET /thread-types/cpu-heavy-threadpool?n=200000`
+- `GET /thread-types/cpu-heavy-dedicated?n=200000`
+- Aynı CPU işini iki modelle çalıştırıp farkı kıyaslarsın. Hız farkı genelde yük yoksa yoktur. Yük altında fark belirginleşir.
+
+3. Starvation davranışı
+- `GET /thread-types/starvation/blocking?blockMs=5000`
+- Paralelde çok sayıda çağrıyla `/thread-types/fast` gecikmesini gözlersin.
+
+4. Async I/O vs CPU
+- `GET /thread-types/io-async?delayMs=400`
+- `GET /thread-types/cpu-heavy-threadpool?n=200000`
+- I/O bekleme ile CPU yoğun işin davranış farkını görürsün.
+
+5. Cancellation
+- `GET /thread-types/cpu-cancellable?n=400000`
+- Client iptalinde server işinin token ile kesilip kesilmediğini gözlersin.
+
+6. Queue + Backpressure (tek endpoint)
+- `POST /thread-types/queue/enqueue?items=20&capacity=5&workMs=300`
+- `capacity` dolunca producer bekler; `producerWaitMs` bunu görünür yapar.
+
+7. Finalizer / GC
+- `POST /thread-types/finalizer/create?count=50000`
+- `GET /thread-types/finalizer/stats`
+- `POST /thread-types/finalizer/collect`
+- Finalizer thread etkisini sayaçlarla izlersin.
+
 ## Bu Roadmap'i Bitirdiğinde
 
 - Log senin için "debug output" değil, sistemin röntgeni olur.
