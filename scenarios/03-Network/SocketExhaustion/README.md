@@ -2,6 +2,7 @@
 
 ## Amaç
 Yanlış `HttpClient` kullanımının (her istekte `new HttpClient()` oluşturma), sistemin dışarıya istek atamaz hale geldiğini göstermek.
+*(Concurrency ilişkisi: aynı anda açılan outbound istek sayısı arttıkça port tükenmesi daha hızlı ortaya çıkar.)*
 
 **Socket Exhaustion (Port Tükenmesi) Nedir?**
 TCP/IP protokolünde her giden bağlantı, işlemci üzerinde geçici bir port (Ephemeral Port) işgal eder. Bağlantı kapansa bile, işletim sistemi bu portu güvenlik nedeniyle bir süre (TIME_WAIT, genelde 60sn) "kullanımda" tutar. Eğer çok kısa sürede binlerce yeni bağlantı açıp kapatırsak, boşta port kalmaz (Port Exhaustion). Bu durumda işletim sistemi yeni giden isteklere (outgoing) izin vermez ve `SocketException` hatası alırız. `new HttpClient()` antipattern'i bunun en yaygın sebebidir.

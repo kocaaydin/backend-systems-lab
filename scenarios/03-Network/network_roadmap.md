@@ -9,7 +9,7 @@ Bu laboratuvarın amacı, **Ağ Katmanı (Network Layer)** davranışlarını, �
 
 ### 1. Connection Pooling & TCP Reuse
 *   **Amaç:** `HttpClient`'ın doğru ve yanlış kullanımının etkilerini görmek.
-*   **Deney A (Bad Usage):** Her istek için `new HttpClient()` -> Port Exhaustion (TIME_WAIT yığılması).
+*   **Deney A (Bad Usage):** Her istek için `new HttpClient()` -> Port Exhaustion (TIME_WAIT yığılması) *(Concurrency ilişkisi: paralel istek sayısı arttıkça port tüketimi hızlanır).*
 *   **Deney B (Good Usage):** `IHttpClientFactory` veya Singleton HttpClient -> TCP Reuse.
 
 ### 2. HTTP/1.1 vs HTTP/2 Multiplexing

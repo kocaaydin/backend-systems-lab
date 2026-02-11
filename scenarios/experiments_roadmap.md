@@ -14,12 +14,14 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
   - *Amaç:* Aynı anda 50 worker tetiklendiğinde, ThreadPool thread'lerinin bloklanmasıyla task'ların ilerleyemediği, sistemin fiilen durduğu anı ayrıntılı log'larla gözle görünür hale getirmek.
   - ✅ **Uygulama:** Thread starvation deneyi senaryo klasörlerinde çalıştırılabilir hale getirildi
   - 📍 **Endpoint:** `POST /experiments/thread-starvation`
-- [/] **Deney #3: Outgoing Limits & Concurrency**
-  - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
-  - **3.2 Rate Limiter:** Uygulama içi (In-app) Outbound Rate Limiting (Token Bucket).
-  - **3.3 Socket Exhaustion:** `new HttpClient()` antipattern ve Ephemeral port tükenmesi.
-  - **3.4 OS Limits:** Container `ulimit -n` kısıtlaması ve "Too many open files" hataları.
-  - **3.5 Proxy/Gateway Limits:** Araya Nginx koyarak reverse proxy darboğazı.
+- [/] **Deney #3: Outgoing Limits (Network) + Concurrency**
+  - **Concurrency Odaklı (01-Threading):**
+    - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
+    - **3.2 Rate Limiter:** Uygulama içi (In-app) Outbound Rate Limiting (Token Bucket).
+  - **Network Odaklı (03-Network):**
+    - **3.3 Socket Exhaustion:** `new HttpClient()` antipattern ve Ephemeral port tükenmesi *(Concurrency ilişkisi: kontrolsüz paralel istek açılış hızı port tüketimini dramatik artırır).* 
+    - **3.4 OS Limits:** Container `ulimit -n` kısıtlaması ve "Too many open files" hataları.
+    - **3.5 Proxy/Gateway Limits:** Araya Nginx koyarak reverse proxy darboğazı.
 
 ## Bölüm 2: Dayanıklılık Desenleri (Resiliency Patterns)
 - [ ] **Deney #4: Retry Storm**
