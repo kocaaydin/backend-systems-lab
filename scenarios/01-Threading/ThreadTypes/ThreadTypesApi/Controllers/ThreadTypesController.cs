@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Channels;
 using Microsoft.AspNetCore.Mvc;
 using ThreadTypesApi.Services;
 
@@ -174,33 +175,57 @@ public sealed class ThreadTypesController : ControllerBase
     }
 
     [HttpPost("queue/enqueue")]
-    public async Task<IActionResult> Enqueue([FromServices] WorkQueue queue, [FromQuery] int items = 10, [FromQuery] int workMs = 300, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Enqueue([FromQuery] int items = 20, [FromQuery] int capacity = 5, [FromQuery] int workMs = 300, CancellationToken cancellationToken = default)
     {
-        LogStart("queue/enqueue", $"items={items},workMs={workMs}");
+        LogStart("queue/enqueue", $"items={items},capacity={capacity},workMs={workMs}");
+
+        if (items <= 0 || capacity <= 0 || workMs <= 0)
+        {
+            return BadRequest(new { error = "items, capacity ve workMs pozitif olmalı." });
+        }
+
+        var channel = Channel.CreateBounded<int>(new BoundedChannelOptions(capacity)
+        {
+            SingleReader = true,
+            SingleWriter = true,
+            FullMode = BoundedChannelFullMode.Wait
+        });
+
+        var processed = 0;
+        var producerWaitTotalMs = 0L;
+        var producerWaitMaxMs = 0L;
+
+        var consumer = Task.Run(async () =>
+        {
+            await foreach (var _ in channel.Reader.ReadAllAsync(cancellationToken))
+            {
+                await Task.Delay(workMs, cancellationToken);
+                processed++;
+            }
+        }, cancellationToken);
 
         for (var i = 0; i < items; i++)
         {
-            await queue.EnqueueAsync(new QueuedWork(workMs, DateTime.UtcNow), cancellationToken);
+            var waitSw = Stopwatch.StartNew();
+            await channel.Writer.WriteAsync(i, cancellationToken);
+            waitSw.Stop();
+            producerWaitTotalMs += waitSw.ElapsedMilliseconds;
+            producerWaitMaxMs = Math.Max(producerWaitMaxMs, waitSw.ElapsedMilliseconds);
         }
 
-        var snapshot = queue.Snapshot();
-        LogEnd("queue/enqueue", 0, $"queued={snapshot.Queued}");
+        channel.Writer.Complete();
+        await consumer;
+
+        LogEnd("queue/enqueue", 0, $"items={items},processed={processed},producerWaitMaxMs={producerWaitMaxMs}");
         return Ok(new
         {
             endpoint = "queue/enqueue",
             items,
+            capacity,
             workMs,
-            snapshot
-        });
-    }
-
-    [HttpGet("queue/status")]
-    public IActionResult QueueStatus([FromServices] WorkQueue queue)
-    {
-        return Ok(new
-        {
-            endpoint = "queue/status",
-            snapshot = queue.Snapshot()
+            backpressureDetected = producerWaitMaxMs > 0,
+            producerWaitMs = producerWaitMaxMs,
+            note = "producerWaitMs > 0 ise producer kuyruk doldugunda beklemistir."
         });
     }
 

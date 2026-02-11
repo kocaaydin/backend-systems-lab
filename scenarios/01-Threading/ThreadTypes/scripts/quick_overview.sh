@@ -27,18 +27,13 @@ echo "3) dedicated cpu-heavy  (Hedef: Ayni is dedicated thread ile nasil fark ed
 curl -s "$BASE_URL/thread-types/cpu-heavy-dedicated?n=200000"
 echo -e "\n"
 
-step "4) enqueue queue  (Hedef: Queue birikimi olusturmak)"
-echo "4) enqueue queue  (Hedef: Queue birikimi olusturmak)"
-curl -s -X POST "$BASE_URL/thread-types/queue/enqueue?items=20&workMs=400"
+step "4) enqueue queue  (Hedef: Backpressure'i tek endpointte gormek)"
+echo "4) enqueue queue  (Hedef: Backpressure'i tek endpointte gormek)"
+curl -s -X POST "$BASE_URL/thread-types/queue/enqueue?items=20&capacity=5&workMs=400"
 echo -e "\n"
 
-step "5) queue status  (Hedef: queued / processed / activeWorkers gormek)"
-echo "5) queue status  (Hedef: queued / processed / activeWorkers gormek)"
-curl -s "$BASE_URL/thread-types/queue/status"
-echo -e "\n"
-
-step "6) finalizer stats  (Hedef: mevcut finalizer sayac durumunu gormek)"
-echo "6) finalizer stats  (Hedef: mevcut finalizer sayac durumunu gormek)"
+step "5) finalizer stats  (Hedef: mevcut finalizer sayac durumunu gormek)"
+echo "5) finalizer stats  (Hedef: mevcut finalizer sayac durumunu gormek)"
 curl -s "$BASE_URL/thread-types/finalizer/stats"
 echo -e "\n"
 

@@ -36,10 +36,10 @@ API adresi:
 - `GET /thread-types/cpu-cancellable?n=400000`
 - Istegi client tarafindan iptal ederek 499 donusunu gozle.
 
-6. Queue + Worker
-- `POST /thread-types/queue/enqueue?items=200&workMs=300`
-- `GET /thread-types/queue/status`
-- Kuyruk birikimi, aktif worker ve islenme farkini gor.
+6. Queue + Backpressure (Tek Endpoint)
+- `POST /thread-types/queue/enqueue?items=20&capacity=5&workMs=300`
+- Bounded channel doldugunda producer bekler.
+- `backpressureDetected` ve `producerWaitMs` alanlari backpressure'i gosterir.
 
 7. Finalizer / GC
 - `POST /thread-types/finalizer/create?count=50000`
@@ -53,8 +53,7 @@ API adresi:
 curl -s http://localhost:8091/thread-types/info | jq
 curl -s "http://localhost:8091/thread-types/cpu-heavy-threadpool?n=200000" | jq
 curl -s "http://localhost:8091/thread-types/cpu-heavy-dedicated?n=200000" | jq
-curl -s -X POST "http://localhost:8091/thread-types/queue/enqueue?items=50&workMs=250" | jq
-curl -s http://localhost:8091/thread-types/queue/status | jq
+curl -s -X POST "http://localhost:8091/thread-types/queue/enqueue?items=20&capacity=5&workMs=250" | jq
 ```
 
 ## Demo Scriptleri
