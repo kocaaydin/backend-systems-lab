@@ -128,7 +128,7 @@ Kullandığımız script ve endpoint eşleşmesi:
 
 - Hızlı genel tur:
   - `scenarios/01-Threading/ThreadTypes/scripts/quick_overview.sh`
-  - Endpointler: `info`, `cpu-heavy-threadpool`, `cpu-heavy-dedicated`, `queue/enqueue`, `queue/status`
+  - Endpointler: `info`, `cpu-heavy-threadpool`, `cpu-heavy-dedicated`, `queue/enqueue`, `finalizer/stats`
 - Starvation gözlemi:
   - `scenarios/01-Threading/ThreadTypes/scripts/starvation_observation.sh`
   - Endpointler: `starvation/blocking` + `fast`
@@ -143,6 +143,47 @@ Not:
 - Bu aşamadaki hedef kavramı görmek olduğu için k6 zorunlu değil.
 - Sayısal benchmark kıyası gerektiğinde k6 ayrıca eklenebilir.
 - `quick_overview.sh` ile aldığımız benzer süre sonucu, "boşta sistemde fark az olabilir" gözlemini doğruluyor.
+
+## 8. Request Lifecycle + Cancellation Propagation
+
+Amaç:
+- Client bağlantısı kapanınca request yaşam döngüsünde nelerin iptal olduğunu görmek.
+
+Odak:
+- `HttpContext.RequestAborted` ve endpoint `CancellationToken` zinciri.
+- "Client gitti ama server işi devam ediyor mu?" sorusunu netleştirmek.
+
+Beklenen:
+- Token doğru taşınırsa uzun iş erken kesilir.
+- Token taşınmazsa iş request sonrasında da bir süre devam edebilir.
+
+## 9. Fire-and-Forget Safety (Request İçinden İş Başlatma)
+
+Amaç:
+- `await` edilmeyen işlerin neden operasyonda riskli olduğunu görmek.
+
+Odak:
+- Unobserved exception.
+- Scoped dependency (`DbContext` vb.) request bitince dispose olduğunda yaşanan yarım kalma.
+- "Task başlattım, biter" varsayımının neden güvenilmez olduğu.
+
+Beklenen:
+- `await` riskleri yok etmez ama gözlemlenebilir/kontrol edilebilir hale getirir.
+- Kritik işler request thread'inden ayrılıp yönetilen worker pipeline'a taşınmalıdır.
+
+## 10. Graceful Shutdown ve Queue Drain
+
+Amaç:
+- Uygulama kapanırken kuyruktaki işlerin kontrollü tamamlanmasını sağlamak.
+
+Odak:
+- `IHostedService` / `BackgroundService` stop süreci.
+- `StopAsync` timeout ve drain stratejisi.
+- "Hemen öldür" vs "kontrollü boşalt" farkı.
+
+Beklenen:
+- Deploy/restart sırasında yarım kalan iş sayısı düşer.
+- Kapanış davranışı öngörülebilir hale gelir.
 
 ## Bu Roadmap'i Bitirdiğinde
 

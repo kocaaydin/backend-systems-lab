@@ -22,6 +22,18 @@ Bu yol haritası, "Senior" seviyesinde sistem tasarımı ve problem çözme yetk
     - `cpu-heavy-threadpool` ve `cpu-heavy-dedicated` aynı testte yaklaşık aynı sürdü (`elapsedMs: 6` / `elapsedMs: 6`).
     - İlk yorum: düşük yükte "belirgin fark yok" normaldir.
     - Farkı görmek için daha yüksek paralellik, daha uzun CPU işi ve kuyruk/bekleme davranışı gözlenmelidir.
+- [ ] **Deney #2.3: Request Lifecycle + Cancellation Propagation**
+  - *Kavram:* `RequestAborted`, cancellation token zinciri.
+  - *Amaç:* Client kopunca server işinin hangi koşulda durup/durmadığını görmek.
+  - 📍 **Roadmap:** `scenarios/01-Threading/thread_roadmap.md`
+- [ ] **Deney #2.4: Fire-and-Forget Güvenliği**
+  - *Kavram:* Await edilmeyen task, unobserved exception, scoped dependency disposal.
+  - *Amaç:* "Task başlattım kesin biter" varsayımının neden riskli olduğunu görmek.
+  - 📍 **Roadmap:** `scenarios/01-Threading/thread_roadmap.md`
+- [ ] **Deney #2.5: Graceful Shutdown ve Queue Drain**
+  - *Kavram:* Controlled stop, drain, shutdown timeout.
+  - *Amaç:* Deploy/restart sırasında yarım işi azaltmak ve kapanış davranışını öngörülebilir kılmak.
+  - 📍 **Roadmap:** `scenarios/01-Threading/thread_roadmap.md`
 - [/] **Deney #3: Outgoing Limits (Network) + Concurrency**
   - **Concurrency Odaklı (01-Threading):**
     - **3.1 Handler Concurrency:** `MaxConnectionsPerServer` 10 vs 1000 farkı.
