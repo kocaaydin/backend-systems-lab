@@ -1981,3 +1981,54 @@ prod:user:profile:123:v2
 	•	Span / memory yönetimi
 	•	Kestrel pipeline
 	•	Distributed consistency
+
+  •	p95 
+	•	latency spike 
+	•	cold start 
+	•	throughput 
+	•	GC pause 
+
+
+  Native AOT
+  •	Çok hızlı cold start
+  •	Düşük memory footprint
+  •	Daha büyük build karmaşıklığı
+  •	Reflection / dynamic kod kısıtları
+  •	Daha uzun build süresi
+
+Tiered + PGO (JIT)
+  •	Uzun süre çalışan servislerde yüksek peak performans
+  •	Daha esnek runtime davranışı
+  •	İlk isteklerde daha yavaş olabilir
+  •	Cold start daha zayıf
+
+1️⃣ Senaryo: Cold Start + Burst Trafik
+	•	.NET 6 vs 8 vs 10
+	•	Native AOT vs JIT
+	•	Tiered PGO açık/kapalı
+	•	Aynı Docker image
+	•	Aynı CPU core limiti (örn. 1 core)
+
+Test akışı:
+	•	60 sn idle
+	•	Aniden 500 RPS burst
+	•	30 sn ölçüm
+
+Ölç:
+	•	p50 / p95 / p99
+	•	İlk 20 isteğin latency
+	•	CPU ramp-up süresi
+	•	GC event sayısı
+
+
+Karar noktası şurada çıkar:
+  •	Serverless / kısa ömürlü iş → AOT mantıklı
+  •	Uzun yaşayan yüksek throughput API → PGO daha mantıklı
+  •	Reflection-heavy app → AOT riskli
+
+  •	Idle → Burst geçişi
+  •	İlk 20 istek analizi
+  •	p95/p99 başlangıç spike’ı
+  •	CPU limiti altında karşılaştırma
+  •	Aynı senaryoda .NET 6/8/10 + PGO + AOT
+
