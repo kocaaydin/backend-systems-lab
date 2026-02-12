@@ -59,6 +59,7 @@ export const options = {
   scenarios,
   thresholds: {
     http_req_failed: ['rate<0.05'],
+    fast_latency: ['p(95)<2000'],
   },
 };
 
