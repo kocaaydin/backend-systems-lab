@@ -1,0 +1,93 @@
+{
+  "config": {
+    "run_count": 4,
+    "warmup_duration": "5s",
+    "baseline": {
+      "duration": "5s",
+      "fast_rps": 20
+    },
+    "loaded": {
+      "duration": "5s",
+      "fast_rps": 20,
+      "heavy_rps": 50,
+      "heavy_n": 2000000
+    }
+  },
+  "baseline_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-baseline-run-1-summary.json",
+      "fast_avg_ms": 2.2580020792079205,
+      "fast_p95_ms": 3.665333,
+      "fast_p99_ms": 3.665333,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-baseline-run-2-summary.json",
+      "fast_avg_ms": 2.151356720000001,
+      "fast_p95_ms": 3.1815351,
+      "fast_p99_ms": 3.1815351,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-baseline-run-3-summary.json",
+      "fast_avg_ms": 2.183983891089109,
+      "fast_p95_ms": 3.091625,
+      "fast_p99_ms": 3.091625,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-baseline-run-4-summary.json",
+      "fast_avg_ms": 2.166969929999999,
+      "fast_p95_ms": 3.2673149,
+      "fast_p99_ms": 3.2673149,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "loaded_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-loaded-run-1-summary.json",
+      "fast_avg_ms": 5144.11044528358,
+      "fast_p95_ms": 8524.9208483,
+      "fast_p99_ms": 8524.9208483,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-loaded-run-2-summary.json",
+      "fast_avg_ms": 4550.269084400002,
+      "fast_p95_ms": 7164.19099775,
+      "fast_p99_ms": 7164.19099775,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-loaded-run-3-summary.json",
+      "fast_avg_ms": 4927.496268931506,
+      "fast_p95_ms": 7393.483603799999,
+      "fast_p99_ms": 7393.483603799999,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-loaded-run-4-summary.json",
+      "fast_avg_ms": 5041.910390776118,
+      "fast_p95_ms": 8494.4289942,
+      "fast_p99_ms": 8494.4289942,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "baseline_avg": {
+    "fast_avg_ms": 2.19,
+    "fast_p95_ms": 3.301,
+    "fast_p99_ms": 3.301,
+    "http_fail_rate": 0.0
+  },
+  "loaded_avg": {
+    "fast_avg_ms": 4915.947,
+    "fast_p95_ms": 7894.256,
+    "fast_p99_ms": 7894.256,
+    "http_fail_rate": 0.0
+  },
+  "delta_loaded_minus_baseline_ms": {
+    "fast_avg_ms": 4913.757,
+    "fast_p95_ms": 7890.955,
+    "fast_p99_ms": 7890.955
+  }
+}

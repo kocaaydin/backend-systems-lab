@@ -25,6 +25,27 @@ Ne gözlemlemeliyim:
 - Yük altına girince `/fast` latency artışı.
 
 
+Son konsol çıktısı (cpu=1.0 limit, 4 tekrar, 2026-02-12):
+```text
+=== Senaryo 1: Tek Pool Baseline ===
+run_count=4 warmup=5s
+baseline: duration=5s fast_rps=20
+loaded  : duration=5s fast_rps=20 heavy_rps=50 heavy_n=2000000
+
+=== Ortalama Sonuclar ===
+baseline fast avg: ~2.19 ms | p95: ~3.30 ms
+loaded   fast avg: ~4916 ms | p95: ~7894 ms
+delta    fast avg: +4913 ms | p95: ~7890 ms
+NOTE: Docker CPU limit (1.0) applied to force starvation.
+summary_file: /Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-average.json
+```
+
+Not:
+- Starvation başarıyla simüle edildi.
+- Loaded testinde ortalama gecikme ~2ms'den ~4.9 saniyeye fırladı.
+- Hata oranı %0 kaldı (sistem çökmedi, sadece kitlendi).
+
+
 ## 2. Starvation'ı Bilinçli Üret
 Ne yapıyor:
 - `starvation/blocking` endpoint'iyle pool thread'lerini meşgul eder.
