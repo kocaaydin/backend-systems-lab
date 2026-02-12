@@ -1,225 +1,161 @@
 # Thread Pool / Worker Pool Roadmap (Deney + Stres Test)
 
 ## Amaç
-
-- "Teoride biliyorum"dan çıkıp,
-- "Yanlış tasarımın sistemi nasıl boğduğunu gözümle gördüm" seviyesine gelmek.
+- Teoride bilinen kavramları pratikte gözlemlemek.
+- Yanlış thread/pool kararlarının latency ve cevap sürelerine etkisini görmek.
+- Her senaryoyu tek komutla çalıştırıp çıktıyı terminalden yorumlayabilmek.
 
 ## 0. Thread Türleri (Temel Harita)
-
-Bu roadmap'e girmeden önce hangi thread'in ne yaptığını ayırt et:
-
-- `Main Thread`: Uygulamanın başlangıç thread'i.
-- `ThreadPool Thread`: Runtime tarafından yönetilen, tekrar kullanılan worker thread'leri.
-- `Dedicated Thread` (`new Thread(...)`): Uygulamaya özel, manuel yaşam döngülü thread.
-- `GC Threads`: Garbage Collector'ın kullandığı thread'ler.
-- `Finalizer Thread`: Finalizer kuyruğunu işleyen özel thread.
-
-Kısa not:
-- En kritik mimari karar çoğunlukla `ThreadPool` vs `Dedicated Thread` ayrımıdır.
-- Thread starvation problemleri çoğunlukla `ThreadPool` üzerinde görünür.
-
-## 1. Tek Pool ile Başla
-
-API içinde:
-
-- `/thread-types/fast`
-- `/thread-types/cpu-heavy-threadpool` (loop, hash, vs.)
-
-Her şey aynı thread pool'da çalışsın.
-
-Test:
-
-- 100 paralel istek at.
-
-Gözle:
-
-- `/fast` neden yavaşlıyor?
-- Response süreleri nasıl patlıyor?
-
-## 2. Starvation'ı Bilinçli Üret
-
-- Pool size: örn. 10 thread
-- 10+ tane `/thread-types/starvation/blocking` isteği at
-- Ardından `/thread-types/fast` çağır
-
-Beklenen:
-
-- `/fast` bekler.
-- Sistem "ayakta ama cevap vermiyor" haline gelir.
-
-## 3. Worker Thread Pool Ayır
-
-- Heavy işleri ayrı bir pool'a taşı.
-- Request handler sadece:
-  - işi worker pool'a submit etsin
-  - hemen dönsün
-
-Aynı testi tekrar yap.
-
-Gözle:
-
-- `/fast` artık neden etkilenmiyor?
-- Latency grafiği nasıl değişti?
-
-## 4. Queue + Worker Simülasyonu
-
-- In-memory queue kur.
-- Worker thread'leri bu queue'dan iş çeksin.
-
-Test:
-
-- `/thread-types/queue/enqueue` ile queue'yu bilinçli şişir.
-- Worker sayısını azalt / artır.
-
-Şunu net gör:
-
-- Backpressure nasıl oluşuyor?
-- Worker sayısı artınca neresi tıkanıyor?
-
-## 5. Failure Senaryosu
-
-- Worker'ı ortada öldür.
-- İş yarım kalsın.
-- Retry mekanizması ekle.
-
-Amaç:
-
-- "Asılı kalan task" nasıl oluşur?
-- Bunu mimari olarak nasıl engellersin?
-
-## 6. Thread Türleri Deneyi (ThreadPool vs Dedicated)
-
-Amaç:
-- Aynı işi farklı thread modeliyle koşturup davranış farkını görmek.
-
-Kurulum:
-- Aynı CPU-heavy işi iki endpoint ile sun:
-  - `/thread-types/cpu-heavy-threadpool`
-  - `/thread-types/cpu-heavy-dedicated`
-- Önerilen proje: `scenarios/01-Threading/ThreadTypes/ThreadTypesApi`
-
-Test:
-- Aynı yük profili ile iki endpoint'i ayrı ayrı çalıştır.
-- Paralelde `/fast` endpoint'ini de gözlemle.
-
-Gözle:
-- ThreadPool modelinde starvation belirtileri ne zaman başlıyor?
-- Dedicated modelinde latency, context switch ve kaynak maliyeti nasıl değişiyor?
-- Hangi noktada dedicated thread avantajdan çok maliyet üretmeye başlıyor?
-
-Beklenen çıktı:
-- "Thread sayısı arttı = her zaman hızlı" yanılgısını kırmak.
-- Hangi iş tipi için hangi thread modelinin uygun olduğunu netleştirmek.
-
-Not (bizim gözlem):
-- Hızlı turda aşağıdaki çıktıları aldık:
-  - `GET /thread-types/info` -> `{"managedThreadId":13,"isThreadPoolThread":true,"processorCount":11}`
-  - `GET /thread-types/cpu-heavy-threadpool?n=200000` -> `{"endpoint":"cpu-heavy-threadpool","n":200000,"primeCount":17984,"elapsedMs":6,...}`
-  - `GET /thread-types/cpu-heavy-dedicated?n=200000` -> `{"endpoint":"cpu-heavy-dedicated","n":200000,"primeCount":17984,"elapsedMs":6,...}`
-- Sonuç:
-  - Bu ölçümde süreler benzer çıktı (6 ms vs 6 ms).
-  - Yorum: düşük yükte ve kısa işte thread modeli farkı belirginleşmeyebilir.
-  - Fark genelde yüksek paralellikte, uzun CPU işi altında ve queue/bekleme başladığında görünür.
-
-## 7. Mevcut Test Eşleşmesi (Güncel)
-
-Kullandığımız script ve endpoint eşleşmesi:
-
-- Hızlı genel tur:
-  - `scenarios/01-Threading/ThreadTypes/scripts/quick_overview.sh`
-  - Endpointler: `info`, `cpu-heavy-threadpool`, `cpu-heavy-dedicated`, `queue/enqueue`, `finalizer/stats`
-- Starvation gözlemi:
-  - `scenarios/01-Threading/ThreadTypes/scripts/starvation_observation.sh`
-  - Endpointler: `starvation/blocking` + `fast`
-- Cancellation gözlemi:
-  - `scenarios/01-Threading/ThreadTypes/scripts/cancellation_observation.sh`
-  - Endpoint: `cpu-cancellable`
-- Finalizer/GC gözlemi:
-  - `scenarios/01-Threading/ThreadTypes/scripts/finalizer_observation.sh`
-  - Endpointler: `finalizer/create`, `finalizer/stats`, `finalizer/collect`
+- `Main Thread`: Uygulamanın giriş thread'i.
+- `ThreadPool Thread`: Runtime tarafından yönetilen worker thread'ler.
+- `Dedicated Thread`: Uygulamanın özel işi için açtığı manuel thread.
+- `GC Threads`: GC işini yapan runtime thread'leri.
+- `Finalizer Thread`: Finalizer kuyruğunu tüketen özel thread.
 
 Not:
-- Bu aşamadaki hedef kavramı görmek olduğu için k6 zorunlu değil.
-- Sayısal benchmark kıyası gerektiğinde k6 ayrıca eklenebilir.
-- `quick_overview.sh` ile aldığımız benzer süre sonucu, "boşta sistemde fark az olabilir" gözlemini doğruluyor.
+- Starvation belirtileri çoğunlukla `ThreadPool` üzerinde görünür.
+- Thread modelini seçmek (ThreadPool vs Dedicated) mimari karardır.
 
-## 8. Request Lifecycle + Cancellation Propagation
+## 1. Tek Pool ile Başla
+Ne yapıyor:
+- `cpu-heavy-threadpool` yükü altında `/fast` endpoint gecikmesini gösterir.
 
-Amaç:
-- Client bağlantısı kapanınca request yaşam döngüsünde nelerin iptal olduğunu görmek.
+Ne gözlemlemeliyim:
+- Baseline hızlı yanıt.
+- Yük altına girince `/fast` latency artışı.
 
-Odak:
-- `HttpContext.RequestAborted` ve endpoint `CancellationToken` zinciri.
-- "Client gitti ama server işi devam ediyor mu?" sorusunu netleştirmek.
 
-Beklenen:
-- Token doğru taşınırsa uzun iş erken kesilir.
-- Token taşınmazsa iş request sonrasında da bir süre devam edebilir.
+## 2. Starvation'ı Bilinçli Üret
+Ne yapıyor:
+- `starvation/blocking` endpoint'iyle pool thread'lerini meşgul eder.
 
-## 9. Fire-and-Forget Safety (Request İçinden İş Başlatma)
+Ne gözlemlemeliyim:
+- `/fast` cevap süresinde bozulma.
+- Sistem ayakta olsa da cevapların gecikmesi.
 
-Amaç:
-- `await` edilmeyen işlerin neden operasyonda riskli olduğunu görmek.
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/02_induce_starvation.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/02_induce_starvation.js`
 
-Odak:
-- Unobserved exception.
-- Scoped dependency (`DbContext` vb.) request bitince dispose olduğunda yaşanan yarım kalma.
-- "Task başlattım, biter" varsayımının neden güvenilmez olduğu.
+## 3. Worker Pool Ayrımı (ThreadPool vs Dedicated)
+Ne yapıyor:
+- Aynı CPU işini önce `ThreadPool`, sonra `Dedicated` modelinde koşturur.
 
-Beklenen:
-- `await` riskleri yok etmez ama gözlemlenebilir/kontrol edilebilir hale getirir.
-- Kritik işler request thread'inden ayrılıp yönetilen worker pipeline'a taşınmalıdır.
+Ne gözlemlemeliyim:
+- Yük altında hangi modelin `/fast` üzerine daha fazla etkisi var?
+- Aynı iş tipi için farklı model seçiminin sonucu.
 
-## 10. Graceful Shutdown ve Queue Drain
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/03_separate_worker_pool_dedicated.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/03_threadpool_vs_dedicated.js`
 
-Amaç:
-- Uygulama kapanırken kuyruktaki işlerin kontrollü tamamlanmasını sağlamak.
+## 4. Queue + Worker Simülasyonu
+Ne yapıyor:
+- Bounded queue ile backpressure davranışını test eder.
+- Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.
 
-Odak:
-- `IHostedService` / `BackgroundService` stop süreci.
-- `StopAsync` timeout ve drain stratejisi.
-- "Hemen öldür" vs "kontrollü boşalt" farkı.
+Ne gözlemlemeliyim:
+- `producer` bekliyor mu?
+- Kapasite ve iş süresi değişince kuyruk davranışı nasıl değişiyor?
 
-Beklenen:
-- Deploy/restart sırasında yarım kalan iş sayısı düşer.
-- Kapanış davranışı öngörülebilir hale gelir.
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/04_queue_backpressure.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/04_queue_backpressure.js`
 
-## 11. Hangi Örnek Neyi Gösterir?
+## 5. Failure Senaryosu (Kill + Retry)
+Ne yapıyor:
+- Uzun istek sırasında API process kesilir.
+- API yeniden başlatılıp aynı istek retry edilir.
 
-1. Thread türü bilgisi
-- `GET /thread-types/info`
-- Request'in hangi thread tipinde çalıştığını (`managedThreadId`, `isThreadPoolThread`) görürsün.
+Ne gözlemlemeliyim:
+- İlk denemede hata/yarım kalma.
+- Retry sonrası toparlanma.
 
-2. ThreadPool vs Dedicated CPU işi
-- `GET /thread-types/cpu-heavy-threadpool?n=200000`
-- `GET /thread-types/cpu-heavy-dedicated?n=200000`
-- Aynı CPU işini iki modelle çalıştırıp farkı kıyaslarsın. Hız farkı genelde yük yoksa yoktur. Yük altında fark belirginleşir.
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/05_failure_retry_simulation.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/05_failure_retry.js`
 
-3. Starvation davranışı
-- `GET /thread-types/starvation/blocking?blockMs=5000`
-- Paralelde çok sayıda çağrıyla `/thread-types/fast` gecikmesini gözlersin.
+## 6. Çok Seviyeli Karşılaştırma
+Ne yapıyor:
+- `vus=1,4,8,12` seviyelerinde ThreadPool vs Dedicated karşılaştırması yapar.
 
-4. Async I/O vs CPU
-- `GET /thread-types/io-async?delayMs=400`
-- `GET /thread-types/cpu-heavy-threadpool?n=200000`
-- I/O bekleme ile CPU yoğun işin davranış farkını görürsün.
+Ne gözlemlemeliyim:
+- Yük arttıkça model farkı netleşiyor mu?
+- Özellikle p95/p99 trendi nasıl değişiyor?
 
-5. Cancellation
-- `GET /thread-types/cpu-cancellable?n=400000`
-- Client iptalinde server işinin token ile kesilip kesilmediğini gözlersin.
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/06_compare_threadpool_vs_dedicated.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/06_compare_threadpool_vs_dedicated.js`
 
-6. Queue + Backpressure (tek endpoint)
-- `POST /thread-types/queue/enqueue?items=20&capacity=5&workMs=300`
-- `capacity` dolunca producer bekler; `producerWaitMs` bunu görünür yapar.
+## 7. GC Threads + Finalizer Thread
+Ne yapıyor:
+- `create -> stats -> collect -> stats` akışıyla GC/finalizer etkisini görünür yapar.
 
-7. Finalizer / GC
-- `POST /thread-types/finalizer/create?count=50000`
-- `GET /thread-types/finalizer/stats`
-- `POST /thread-types/finalizer/collect`
-- Finalizer thread etkisini sayaçlarla izlersin.
+Ne gözlemlemeliyim:
+- `finalized` sayısı collect sonrası artıyor mu?
+- Finalizer queue davranışı beklendiği gibi mi?
 
-## Bu Roadmap'i Bitirdiğinde
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/07_gc_threads_observation.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/07_gc_finalizer_observation.js`
 
-- Log senin için "debug output" değil, sistemin röntgeni olur.
-- Thread pool / worker pool farkı "teori" değil, kas hafızası olur.
+## 8. Request Cancellation Propagation
+Ne yapıyor:
+- Kısa timeout ile cancellable endpoint'e istek gönderir.
+
+Ne gözlemlemeliyim:
+- Client timeout olduğunda iş gerçekten kesiliyor mu?
+- Cancellation zinciri taşınıyor mu?
+
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/08_request_cancellation_propagation.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/08_request_cancellation_propagation.js`
+
+## 9. Fire-and-Forget Risk Simülasyonu
+Ne yapıyor:
+- Non-cancellable timeout ve cancellable timeout davranışlarını kıyaslar.
+
+Ne gözlemlemeliyim:
+- Timeout sonrası sistem etkisi (özellikle `/fast` gecikmesi).
+- Cancellable ve non-cancellable farkı.
+
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/09_fire_and_forget_risk_simulation.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/09_fire_and_forget_risk.js`
+
+## 10. Graceful Shutdown + Queue Drain
+Ne yapıyor:
+- Uzun queue isteği çalışırken API'ye `TERM` gönderir.
+
+Ne gözlemlemeliyim:
+- İstek tamamlandı mı, yoksa yarım mı kaldı?
+- Kapanış davranışı öngörülebilir mi?
+
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/10_graceful_shutdown_queue_drain.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/10_graceful_shutdown_queue_drain.js`
+
+## 11. Birden Fazla ThreadPool Yorumu (Multi-Process)
+Ne yapıyor:
+- Aynı API'den iki ayrı process başlatır.
+- A processine ağır yük verilir, A ve B'de `/fast` probu alınır.
+
+Ne gözlemlemeliyim:
+- A yük altındayken B izolasyonu korunuyor mu?
+- Process başına ayrı threadpool davranışı pratikte nasıl görünüyor?
+
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/11_multiple_threadpools_multi_process.sh`
+- K6 (yük): `scenarios/01-Threading/ThreadTypes/k6/11_multi_process_heavy_a.js`
+- K6 (probe): `scenarios/01-Threading/ThreadTypes/k6/11_multi_process_fast_probe.js`
+
+## Hızlı Kullanım
+Ön koşul:
+- `docker`, `docker compose`, `curl`
+- Not: Bu senaryolarda API ve k6 testleri docker compose ile çalışır.
+
+Çalıştırma:
+- `cd scenarios/01-Threading/ThreadTypes/scripts`
+- `./01_single_pool_baseline.sh`
+- `./02_induce_starvation.sh`
+- `./11_multiple_threadpools_multi_process.sh`
