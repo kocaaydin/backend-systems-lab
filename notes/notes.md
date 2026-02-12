@@ -1972,3 +1972,12 @@ prod:user:profile:123:v2
 - Serialization (JSON, Avro): Veriyi byte dizisine çevirme (`ISerializer`).
 - Background Service kullanımı: `IHostedService` içinde sonsuz döngüde `Consume()`.
 
+---------------------------------
+
+	•	GC tuning
+	•	Async/await iç mekanizması
+	•	ThreadPool heuristics
+	•	Memory model / lock-free yapı
+	•	Span / memory yönetimi
+	•	Kestrel pipeline
+	•	Distributed consistency
