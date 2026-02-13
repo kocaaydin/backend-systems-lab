@@ -4,13 +4,14 @@
 cd "$(dirname "$0")"
 
 # Yapılandırma
-# macOS'te Docker Desktop User-Proxy sorunundan kaçınmak için
-# k6 konteynerini doğrudan uygulamanın ağına (Bridge) dahil ediyoruz.
-# Böylece trafik Konteyner -> Konteyner akar (Gerçek Pod-to-Pod simülasyonu)
-URL_BASE="http://connection-api"
+# Wireshark ile trafiği gözlemlemek için host port mapping'lerini kullanıyoruz.
+# KeepAliveOff -> 15001 portu (çok sayıda SYN göreceğiz)
+# KeepAliveOn  -> 15002 portu (tek bir SYN göreceğiz)
+# macOS Docker Desktop'ta host.docker.internal host makineyi işaret eder.
+URL_BASE="http://host.docker.internal"
 ITERATIONS=1000
 WARMUP_ITERATIONS=200
-CONCURRENCY_LEVELS=(1)
+CONCURRENCY_LEVELS=(1 10)
 RESULTS_DIR="results"
 
 # Docker Ağı (docker-compose'da tanımladığımız explicit network)
@@ -37,31 +38,29 @@ run_scenario() {
     local script_file=$2
     local vus=$3
     local keep_alive_status=$4 # "ACIK" veya "KAPALI"
+    local host_port=$5 # KeepAliveOff için 15001, KeepAliveOn için 15002
 
     echo ""
     echo "---------------------------------------------------------"
-    echo "▶️  Senaryo: $scenario_name | VU: $vus | Keep-Alive: $keep_alive_status"
+    echo "▶️  Senaryo: $scenario_name | VU: $vus | Keep-Alive: $keep_alive_status | Host Port: $host_port"
     echo "---------------------------------------------------------"
 
-    local target_port="5001"
-    # Container içinde her zaman 5001'dir. Port mapping sadece dışarıyı etkiler.
-    # Keep-Alive mantığı script içindeki Header ile kontrol edilir.
-    
-    local target_url="${URL_BASE}:${target_port}/api/benchmark/fast"
+    # Host port mapping üzerinden erişiyoruz (Wireshark için)
+    local target_url="${URL_BASE}:${host_port}/api/benchmark/fast"
 
     # 1. Isınma (JIT/Pool ısınması için ön koşu)
     echo "   🔥 Isınıyor ($WARMUP_ITERATIONS istek)..."
-    # Docker üzerinden çalıştır (Aynı Network İçinde)
-    # --add-host gerekmez çünkü aynı networkte DNS çalışır.
-    docker run --rm -i --network=$DOCKER_NETWORK grafana/k6 run \
+    # Docker üzerinden çalıştır
+    # host.docker.internal kullanarak host portlarına erişiyoruz (Wireshark için)
+    docker run --rm -i grafana/k6 run \
         --vus $vus --iterations $WARMUP_ITERATIONS --quiet \
         --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" \
         -e TARGET_URL=$target_url \
         - < $script_file > /dev/null 2>&1
 
-    # 2. Başlangıç soket durumunu kaydet
-    local initial_sockets=$(netstat -an | grep $target_port | wc -l)
-    local initial_timewait=$(netstat -an | grep $target_port | grep TIME_WAIT | wc -l)
+    # 2. Başlangıç soket durumunu kaydet (host portunu kullan)
+    local initial_sockets=$(netstat -an | grep $host_port | wc -l)
+    local initial_timewait=$(netstat -an | grep $host_port | grep TIME_WAIT | wc -l)
 
     # 3. Testi Başlat (JSON çıktısı alarak)
     echo "   🚀 Test Başladı ($ITERATIONS istek)..."
@@ -69,7 +68,8 @@ run_scenario() {
     local summary_output_filename="summary_${scenario_name}_vu${vus}.json"
     
     # En temiz yöntem: Current directory'i mount et
-    docker run --rm -i --network=$DOCKER_NETWORK \
+    # host.docker.internal kullanarak host portlarına erişiyoruz (Wireshark için)
+    docker run --rm -i \
         -v $(pwd)/$RESULTS_DIR:/results \
         -v $(pwd)/k6:/scripts \
         -e TARGET_URL=$target_url \
@@ -83,10 +83,23 @@ run_scenario() {
     # JSON dosyasının yolu (host tarafında)
     local summary_json="$RESULTS_DIR/$summary_output_filename"
 
-    # 4. Metrikleri Ayrıştır (Parse) - Python Script ile
-    # En başta zaten script dizinine cd yaptığımız için, path'i tekrar eklemeye gerek yok.
-    # $(dirname "$0") burada göreceli bir yol dönebiliyor ve iki kez eklenince dosya bulunamıyor.
-    local parse_result=$(python3 ./parse_results.py "$summary_json")
+    # JSON dosyasının oluşmasını bekle (Docker volume sync için)
+    sleep 1
+    if [ ! -f "$summary_json" ]; then
+        echo "   ⚠️  UYARI: JSON dosyası bulunamadı: $summary_json"
+        local parse_result="0,0,0,0,0"
+    else
+        # 4. Metrikleri Ayrıştır (Parse) - Python Script ile
+        # En başta zaten script dizinine cd yaptığımız için, path'i tekrar eklemeye gerek yok.
+        # $(dirname "$0") burada göreceli bir yol dönebiliyor ve iki kez eklenince dosya bulunamıyor.
+        local parse_result=$(python3 ./parse_results.py "$summary_json" 2>&1)
+        
+        # Parse sonucunu kontrol et (boşsa veya hata varsa 0,0,0,0,0 kullan)
+        if [ -z "$parse_result" ] || echo "$parse_result" | grep -q "Error\|Traceback\|Exception"; then
+            echo "   ⚠️  UYARI: Parse hatası, varsayılan değerler kullanılıyor"
+            local parse_result="0,0,0,0,0"
+        fi
+    fi
     
     # Python çıktısı: avg,p50,p95,p99,rps
     local avg=$(echo $parse_result | cut -d, -f1)
@@ -95,27 +108,29 @@ run_scenario() {
     local p99=$(echo $parse_result | cut -d, -f4)
     local rps=$(echo $parse_result | cut -d, -f5)
 
-    # 5. Bitiş soket durumunu kaydet
-    local final_sockets=$(netstat -an | grep $target_port | wc -l)
-    local final_timewait=$(netstat -an | grep $target_port | grep TIME_WAIT | wc -l)
+    # 5. Bitiş soket durumunu kaydet (host portunu kullan)
+    local final_sockets=$(netstat -an | grep $host_port | wc -l)
+    local final_timewait=$(netstat -an | grep $host_port | grep TIME_WAIT | wc -l)
     local timewait_diff=$((final_timewait - initial_timewait))
     if [ $timewait_diff -lt 0 ]; then timewait_diff=0; fi
 
     # Sonuçları CSV raporuna ekle
-    echo "$scenario_name,$vus,$keep_alive_status,$target_port,$avg,$p50,$p95,$p99,$rps,$timewait_diff" >> $RESULTS_DIR/report.csv
+    echo "$scenario_name,$vus,$keep_alive_status,$host_port,$avg,$p50,$p95,$p99,$rps,$timewait_diff" >> $RESULTS_DIR/report.csv
 }
 
 # Rapor başlığını hazırla
 echo "Senaryo,VU,KeepAlive,Port,Ort(ms),P50(ms),P95(ms),P99(ms),RPS,Eklenen_TIME_WAIT" > $RESULTS_DIR/report.csv
 
 # Senaryoları Döngüye Sok
+# KeepAliveOff -> 15001 portu (her istekte yeni bağlantı, çok SYN)
+# KeepAliveOn  -> 15002 portu (bağlantı reuse, tek SYN)
 for vu in "${CONCURRENCY_LEVELS[@]}"; do
-    run_scenario "KeepAliveOff" "k6/keep_alive_off.js" $vu "KAPALI"
+    run_scenario "KeepAliveOff" "k6/keep_alive_off.js" $vu "KAPALI" "15001"
     
     # Soketlerin temizlenmesi için bekle
     sleep 5
     
-    run_scenario "KeepAliveOn" "k6/keep_alive_on.js" $vu "ACIK"
+    run_scenario "KeepAliveOn" "k6/keep_alive_on.js" $vu "ACIK" "15002"
     
     # Bekle
     sleep 5
