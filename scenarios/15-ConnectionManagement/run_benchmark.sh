@@ -84,7 +84,9 @@ run_scenario() {
     local summary_json="$RESULTS_DIR/$summary_output_filename"
 
     # 4. Metrikleri Ayrıştır (Parse) - Python Script ile
-    local parse_result=$(python3 $(dirname "$0")/parse_results.py $summary_json)
+    # En başta zaten script dizinine cd yaptığımız için, path'i tekrar eklemeye gerek yok.
+    # $(dirname "$0") burada göreceli bir yol dönebiliyor ve iki kez eklenince dosya bulunamıyor.
+    local parse_result=$(python3 ./parse_results.py "$summary_json")
     
     # Python çıktısı: avg,p50,p95,p99,rps
     local avg=$(echo $parse_result | cut -d, -f1)
