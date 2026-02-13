@@ -2033,3 +2033,10 @@ Karar noktası şurada çıkar:
   •	Aynı senaryoda .NET 6/8/10 + PGO + AOT
 
 warmup, outlier, GC, JIT, iteration count, statistical significance
+
+	•	Latency kaynağını bulmak
+	•	Retransmission görmek
+	•	Paket kaybı tespit etmek
+	•	TLS handshake analiz etmek
+	•	Connection reset (RST) yakalamak
+	•	Gerçekten veri gidiyor mu görmek
