@@ -2032,3 +2032,4 @@ Karar noktası şurada çıkar:
   •	CPU limiti altında karşılaştırma
   •	Aynı senaryoda .NET 6/8/10 + PGO + AOT
 
+warmup, outlier, GC, JIT, iteration count, statistical significance
