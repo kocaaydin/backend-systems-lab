@@ -1,0 +1,5 @@
+Senaryo,VU,KeepAlive,Port,Ort(ms),P50(ms),P95(ms),P99(ms),RPS,TIME_WAIT_Sayisi
+ShortLived,1,KAPALI,5001,,,,,,       0
+Persistent,1,ACIK,5002,,,,,,       0
+ShortLived,10,KAPALI,5001,,,,,,       0
+Persistent,10,ACIK,5002,,,,,,       0

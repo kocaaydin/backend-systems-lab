@@ -1,0 +1,19 @@
+services:
+  connection-api:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001" # External 5001 -> Internal 5001
+      - "5002:5001" # External 5002 -> Internal 5001
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Sadece 5001 yeterli, external 5002 de 5001'e maplendi.
+      - ASPNETCORE_URLS=http://+:5001
+    networks:
+      - bench-net
+
+networks:
+  bench-net:
+    driver: bridge
+    name: bench-net # Bu isimle oluştur (prefix yok)
