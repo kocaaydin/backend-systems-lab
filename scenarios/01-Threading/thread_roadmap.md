@@ -45,19 +45,6 @@ Not:
 - Loaded testinde ortalama gecikme ~2ms'den ~4.9 saniyeye fırladı.
 - Hata oranı %0 kaldı (sistem çökmedi, sadece kitlendi).
 
-
-## 2. Starvation'ı Bilinçli Üret
-Ne yapıyor:
-- `starvation/blocking` endpoint'iyle pool thread'lerini meşgul eder.
-
-Ne gözlemlemeliyim:
-- `/fast` cevap süresinde bozulma.
-- Sistem ayakta olsa da cevapların gecikmesi.
-
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/02_induce_starvation.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/02_induce_starvation.js`
-
 ## 3. Worker Pool Ayrımı (ThreadPool vs Dedicated)
 Ne yapıyor:
 - Aynı CPU işini önce `ThreadPool`, sonra `Dedicated` modelinde koşturur.
