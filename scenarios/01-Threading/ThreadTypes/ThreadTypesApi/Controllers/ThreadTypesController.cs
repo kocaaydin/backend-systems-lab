@@ -119,19 +119,19 @@ public sealed class ThreadTypesController : ControllerBase
         });
     }
 
-    [HttpGet("starvation/blocking")]
-    public IActionResult StarvationBlocking([FromQuery] int blockMs = 3000)
+    [HttpGet("io/blocking")]
+    public IActionResult IoBlocking([FromQuery] int blockMs = 3000)
     {
         var sw = Stopwatch.StartNew();
-        LogStart("starvation/blocking", $"blockMs={blockMs}");
+        LogStart("io/blocking", $"blockMs={blockMs}");
 
         Thread.Sleep(blockMs);
 
         sw.Stop();
-        LogEnd("starvation/blocking", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
+        LogEnd("io/blocking", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
         return Ok(new
         {
-            endpoint = "starvation/blocking",
+            endpoint = "io/blocking",
             blockMs,
             elapsedMs = sw.ElapsedMilliseconds,
             managedThreadId = Thread.CurrentThread.ManagedThreadId,
@@ -139,11 +139,11 @@ public sealed class ThreadTypesController : ControllerBase
         });
     }
 
-    [HttpGet("starvation/blocking-dedicated")]
-    public async Task<IActionResult> StarvationBlockingDedicated([FromQuery] int blockMs = 3000)
+    [HttpGet("io/blocking-dedicated")]
+    public async Task<IActionResult> IoBlockingDedicated([FromQuery] int blockMs = 3000)
     {
         var sw = Stopwatch.StartNew();
-        LogStart("starvation/blocking-dedicated", $"blockMs={blockMs}");
+        LogStart("io/blocking-dedicated", $"blockMs={blockMs}");
 
         var tcs = new TaskCompletionSource<(int ThreadId, bool IsPool)>(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
@@ -160,10 +160,10 @@ public sealed class ThreadTypesController : ControllerBase
         var result = await tcs.Task;
 
         sw.Stop();
-        LogEnd("starvation/blocking-dedicated", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
+        LogEnd("io/blocking-dedicated", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
         return Ok(new
         {
-            endpoint = "starvation/blocking-dedicated",
+            endpoint = "io/blocking-dedicated",
             blockMs,
             elapsedMs = sw.ElapsedMilliseconds,
             requestThreadId = Thread.CurrentThread.ManagedThreadId,

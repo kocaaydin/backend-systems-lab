@@ -60,8 +60,8 @@ Sonuçlar (2026-02-15):
 === CPU Bound Karşılaştırma Sonuçları ===
 Senaryo              | Avg Latency | P95 Latency | Fail Rate
 ---------------------|-------------|-------------|-----------
-ThreadPool (Heavy)   | ~8.83 s     | ~14.49 s    | 0.0%
-Dedicated (Heavy)    | ~14.41 s    | ~23.46 s    | 0.0%
+ThreadPool (Heavy)   | ~8.56 s     | ~14.49 s    | 0.0%
+Dedicated (Heavy)    | ~13.72 s    | ~21.23 s    | 0.0%
 ```
 
 **Yorum (CPU):**
@@ -76,20 +76,20 @@ Sonuçlar (2026-02-15):
 === IO Bound Karşılaştırma Sonuçları ===
 Senaryo              | Avg Latency | P95 Latency | Fail Rate
 ---------------------|-------------|-------------|-----------
-ThreadPool (Block)   | ~15.28 s    | ~20.76 s    | 0.0%
-Dedicated (Block)    | ~2.54 ms    | ~4.77 ms    | 0.0%
+ThreadPool (Block)   | ~16.18 s    | ~21.15 s    | 0.0%
+Dedicated (Block)    | ~2.22 ms    | ~4.38 ms    | 0.0%
 ```
 
 **Yorum (IO):**
 İşte Dedicated Thread'in parladığı yer burasıdır!
-- **ThreadPool:** 50 RPS ile gelen 300ms'lik bloklamalar havuzdaki tüm threadleri ("worker") tüketti. `/fast` istekleri bile kuyrukta beklediği için 15 saniyeye kadar gecikti (Starvation).
-- **Dedicated:** Her bloklanan işlem kendi özel thread'inde beklediği için, ThreadPool'daki worker'lar meşgul edilmedi. `/fast` istekleri havuzdan hemen cevap alabildi (~2.5ms).
+- **ThreadPool:** 50 RPS ile gelen 300ms'lik bloklamalar havuzdaki tüm threadleri ("worker") tüketti. `/fast` istekleri bile kuyrukta beklediği için 16 saniyeye kadar gecikti (Starvation).
+- **Dedicated:** Her bloklanan işlem kendi özel thread'inde beklediği için, ThreadPool'daki worker'lar meşgul edilmedi. `/fast` istekleri havuzdan hemen cevap alabildi (~2.2ms).
 
 Dosyalar:
-- SH (CPU): `scenarios/01-Threading/ThreadTypes/scripts/03_separate_worker_pool_dedicated.sh`
-- SH (IO): `scenarios/01-Threading/ThreadTypes/scripts/03_io_bound_comparison.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/03_threadpool_vs_dedicated.js`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/03_io_bound_comparison.js`
+- SH (CPU): `scenarios/01-Threading/ThreadTypes/scripts/03_cpu_bound_pool_vs_dedicated.sh`
+- SH (IO): `scenarios/01-Threading/ThreadTypes/scripts/03_io_bound_pool_vs_dedicated.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/03_cpu_bound_pool_vs_dedicated.js`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/03_io_bound_pool_vs_dedicated.js`
 Ne yapıyor:
 - Bounded queue ile backpressure davranışını test eder.
 - Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.

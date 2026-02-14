@@ -36,13 +36,13 @@ run_warmup() {
   docker compose -f "$COMPOSE_FILE" --profile tools run --rm \
     -e MODE=warmup \
     -e DURATION="$WARMUP_DURATION" \
-    k6 run --summary-export /results/03-io-comparison-warmup-summary.json /scripts/03_io_bound_comparison.js >/dev/null
+    k6 run --summary-export /results/03-io-pool-vs-dedicated-warmup-summary.json /scripts/03_io_bound_pool_vs_dedicated.js >/dev/null
 }
 
 run_test() {
   local scenario_type="$1" # 'pool' or 'dedicated'
   local run_no="$2"
-  local out_file="/results/03-io-comparison-${scenario_type}-run-${run_no}-summary.json"
+  local out_file="/results/03-io-pool-vs-dedicated-${scenario_type}-run-${run_no}-summary.json"
 
   echo "[${scenario_type}] run ${run_no}/${RUN_COUNT}"
   docker compose -f "$COMPOSE_FILE" --profile tools run --rm \
@@ -51,7 +51,7 @@ run_test() {
     -e FAST_RPS="$FAST_RPS" \
     -e HEAVY_RPS="$HEAVY_RPS" \
     -e BLOCK_MS="$BLOCK_MS" \
-    k6 run --summary-export "$out_file" /scripts/03_io_bound_comparison.js >/dev/null
+    k6 run --summary-export "$out_file" /scripts/03_io_bound_pool_vs_dedicated.js >/dev/null
 }
 
 echo "=== Senaryo 3b: ThreadPool vs Dedicated (IO Bound / Blocking) ==="
@@ -82,7 +82,7 @@ from statistics import mean
 result_dir = r"${RESULT_DIR}"
 
 def parse_runs(scenario_type: str):
-    files = sorted(glob.glob(f"{result_dir}/03-io-comparison-{scenario_type}-run-*-summary.json"))
+    files = sorted(glob.glob(f"{result_dir}/03-io-pool-vs-dedicated-{scenario_type}-run-*-summary.json"))
     if not files:
         raise SystemExit(f"{scenario_type} icin sonuc dosyasi bulunamadi.")
     rows = []
@@ -131,7 +131,7 @@ summary = {
     "dedicated_avg": dedicated_avg
 }
 
-out_path = f"{result_dir}/03-io-comparison-results.json"
+out_path = f"{result_dir}/03-io-pool-vs-dedicated-results.json"
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2)
 

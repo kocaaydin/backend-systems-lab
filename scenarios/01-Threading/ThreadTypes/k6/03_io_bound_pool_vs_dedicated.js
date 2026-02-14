@@ -98,9 +98,9 @@ export function blockingLoad() {
 
     // NOTE: I need to implement 'starvation/blocking-dedicated' in the C# controller
     if (scenarioType === 'pool') {
-        endpoint = 'starvation/blocking';
+        endpoint = 'io/blocking';
     } else {
-        endpoint = 'starvation/blocking-dedicated';
+        endpoint = 'io/blocking-dedicated';
     }
 
     const res = http.get(`${baseUrl}/thread-types/${endpoint}?blockMs=${blockMs}`);
