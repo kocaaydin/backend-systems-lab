@@ -139,6 +139,40 @@ public sealed class ThreadTypesController : ControllerBase
         });
     }
 
+    [HttpGet("starvation/blocking-dedicated")]
+    public async Task<IActionResult> StarvationBlockingDedicated([FromQuery] int blockMs = 3000)
+    {
+        var sw = Stopwatch.StartNew();
+        LogStart("starvation/blocking-dedicated", $"blockMs={blockMs}");
+
+        var tcs = new TaskCompletionSource<(int ThreadId, bool IsPool)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            Thread.Sleep(blockMs);
+            tcs.SetResult((Thread.CurrentThread.ManagedThreadId, Thread.CurrentThread.IsThreadPoolThread));
+        })
+        {
+            IsBackground = true,
+            Name = "blocking-dedicated-thread"
+        };
+        
+        thread.Start();
+        var result = await tcs.Task;
+
+        sw.Stop();
+        LogEnd("starvation/blocking-dedicated", sw.ElapsedMilliseconds, $"blockMs={blockMs}");
+        return Ok(new
+        {
+            endpoint = "starvation/blocking-dedicated",
+            blockMs,
+            elapsedMs = sw.ElapsedMilliseconds,
+            requestThreadId = Thread.CurrentThread.ManagedThreadId,
+            requestThreadIsPool = Thread.CurrentThread.IsThreadPoolThread,
+            workerThreadId = result.ThreadId,
+            workerThreadIsPool = result.IsPool
+        });
+    }
+
     [HttpGet("cpu-cancellable")]
     public IActionResult CpuCancellable([FromServices] CpuCalculator calculator, [FromQuery] int n = 250000, [FromQuery] int checkEvery = 200, CancellationToken cancellationToken = default)
     {

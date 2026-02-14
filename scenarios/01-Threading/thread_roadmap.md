@@ -47,15 +47,49 @@ Not:
 
 ## 3. Worker Pool Ayrımı (ThreadPool vs Dedicated)
 Ne yapıyor:
-- Aynı CPU işini önce `ThreadPool`, sonra `Dedicated` modelinde koşturur.
+- Hem **CPU Bound** (asal sayı hesab) hem de **IO Bound** (blocking/sleep) işleri için ThreadPool vs Dedicated karşılaştırması yapar.
 
 Ne gözlemlemeliyim:
-- Yük altında hangi modelin `/fast` üzerine daha fazla etkisi var?
-- Aynı iş tipi için farklı model seçiminin sonucu.
+- İşlem tipine göre hangi modelin `/fast` üzerindeki etkisi nedir?
 
+### A. Senaryo: CPU Bound (Asal Sayı Hesabı)
+Yük: 50 RPS, Heavy Calculation (N=2M)
 
+Sonuçlar (2026-02-15):
+```text
+=== CPU Bound Karşılaştırma Sonuçları ===
+Senaryo              | Avg Latency | P95 Latency | Fail Rate
+---------------------|-------------|-------------|-----------
+ThreadPool (Heavy)   | ~8.83 s     | ~14.49 s    | 0.0%
+Dedicated (Heavy)    | ~14.41 s    | ~23.46 s    | 0.0%
+```
 
-## 4. Queue + Worker Simülasyonu
+**Yorum (CPU):**
+Beklentinin aksine "Dedicated Thread" senaryosunda sistem *daha fazla* yavaşladı.
+Sebep: Sistem zaten CPU darboğazında olduğu için, her istekte yeni thread açmanın getirdiği "Context Switch" maliyeti durumu daha da kötüleştirdi. Thread Starvation yerine Thread Explosion yaşandı.
+
+### B. Senaryo: IO Bound (Blocking / Sleep)
+Yük: 50 RPS, 300ms Blocking Delay
+
+Sonuçlar (2026-02-15):
+```text
+=== IO Bound Karşılaştırma Sonuçları ===
+Senaryo              | Avg Latency | P95 Latency | Fail Rate
+---------------------|-------------|-------------|-----------
+ThreadPool (Block)   | ~15.28 s    | ~20.76 s    | 0.0%
+Dedicated (Block)    | ~2.54 ms    | ~4.77 ms    | 0.0%
+```
+
+**Yorum (IO):**
+İşte Dedicated Thread'in parladığı yer burasıdır!
+- **ThreadPool:** 50 RPS ile gelen 300ms'lik bloklamalar havuzdaki tüm threadleri ("worker") tüketti. `/fast` istekleri bile kuyrukta beklediği için 15 saniyeye kadar gecikti (Starvation).
+- **Dedicated:** Her bloklanan işlem kendi özel thread'inde beklediği için, ThreadPool'daki worker'lar meşgul edilmedi. `/fast` istekleri havuzdan hemen cevap alabildi (~2.5ms).
+
+Dosyalar:
+- SH (CPU): `scenarios/01-Threading/ThreadTypes/scripts/03_separate_worker_pool_dedicated.sh`
+- SH (IO): `scenarios/01-Threading/ThreadTypes/scripts/03_io_bound_comparison.sh`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/03_threadpool_vs_dedicated.js`
+- K6: `scenarios/01-Threading/ThreadTypes/k6/03_io_bound_comparison.js`
 Ne yapıyor:
 - Bounded queue ile backpressure davranışını test eder.
 - Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.

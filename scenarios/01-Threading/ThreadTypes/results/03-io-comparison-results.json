@@ -1,0 +1,52 @@
+{
+  "pool_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-pool-run-1-summary.json",
+      "fast_avg_ms": 19437.932936601774,
+      "fast_p95_ms": 25283.1005642,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-pool-run-2-summary.json",
+      "fast_avg_ms": 8548.386582492063,
+      "fast_p95_ms": 13603.9257985,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-pool-run-3-summary.json",
+      "fast_avg_ms": 17868.098746787615,
+      "fast_p95_ms": 23413.2916446,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "dedicated_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-dedicated-run-1-summary.json",
+      "fast_avg_ms": 2.299946338308457,
+      "fast_p95_ms": 4.466292,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-dedicated-run-2-summary.json",
+      "fast_avg_ms": 2.719352179104478,
+      "fast_p95_ms": 5.409208,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/03-io-comparison-dedicated-run-3-summary.json",
+      "fast_avg_ms": 2.601647388059702,
+      "fast_p95_ms": 4.436167,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "pool_avg": {
+    "fast_avg_ms": 15284.806,
+    "fast_p95_ms": 20766.773,
+    "http_fail_rate": 0.0
+  },
+  "dedicated_avg": {
+    "fast_avg_ms": 2.54,
+    "fast_p95_ms": 4.771,
+    "http_fail_rate": 0.0
+  }
+}
