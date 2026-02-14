@@ -102,18 +102,8 @@ Dosyalar:
 - SH: `scenarios/01-Threading/ThreadTypes/scripts/04_queue_backpressure.sh`
 - K6: `scenarios/01-Threading/ThreadTypes/k6/04_queue_backpressure.js`
 
-## 5. Failure Senaryosu (Kill + Retry)
-Ne yapıyor:
-- Uzun istek sırasında API process kesilir.
-- API yeniden başlatılıp aynı istek retry edilir.
 
-Ne gözlemlemeliyim:
-- İlk denemede hata/yarım kalma.
-- Retry sonrası toparlanma.
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/05_failure_retry_simulation.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/05_failure_retry.js`
 
 ## 6. Çok Seviyeli Karşılaştırma
 Ne yapıyor:
