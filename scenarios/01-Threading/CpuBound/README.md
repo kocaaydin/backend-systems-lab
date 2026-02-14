@@ -1,12 +1,32 @@
 # CPU Bound Lab
 
-Bu lab, ayni endpoint uzerinde `n` degerini buyutup CPU maliyeti arttiginda latency'nin nasil degistigini gosterir.
+**I/O beklemesi yerine işlemci (CPU) darboğazına** girdiğinde nasıl tepki verdiğini simüle etmek ve gözlemlemek 
+
+## Amaç
+Ayni endpoint uzerinde `n` degerini buyutup CPU maliyeti arttiginda latency'nin nasil degistigini gosterir.
 
 Kisa fikir:
 - `n` kucukken islem hafif -> cevaplar daha hizli
 - `n` buyukken CPU daha uzun mesgul -> cevaplar daha yavas
 
 Bu sayede "CPU-bound is yukunde neden latency artar?" sorusunu net goruruz.
+
+## 🛠 Neler Yapıldı?
+
+1.  **"İşlemciyi Yoracak" Kod Eklendi (`CpuBoundApi/Program.cs`)**
+    *   API'ye `/experiments/cpu` adında endpoint eklendi.
+    *   Bu endpoint **yoğun matematiksel işlem** yapar.
+    *   **Yöntem:** Belirli bir sayıya kadar (varsayılan: 20,000) olan asal sayıları "brute-force" (kaba kuvvet) yöntemiyle hesaplar. Bu yöntem bilerek verimsiz seçilmiştir; böylece her istek geldiğinde sunucu işlemcisi %100 yük altına girer ve ilgili thread kilitlenir.
+
+2.  **Yük Testi Senaryosu (`k6/cpu-bound.js`)**
+    *   **Executor:** `constant-arrival-rate` (Sabit Geliş Hızı)
+    *   **Hedef:** Sistem yanıt verse de vermese de saniyede sabit sayıda istek (RPS) göndermeye çalışır.
+    *   **Parametreler:**
+        *   `rate`: 20 RPS (Varsayılan)
+        *   `duration`: 30s
+        *   `preAllocatedVUs`: 20 (Başlangıç sanal kullanıcı)
+        *   `maxVUs`: 300 (Gerekirse çıkılabilecek maksimum kullanıcı)
+    *   **Amaç:** "Open Model" yük testi yaparak, sistem yavaşlasa bile trafiği kesmemek ve kuyruk oluşumunu/gecikmeyi net gözlemlemektir.
 
 ## Neyi Test Ediyoruz?
 
@@ -39,19 +59,26 @@ Birden fazla `N` degeri:
 bash scenarios/01-Threading/CpuBound/scripts/run.sh 20000 200000
 ```
 
-Ortam degiskenleri (opsiyonel):
+## Sonuçlar ve Yorumlama
 
-```bash
-REPEAT_COUNT=5 DURATION=45s RPS_VALUE=25 bash scenarios/01-Threading/CpuBound/scripts/run.sh 20000 200000
-```
+**Test Tarihi:** 2026-02-15
+
+| Senaryo (N) | RPS | Avg Latency (ms) | P95 Latency (ms) | Açıklama |
+| :--- | :--- | :--- | :--- | :--- |
+| **N=20,000** | 20 | ~2.41 ms | ~3.67 ms | İşlemci talebi rahatça karşılar. |
+| **N=200,000** | 20 | ~7.73 ms | ~11.08 ms | İşlem maliyeti arttığı için süre uzadı. |
+
+### Gözlemler
+
+1.  **Doğrusal Artış:** `N` değeri 10 katına çıktığında (20k -> 200k), latency de yaklaşık 3 katına çıkmıştır (2.4ms -> 7.7ms). Bu, işlemin O(N) veya daha yüksek karmaşıklıkta olduğunu ve CPU'nun darboğaz yarattığını gösterir.
+2.  **Kararlılık:** `dropped_iterations` 0 olduğu için sistem henüz tam kapasite sınırına (saturation point) ulaşmamıştır, yani cevap verebilmektedir ancak daha yavaştır.
+
+Eğer RPS'i çok daha fazla artırırsak (örn: 50 RPS), CPU %100 olduğunda "Thread Starvation" başlayacak ve süreler milisaniyelerden saniyelere fırlayacaktır.
 
 ## Scriptler
 
-- `scenarios/01-Threading/CpuBound/scripts/run.sh`
-- `scenarios/01-Threading/CpuBound/scripts/run_n.sh`
-- `scenarios/01-Threading/CpuBound/scripts/run_n_20000.sh`
-- `scenarios/01-Threading/CpuBound/scripts/run_n_200000.sh`
-- `scenarios/01-Threading/CpuBound/scripts/run_n_compare.sh`
+- `scenarios/01-Threading/CpuBound/scripts/run.sh`: Ana çalıştırıcı script.
+- Diğer scriptler (`run_n.sh` vb.) bu ana scriptin yardımcılarıdır.
 
 Script davranisi:
 - Her `N` senaryosu `REPEAT_COUNT` kadar tekrar edilir (varsayilan 3).
@@ -62,52 +89,10 @@ Script davranisi:
 ## Sonuc Formati
 
 Her `N` icin:
-
-- 3 tekrar summary:
-  - `scenarios/01-Threading/CpuBound/results/k6-n-<N>-run-1-summary.json`
-  - `scenarios/01-Threading/CpuBound/results/k6-n-<N>-run-2-summary.json`
-  - `scenarios/01-Threading/CpuBound/results/k6-n-<N>-run-3-summary.json`
-- 1 ortalama dosyasi:
-  - `scenarios/01-Threading/CpuBound/results/k6-n-<N>-average.json`
+- 3 tekrar summary json dosyaları results klasörüne kaydedilir.
+- 1 ortalama dosyasi (`average.json`) oluşturulur.
 
 `average.json` alanlari:
-
-- `avg_of_avg_ms`: 3 kosunun ortalama latency ortalamasi (ms)
-- `avg_of_p95_ms`: 3 kosunun p95 latency ortalamasi (ms)
-- `median_p95_ms`: 3 kosudaki p95 degerlerinin ortancasi (outlier'a daha dayanikli)
-- `avg_fail_rate`: `http_req_failed` ortalamasi
-- `avg_http_reqs_rate`: gerceklesen istek hizi
-- `dropped_iterations`: hedef yukun yetismeyen istek sayilari (her kosu icin)
-
-## Yorumlama
-
-- Daha buyuk `N` -> CPU islemi daha pahali -> `avg_of_avg_ms` ve `avg_of_p95_ms` genelde yukselir.
-- Karsilastirma yaparken su kontrolleri ekle:
-  - `dropped_iterations` (mümkünse 0 olmali)
-  - `avg_http_reqs_rate` (hedef RPS'e yakin olmali)
-
-Pratik yorum sirasi:
-1. `dropped_iterations` kontrol et. Yuk dusuyorsa metrik yorumu zayiflar.
-2. `avg_http_reqs_rate` hedefe yakin mi bak.
-3. Sonra `avg_of_p95_ms` ve `median_p95_ms` karsilastir.
-4. En son `avg_fail_rate` ile hataya dusmus mu kontrol et.
-
-Neden tekrar + restart yapiyoruz?
-- Tek kosu gürültülü olabilir (scheduler jitter, anlik dalgalanma).
-- Restart ile onceki kosudan kalan uygulama state etkisini azaltiriz.
-- 3 tekrar ortalamasi daha stabil sonuc verir.
-
-Not:
-- Connection reuse (keep-alive), JIT, cache, pool gibi etkiler performansi degistirebilir.
-- Bu nedenle tek kosu yerine tekrarli olcum tercih edilir.
-
-## Hizli Kontrol
-
-```bash
-ls -1 scenarios/01-Threading/CpuBound/results
-```
-
-```bash
-cat scenarios/01-Threading/CpuBound/results/k6-n-20000-average.json
-cat scenarios/01-Threading/CpuBound/results/k6-n-200000-average.json
-```
+- `avg_of_avg_ms`: 3 kosunun ortalama latency ortalamasi
+- `avg_of_p95_ms`: 3 kosunun p95 latency ortalamasi
+- `dropped_iterations`: hedef yukun yetismeyen istek sayilari

@@ -8,11 +8,11 @@
     "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/CpuBound/results/k6-n-200000-run-2-summary.json",
     "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/CpuBound/results/k6-n-200000-run-3-summary.json"
   ],
-  "avg_of_avg_ms": 8.903513,
-  "avg_of_p95_ms": 11.499944,
-  "median_p95_ms": 11.446583,
+  "avg_of_avg_ms": 7.731372,
+  "avg_of_p95_ms": 11.083059,
+  "median_p95_ms": 10.906592,
   "avg_fail_rate": 0.0,
-  "avg_http_reqs_rate": 19.990357,
+  "avg_http_reqs_rate": 19.991843,
   "dropped_iterations": [
     0,
     0,
