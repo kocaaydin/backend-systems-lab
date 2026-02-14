@@ -66,9 +66,7 @@ Ne gözlemlemeliyim:
 - Yük altında hangi modelin `/fast` üzerine daha fazla etkisi var?
 - Aynı iş tipi için farklı model seçiminin sonucu.
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/03_separate_worker_pool_dedicated.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/03_threadpool_vs_dedicated.js`
+
 
 ## 4. Queue + Worker Simülasyonu
 Ne yapıyor:

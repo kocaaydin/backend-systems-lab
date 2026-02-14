@@ -16,11 +16,4 @@ Bu deneyin amacı, sistemin **I/O beklemesi yerine işlemci (CPU) darboğazına*
 
 3.  **Otomasyon Scripti Hazırlandı (`scripts/run.sh`)**
     *   Deneyi otomatize etmek için bir Bash script yazıldı.
-    *   Sistem sırasıyla **5 RPS**, **20 RPS** ve **50 RPS** yük altında test edilir.
 
-## 🎯 Beklenen Sonuç
-
-*   **Düşük Yük (5 RPS):** İşlemci talebi karşılayabilir, sistem yanıt verir.
-*   **Yüksek Yük (20+ RPS):** İşlemci kapasitesi (CPU core sayısı) yetersiz kalmaya başlar.
-    *   **CPU Starvation:** İş parçacıkları (threads) işlemci zamanı bulamaz.
-    *   **Belirtiler:** Yanıt süreleri (Latency) dramatik şekilde artar, Timeout hataları başlar ve hatta normalde çok hızlı çalışan `/health` endpointi bile yavaşlayabilir.
