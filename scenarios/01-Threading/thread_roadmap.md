@@ -5,12 +5,49 @@
 - Yanlış thread/pool kararlarının latency ve cevap sürelerine etkisini görmek.
 - Her senaryoyu tek komutla çalıştırıp çıktıyı terminalden yorumlayabilmek.
 
-## 0. Thread Türleri (Temel Harita)
+
+## 0. Thread Türleri ve Pool Yapısı
 - `Main Thread`: Uygulamanın giriş thread'i.
-- `ThreadPool Thread`: Runtime tarafından yönetilen worker thread'ler.
-- `Dedicated Thread`: Uygulamanın özel işi için açtığı manuel thread.
+- `ThreadPool Thread`: Runtime tarafından yönetilen worker thread'ler. (Bizim odak noktamız)
+- `Dedicated Thread`: Uygulamanın özel işi için açtığı manuel thread (`new Thread()`).
 - `GC Threads`: GC işini yapan runtime thread'leri.
 - `Finalizer Thread`: Finalizer kuyruğunu tüketen özel thread.
+
+### ThreadPool Alt Türleri
+ThreadPool aslında tek bir havuzdur ancak içinde iki farklı "görev tipi" için ayrılmış thread limitleri vardır:
+1.  **Worker Threads:**
+    -   **Görevi:** İşlemci yoğunluklu işler (`Task.Run`) ve bloklanan işlemler (`Thread.Sleep`, senkron DB çağrıları).
+    -   **Önemi:** Bizim "CPU Bound" ve "Blocking IO" testlerimizde tükenen ve darboğaz yaratan threadler bunlardır.
+2.  **IOCP (I/O Completion Port) Threads:**
+    -   **Görevi:** Asenkron I/O işlemlerinin (`await file.ReadAsync`, `await db.ExecuteAsync`) bitişini beklemek ve callback'leri çalıştırmak.
+    -   **Önemi:** Bu threadler bloklanmaz, sadece iş bittiğinde devreye girer. Bu yüzden `async/await` kullandığımızda Worker Threadler meşgul edilmez, sistem daha ölçeklenebilir olur.
+
+**.NET Runtime Kararı:**
+Hangi thread'in kullanılacağına yazdığınız kod karar verir:
+- `Task.Run(...)` veya senkron kod -> **Worker Thread**
+- `await stream.ReadAsync(...)` -> **IOCP Thread** (işletim sistemi seviyesinde)
+
+### ThreadPool İç Analizi (2026-02-15)
+`monitor` scripti ile yapılan testte (50 RPS, IO Bound), ThreadPool'un davranışını canlı izledik:
+
+```text
+TS       | Worker(Min/Max) | Active | Total | Pending
+---------|-----------------|--------|-------|--------
+02:11:15 | 1/32767         | 2      | 2     | 0      (Başlangıç)
+02:11:16 | 1/32767         | 7      | 8     | 158    (Saniyede 50 istek geldi, kuyruk fırladı)
+02:11:22 | 1/32767         | 10     | 10    | 238    (6 saniye sonra sadece 2 thread ekleyebildi!)
+```
+
+**Bulgular:**
+1.  **MinWorker=1:** Container ortamında default Min çok düşüktür.
+2.  **Hill Climbing Yavaşlığı:** Ani yük (Burst) geldiğinde, havuz saniyede sadece 1-2 thread ekledi (`Injection Rate`).
+3.  **Kuyruk Birikmesi (Starvation):** Threadler yetersiz olduğu için işler kuyrukta (`Pending`) bekledi. Latency'nin 15 saniyelere çıkmasının asıl sebebi bu **kuyruk bekleme süresidir**.
+
+**Çözüm:** `ThreadPool.SetMinThreads` ile başlangıç thread sayısını artırmak (Örn: 100) bu ilk şoku ("Warmup problemini") çözer.
+
+Dosyalar:
+- SH: `scenarios/01-Threading/ThreadTypes/scripts/00_thread_pool_monitor.sh`
+- Endpoint: `/thread-types/pool-stats`
 
 Not:
 - Starvation belirtileri çoğunlukla `ThreadPool` üzerinde görünür.
@@ -101,8 +138,6 @@ Ne gözlemlemeliyim:
 Dosyalar:
 - SH: `scenarios/01-Threading/ThreadTypes/scripts/04_queue_backpressure.sh`
 - K6: `scenarios/01-Threading/ThreadTypes/k6/04_queue_backpressure.js`
-
-
 
 
 ## 6. Çok Seviyeli Karşılaştırma

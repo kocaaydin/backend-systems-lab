@@ -20,6 +20,43 @@ public sealed class ThreadTypesController : ControllerBase
         });
     }
 
+    [HttpGet("pool-stats")]
+    public IActionResult PoolStats()
+    {
+        ThreadPool.GetMinThreads(out int minWorker, out int minIo);
+        ThreadPool.GetMaxThreads(out int maxWorker, out int maxIo);
+        ThreadPool.GetAvailableThreads(out int availWorker, out int availIo);
+
+        return Ok(new
+        {
+            workerThreads = new { min = minWorker, max = maxWorker, available = availWorker, active = maxWorker - availWorker },
+            completionPortThreads = new { min = minIo, max = maxIo, available = availIo, active = maxIo - availIo },
+            threadCount = ThreadPool.ThreadCount,
+            pendingWorkItemCount = ThreadPool.PendingWorkItemCount
+        });
+    }
+
+    [HttpPost("set-min-threads")]
+    public IActionResult SetMinThreads([FromQuery] int minWorker, [FromQuery] int minIo)
+    {
+        if (minWorker <= 0 || minIo <= 0)
+        {
+            return BadRequest("minWorker ve minIo pozitif olmalı.");
+        }
+
+        bool success = ThreadPool.SetMinThreads(minWorker, minIo);
+        
+        ThreadPool.GetMinThreads(out int currentMinWorker, out int currentMinIo);
+
+        return Ok(new
+        {
+            success,
+            requested = new { minWorker, minIo },
+            current = new { minWorker = currentMinWorker, minIo = currentMinIo },
+            note = success ? "Min threads updated." : "Failed to update min threads (might be higher than max)."
+        });
+    }
+
     [HttpGet("fast")]
     public IActionResult Fast()
     {
