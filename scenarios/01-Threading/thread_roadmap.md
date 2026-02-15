@@ -154,11 +154,21 @@ Dosyalar:
 
 ## 7. GC Threads + Finalizer Thread
 Ne yapıyor:
-- `create -> stats -> collect -> stats` akışıyla GC/finalizer etkisini görünür yapar.
+- `create -> stats -> clear -> collect -> stats` akışını tek bir sunucu isteğiyle yapar.
+- Sonuçları okunabilir bir rapor (`StringBuilder` text) olarak döner.
 
 Ne gözlemlemeliyim:
-- `finalized` sayısı collect sonrası artıyor mu?
-- Finalizer queue davranışı beklendiği gibi mi?
+- **Test 1: Standard Objects (No Finalizer):**
+    - `Memory` referanslar silinince ANINDA düşmeli.
+    - `Finalized Count` **0** kalmalı.
+- **Test 2: Finalizable Objects (With Destructor):**
+    - `Memory` hemen düşmeyebilir (Finalizer Queue işlenene kadar).
+    - `Finalized Count` artmalı (Yıkıcı metodlar çalıştı).
+
+Dosyalar:
+- SH (Finalizer): `scenarios/01-Threading/ThreadTypes/scripts/07_gc_finalizer.sh`
+- SH (Standard): `scenarios/01-Threading/ThreadTypes/scripts/07_b_gc_standard.sh`
+- Endpoint: `/gc/standard` ve `/gc/finalizer`
 
 
 
