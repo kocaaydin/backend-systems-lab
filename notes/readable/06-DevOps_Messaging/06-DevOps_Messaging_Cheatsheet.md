@@ -31,7 +31,7 @@
 - FROM / RUN / COPY / ADD
 - CMD vs ENTRYPOINT
 - EXPOSE
-- ENV / ARG farkı
+- ENV / ARG farkı env runtime arg buildtime
 - .dockerignore
 
 🎤:
