@@ -6,26 +6,16 @@ namespace ThreadTypesApi.Controllers;
 
 [ApiController]
 [Route("gc")]
-public class GcController : ControllerBase
+public class GcController(GcLab gcLab) : ControllerBase
 {
-    private readonly GcLab _gcLab;
-
-    public GcController(GcLab gcLab)
-    {
-        _gcLab = gcLab;
-    }
+    private readonly GcLab _gcLab = gcLab;
 
     [HttpPost("standard")]
-    public IActionResult RunStandard()
-    {
-        var report = _gcLab.RunStandardScenario();
-        return Ok(report);
-    }
+    public IActionResult RunStandard() => Ok(_gcLab.RunStandardScenario());
 
     [HttpPost("finalizer")]
-    public IActionResult RunFinalizer()
-    {
-        var report = _gcLab.RunFinalizerScenario();
-        return Ok(report);
-    }
+    public IActionResult RunFinalizer() => Ok(_gcLab.RunFinalizerScenario());
+
+    [HttpPost("generations")]
+    public IActionResult RunGenerations() => Ok(_gcLab.RunGenerationsScenario());
 }

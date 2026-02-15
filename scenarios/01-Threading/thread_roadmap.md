@@ -155,7 +155,6 @@ Dosyalar:
 ## 7. GC Threads + Finalizer Thread
 Ne yapıyor:
 - `create -> stats -> clear -> collect -> stats` akışını tek bir sunucu isteğiyle yapar.
-- Sonuçları okunabilir bir rapor (`StringBuilder` text) olarak döner.
 
 Ne gözlemlemeliyim:
 - **Test 1: Standard Objects (No Finalizer):**
@@ -172,7 +171,42 @@ Dosyalar:
 
 
 
-## 8. Request Cancellation Propagation
+## 8. GC Generations & Full GC (Gen0, Gen1, Gen2)
+**Kavramlar:**
+- **Gen 0 (Ephemeral):** Yeni doğan tüm objeler buradadır (Heap). Sık ve hızlı temizlenir.
+- **Gen 1:** Gen 0'dan sağ çıkanlar buraya terfi eder. Tampon bölgedir.
+- **Gen 2 (Long-Lived):** Gen 1'den sağ çıkanlar buraya gelir. "Full GC" burayı temizler.
+
+**Heap vs Stack Yanılgısı:**
+- **Stack:** Metod parametreleri ve local değişkenlerin referansları (pointer) buradadır.
+- **Heap:** Objenin **kendisi** (`new Class()`) her zaman Heap'tedir. Gen 0'daki objeler de Heap'tedir, Stack'te değil.
+
+**SOH vs LOH (Heap Ayrımı):**
+- **SOH (Small Object Heap):** Standart objeler. Gen 0 -> 1 -> 2 yolunu izler ve GC bunları sıkıştırır (Compact).
+- **LOH (Large Object Heap):** **85 KB'dan büyük** objeler direkt buraya (Gen 2'ye) gider. GC burayı sıkıştırmaz (Fragmantasyon riski).
+
+**Otomatik GC Ne Zaman Çalışır?**
+Bizim `GC.Collect()` ile zorla yaptığımız işi Runtime normalde şu durumlarda yapar:
+1.  **Gen 0 Dolarsa (Allocation limit):** En sık çalışır. Sadece Gen 0'ı temizler.
+    *   *Gen 1 ne zaman?* Eğer Gen 0 temizlenirken Gen 1'in de limiti dolmuşsa, temizlik **Gen 0 + Gen 1** olarak genişler. Tek başına çalışmaz.
+2.  **Sistem RAM'i Azalırsa:** İşletim sistemi "Yer aç!" sinyali gönderirse.
+    *   Bu acil durumdur, direkt **Full GC (Gen 0+1+2)** çalıştırır.
+3.  **Gen 2 Çok Şişerse:** Uzun süredir temizlik yapılmadıysa (Full GC).
+
+**Full GC Nedir?**
+- Gen 0+1+2 dahil tüm belleği tarar.
+- **Stop-The-World:** Tüm çalışan threadleri durdurur. Latency spike (donma) yaratır.
+- Maliyetlidir. Gen 2'ye gereksiz obje kaçırmak performansı öldürür.
+
+**Dikkat Edilmesi Gerekenler:**
+1.  **Erken Terfi (Premature Promotion):** Kısa ömürlü olması gereken objelerin yanlışlıkla uzun süre referans tutularak Gen 2'ye taşınması. Bu durum Full GC sıklığını artırır.
+2.  **Memory Leak:** Static listeler veya event handler'lar yüzünden objelerin Gen 2'de birikmesi ve asla silinmemesi.
+3.  **LOH Fragmentasyonu:** Büyük string/array manipülasyonu yaparken belleğin delikli peynire dönmesi. Çözüm: `ArrayPool<T>`.
+
+**Planlanan Test:**
+- `RunGenerationsScenario`: Bir objeyi hayatta tutarak Gen 0 -> Gen 1 -> Gen 2 yolculuğunu gözlemlemek.
+
+## 9. Request Cancellation Propagation
 Ne yapıyor:
 - Kısa timeout ile cancellable endpoint'e istek gönderir.
 
@@ -182,7 +216,7 @@ Ne gözlemlemeliyim:
 
 
 
-## 9. Fire-and-Forget Risk Simülasyonu
+## 10. Fire-and-Forget Risk Simülasyonu
 Ne yapıyor:
 - Non-cancellable timeout ve cancellable timeout davranışlarını kıyaslar.
 
@@ -191,7 +225,7 @@ Ne gözlemlemeliyim:
 - Cancellable ve non-cancellable farkı.
 
 
-## 10. Graceful Shutdown + Queue Drain
+## 11. Graceful Shutdown + Queue Drain
 Ne yapıyor:
 - Uzun queue isteği çalışırken API'ye `TERM` gönderir.
 
@@ -200,7 +234,7 @@ Ne gözlemlemeliyim:
 - Kapanış davranışı öngörülebilir mi?
 
 
-## 11. Birden Fazla ThreadPool Yorumu (Multi-Process)
+## 12. Birden Fazla ThreadPool Yorumu (Multi-Process)
 Ne yapıyor:
 - Aynı API'den iki ayrı process başlatır.
 - A processine ağır yük verilir, A ve B'de `/fast` probu alınır.

@@ -126,4 +126,68 @@ public class GcLab
         sb.AppendLine($"Alive (Fin)     : {_objects.Count}");
         sb.AppendLine($"Finalized Count : {FinalizableObject.FinalizedCount}");
     }
+
+    public string RunGenerationsScenario()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("=== GC Scenario: GENERATIONS ===");
+        
+        // 0. Reset
+        Clear();
+        GC.Collect();
+        GC.Collect(); // Çift collect ile tertemiz bir sayfa aç
+        
+        sb.AppendLine("1. BASLANGIC");
+        sb.AppendLine("----------------------------------------");
+        sb.AppendLine("Yeni bir 'Survivor' (Hayatta Kalan) obje yaratiliyor...");
+        
+        // 1. Create Object (Born in Gen 0)
+        var survivor = new StandardObject();
+        // Bu objeyi listeye ekleyerek "Root" ediyoruz, yani GC'nin silmesini engelliyoruz.
+        _standardObjects.Add(survivor);
+        
+        AppendGenerationStats(sb, "Objenin Dogumu (Gen 0)", survivor);
+
+        // 2. Trigger GC 0 -> Promote to Gen 1
+        sb.AppendLine("\n>>> GC.Collect(0) cagrildi (Sadece Gen 0 temizligi)...");
+        GC.Collect(0);
+        
+        AppendGenerationStats(sb, "1. GC Sonrasi (Terfi: Gen 1)", survivor);
+        
+        // 3. Trigger GC 1 -> Promote to Gen 2
+        sb.AppendLine("\n>>> GC.Collect(1) cagrildi (Gen 0 + Gen 1 temizligi)...");
+        GC.Collect(1);
+        
+        AppendGenerationStats(sb, "2. GC Sonrasi (Terfi: Gen 2)", survivor);
+        
+        // 4. Trigger GC 2 (Full GC) -> Stay in Gen 2
+        sb.AppendLine("\n>>> GC.Collect(2) cagrildi (Full GC)...");
+        GC.Collect(2);
+        
+        AppendGenerationStats(sb, "Full GC Sonrasi (Hala Gen 2)", survivor);
+        
+        sb.AppendLine("\n---------------------------------------------------");
+        sb.AppendLine("[ANALIZ]");
+        sb.AppendLine("- Obje referansi tutuldugu surece her GC'den sag cikar.");
+        sb.AppendLine("- Sag cikan obje bir us nesile (Gen 0 -> 1 -> 2) terfi eder.");
+        sb.AppendLine("- Gen 2 son duraktir. Buradaki objeler 'Yasli' (Long-Lived) kabul edilir.");
+
+        // Temizlik
+        Clear(); 
+        
+        return sb.ToString();
+    }
+
+    private void AppendGenerationStats(System.Text.StringBuilder sb, string stepName, object obj)
+    {
+        int gen = GC.GetGeneration(obj);
+        sb.AppendLine($"\n{stepName}");
+        sb.AppendLine(new string('-', 30));
+        sb.AppendLine($"Generation      : {gen}");
+        sb.AppendLine($"Is Alive?       : Yes");
+        
+        if (gen == 0) sb.AppendLine("Yorum           : Bebek obje. En kucuk sarsintida (GC) olebilir veya terfi edebilir.");
+        if (gen == 1) sb.AppendLine("Yorum           : Genc obje. Gen 0 temizliginden kurtuldu.");
+        if (gen == 2) sb.AppendLine("Yorum           : Yasli obje. Artik ona dokunmak (temizlemek) cok maliyetli (Full GC).");
+    }
 }
