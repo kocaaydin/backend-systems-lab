@@ -160,9 +160,7 @@ Ne gözlemlemeliyim:
 - `finalized` sayısı collect sonrası artıyor mu?
 - Finalizer queue davranışı beklendiği gibi mi?
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/07_gc_threads_observation.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/07_gc_finalizer_observation.js`
+
 
 ## 8. Request Cancellation Propagation
 Ne yapıyor:
@@ -172,9 +170,7 @@ Ne gözlemlemeliyim:
 - Client timeout olduğunda iş gerçekten kesiliyor mu?
 - Cancellation zinciri taşınıyor mu?
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/08_request_cancellation_propagation.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/08_request_cancellation_propagation.js`
+
 
 ## 9. Fire-and-Forget Risk Simülasyonu
 Ne yapıyor:
@@ -184,9 +180,6 @@ Ne gözlemlemeliyim:
 - Timeout sonrası sistem etkisi (özellikle `/fast` gecikmesi).
 - Cancellable ve non-cancellable farkı.
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/09_fire_and_forget_risk_simulation.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/09_fire_and_forget_risk.js`
 
 ## 10. Graceful Shutdown + Queue Drain
 Ne yapıyor:
@@ -196,9 +189,6 @@ Ne gözlemlemeliyim:
 - İstek tamamlandı mı, yoksa yarım mı kaldı?
 - Kapanış davranışı öngörülebilir mi?
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/10_graceful_shutdown_queue_drain.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/10_graceful_shutdown_queue_drain.js`
 
 ## 11. Birden Fazla ThreadPool Yorumu (Multi-Process)
 Ne yapıyor:
@@ -209,18 +199,5 @@ Ne gözlemlemeliyim:
 - A yük altındayken B izolasyonu korunuyor mu?
 - Process başına ayrı threadpool davranışı pratikte nasıl görünüyor?
 
-Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/11_multiple_threadpools_multi_process.sh`
-- K6 (yük): `scenarios/01-Threading/ThreadTypes/k6/11_multi_process_heavy_a.js`
-- K6 (probe): `scenarios/01-Threading/ThreadTypes/k6/11_multi_process_fast_probe.js`
 
-## Hızlı Kullanım
-Ön koşul:
-- `docker`, `docker compose`, `curl`
-- Not: Bu senaryolarda API ve k6 testleri docker compose ile çalışır.
 
-Çalıştırma:
-- `cd scenarios/01-Threading/ThreadTypes/scripts`
-- `./01_single_pool_baseline.sh`
-- `./02_induce_starvation.sh`
-- `./11_multiple_threadpools_multi_process.sh`
