@@ -46,7 +46,7 @@ TS       | Worker(Min/Max) | Active | Total | Pending
 **Çözüm:** `ThreadPool.SetMinThreads` ile başlangıç thread sayısını artırmak (Örn: 100) bu ilk şoku ("Warmup problemini") çözer.
 
 Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/00_thread_pool_monitor.sh`
+- SH: `00_thread_pool_monitor.sh`
 - Endpoint: `/thread-types/pool-stats`
 
 Not:
@@ -74,7 +74,7 @@ baseline fast avg: ~2.19 ms | p95: ~3.30 ms
 loaded   fast avg: ~4916 ms | p95: ~7894 ms
 delta    fast avg: +4913 ms | p95: ~7890 ms
 NOTE: Docker CPU limit (1.0) applied to force starvation.
-summary_file: /Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/01-single-pool-average.json
+summary_file: results/01-single-pool-average.json
 ```
 
 Not:
@@ -123,10 +123,10 @@ Dedicated (Block)    | ~2.22 ms    | ~4.38 ms    | 0.0%
 - **Dedicated:** Her bloklanan işlem kendi özel thread'inde beklediği için, ThreadPool'daki worker'lar meşgul edilmedi. `/fast` istekleri havuzdan hemen cevap alabildi (~2.2ms).
 
 Dosyalar:
-- SH (CPU): `scenarios/01-Threading/ThreadTypes/scripts/03_cpu_bound_pool_vs_dedicated.sh`
-- SH (IO): `scenarios/01-Threading/ThreadTypes/scripts/03_io_bound_pool_vs_dedicated.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/03_cpu_bound_pool_vs_dedicated.js`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/03_io_bound_pool_vs_dedicated.js`
+- SH (CPU): `03_cpu_bound_pool_vs_dedicated.sh`
+- SH (IO): `03_io_bound_pool_vs_dedicated.sh`
+- K6: `k6/03_cpu_bound_pool_vs_dedicated.js`
+- K6: `k6/03_io_bound_pool_vs_dedicated.js`
 Ne yapıyor:
 - Bounded queue ile backpressure davranışını test eder.
 - Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.
@@ -136,8 +136,8 @@ Ne gözlemlemeliyim:
 - Kapasite ve iş süresi değişince kuyruk davranışı nasıl değişiyor?
 
 Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/04_queue_backpressure.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/04_queue_backpressure.js`
+- SH: `04_queue_backpressure.sh`
+- K6: `k6/04_queue_backpressure.js`
 
 
 ## 6. Çok Seviyeli Karşılaştırma
@@ -149,8 +149,8 @@ Ne gözlemlemeliyim:
 - Özellikle p95/p99 trendi nasıl değişiyor?
 
 Dosyalar:
-- SH: `scenarios/01-Threading/ThreadTypes/scripts/06_compare_threadpool_vs_dedicated.sh`
-- K6: `scenarios/01-Threading/ThreadTypes/k6/06_compare_threadpool_vs_dedicated.js`
+- SH: `06_compare_threadpool_vs_dedicated.sh`
+- K6: `k6/06_compare_threadpool_vs_dedicated.js`
 
 ## 7. GC Threads + Finalizer Thread
 Ne yapıyor:
@@ -165,8 +165,8 @@ Ne gözlemlemeliyim:
     - `Finalized Count` artmalı (Yıkıcı metodlar çalıştı).
 
 Dosyalar:
-- SH (Finalizer): `scenarios/01-Threading/ThreadTypes/scripts/07_gc_finalizer.sh`
-- SH (Standard): `scenarios/01-Threading/ThreadTypes/scripts/07_b_gc_standard.sh`
+- SH (Finalizer): `07_gc_finalizer.sh`
+- SH (Standard): `07_b_gc_standard.sh`
 - Endpoint: `/gc/standard` ve `/gc/finalizer`
 
 
@@ -202,6 +202,11 @@ Bizim `GC.Collect()` ile zorla yaptığımız işi Runtime normalde şu durumlar
 1.  **Erken Terfi (Premature Promotion):** Kısa ömürlü olması gereken objelerin yanlışlıkla uzun süre referans tutularak Gen 2'ye taşınması. Bu durum Full GC sıklığını artırır.
 2.  **Memory Leak:** Static listeler veya event handler'lar yüzünden objelerin Gen 2'de birikmesi ve asla silinmemesi.
 3.  **LOH Fragmentasyonu:** Büyük string/array manipülasyonu yaparken belleğin delikli peynire dönmesi. Çözüm: `ArrayPool<T>`.
+
+**Manuel GC Tetikleme (`GC.Collect()`):**
+- **Kural:** Sunucu uygulamalarında **ASLA** kullanılmamalıdır. Runtime'ın heuristic (zamanlama) zekasını bozar.
+- **Risk:** Her çağrıda tüm thread'ler durdurulur (**Stop-The-World**). Buna "GC Pause" denir. Sık çağrılırsa CPU sürekli temizlikle meşgul olur, iş yapamaz.
+- **İstisna:** Çok büyük bir veri işlendikten sonra uygulama uzun süre (sistem boşta) bekleyecekse, RAM'i iade etmek için tek seferlik çağrılabilir (Örn: Masaüstü uygulamaları).
 
 **Planlanan Test:**
 - `RunGenerationsScenario`: Bir objeyi hayatta tutarak Gen 0 -> Gen 1 -> Gen 2 yolculuğunu gözlemlemek.
