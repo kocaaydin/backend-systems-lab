@@ -178,6 +178,171 @@ public class GcLab
         return sb.ToString();
     }
 
+    public string RunSmallObjectFreeze()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("=== GC Scenario: FULL GC FREEZE (SMALL OBJECTS) ===");
+        
+        PrepareCleanState();
+
+        var (monitorThread, pauseMonitor) = StartFreezeMonitor();
+        
+        sb.AppendLine("1. YUKLEME (ALLOCATION)" + Environment.NewLine + "----------------------------------------");
+        sb.AppendLine(">>> 10.000.000 Kucuk obje yaratiliyor...(LinkedList mantigiyla birbirine bagli)");
+
+        var list = new LinkedList<byte[]>();
+        
+        for(int i=0; i < 10000000; i++) list.AddLast(new byte[10]); 
+        
+        _keepAlive = list; // Rooting
+
+        sb.AppendLine($">>> Allocation Bitti. Memory: {GC.GetTotalMemory(false)/1024/1024} MB");
+
+        // Allocation sirasindaki max donmayi kaydet ve sifirla
+        long allocationMaxPause = pauseMonitor.MaxPauseMs;
+        pauseMonitor.ResetMaxPause();
+
+        PromoteToGen2(sb);
+        
+        long gcDuration = TriggerFullGc(sb);
+        
+        pauseMonitor.Stop();
+        monitorThread.Join();
+
+        sb.AppendLine("\n4. SONUCLAR" + Environment.NewLine + "----------------------------------------");
+        sb.AppendLine($"Allocation (Yukleme) Sirasinda Max Donma : {allocationMaxPause} ms (CPU Yuku)");
+        sb.AppendLine($"GC Tetiklendiginde Max Donma             : {pauseMonitor.MaxPauseMs} ms (Stop-The-World)");
+        sb.AppendLine($"GC.Collect() Suresi (Main Thread)        : {gcDuration} ms");
+       
+        sb.AppendLine("\n[ANALIZ]");
+        sb.AppendLine("- Yukleme sirasinda islemci %100 olsa bile donma cok kucuktur (3-5ms).");
+        sb.AppendLine("- Ancak GC calistiginda 'Stop-The-World' gerceklesir ve sure uzar.");
+        
+        PrepareCleanState();
+        return sb.ToString();
+    }
+
+    // GC tarafindan taranmasi icin objeleri burada tutuyoruz.
+    private object _keepAlive;
+
+    public string RunLargeObjectFreeze()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("=== GC Scenario: FULL GC FREEZE (LARGE OBJECTS) ===");
+        
+        PrepareCleanState();
+        var (monitorThread, pauseMonitor) = StartFreezeMonitor();
+        
+        sb.AppendLine("1. YUKLEME (ALLOCATION)" + Environment.NewLine + "----------------------------------------");
+        sb.AppendLine(">>> 50 tane DEV (10MB) array yaratiliyor...");
+        
+        var bigList = new List<byte[]>();
+        for(int i=0; i<50; i++) bigList.Add(new byte[10 * 1024 * 1024]); // 10 MB
+        
+        _keepAlive = bigList; // Rooting
+        sb.AppendLine($">>> Allocation Bitti. Memory: {GC.GetTotalMemory(false)/1024/1024} MB");
+
+        // Allocation sirasindaki max donmayi kaydet ve sifirla
+        long allocationMaxPause = pauseMonitor.MaxPauseMs;
+        pauseMonitor.ResetMaxPause();
+
+        PromoteToGen2(sb);
+        long gcDuration = TriggerFullGc(sb);
+        
+        pauseMonitor.Stop();
+        monitorThread.Join();
+
+        sb.AppendLine("\n4. SONUCLAR" + Environment.NewLine + "----------------------------------------");
+        sb.AppendLine($"Allocation (Yukleme) Sirasinda Max Donma : {allocationMaxPause} ms (CPU Yuku)");
+        sb.AppendLine($"GC Tetiklendiginde Max Donma             : {pauseMonitor.MaxPauseMs} ms (Stop-The-World)");
+        sb.AppendLine($"GC.Collect() Suresi (Main Thread)        : {gcDuration} ms");
+        
+        sb.AppendLine("\n[ANALIZ]");
+        sb.AppendLine("- Buyuk (LOH) objeler oldugu icin sayisal olarak azdilar.");
+        sb.AppendLine("- GC grafigi hizli taradi, bu yuzden donma suresi 'Small Objects' senaryosuna gore COK DAHA KISA olmali.");
+        
+        PrepareCleanState();
+        return sb.ToString();
+    }
+
+    private void PrepareCleanState()
+    {
+        _keepAlive = null; // Eski referansi birak
+        Clear();
+        GC.Collect();
+        GC.Collect();
+    }
+
+    private void PromoteToGen2(System.Text.StringBuilder sb)
+    {
+        sb.AppendLine("\n2. YASLANDIRMA (PROMOTION -> GEN 2)");
+        sb.AppendLine(">>> GC.Collect() x2 cagriliyor...");
+        
+        long memBefore = GC.GetTotalMemory(false)/1024/1024;
+        
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        
+        long memAfter = GC.GetTotalMemory(false)/1024/1024;
+        
+        sb.AppendLine($">>> Yaslandirma Bitti. Artik objeler Gen 2'de.");
+        sb.AppendLine($"Memory (Gen 0+1 Temizligi Sonrasi): {memAfter} MB (Baslangic: {memBefore} MB)");
+        
+        if (memAfter > 50) sb.AppendLine("[YORUM] Bellek hala yuksek -> Nesneler olmedi, GEN 2'ye terfi etti.");
+    }
+
+    private long TriggerFullGc(System.Text.StringBuilder sb)
+    {
+        sb.AppendLine("\n3. FULL GC TETIKLEME (STOP-THE-WORLD)");
+        sb.AppendLine(">>> Monitor Thread izlemede...");
+        sb.AppendLine(">>> GC.Collect(2) cagriliyor (Default Mod - Concurrent Erisim Mumkun)...");
+        
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        // Default davranisi gormek icin Force ediyoruz ama Compacting/Blocking zorlamiyoruz.
+        // Runtime kendi karar versin (Muhtemelen Background GC yapacak).
+        GC.Collect(2, GCCollectionMode.Forced); 
+        stopwatch.Stop();
+        
+        return stopwatch.ElapsedMilliseconds;
+    }
+
+    private (Thread, FreezeMonitor) StartFreezeMonitor()
+    {
+        var monitor = new FreezeMonitor();
+        var thread = new Thread(monitor.Run);
+        thread.IsBackground = true;
+        thread.Start();
+        return (thread, monitor);
+    }
+
+    private class FreezeMonitor
+    {
+        public long MaxPauseMs { get; private set; }
+        private volatile bool _running = true;
+
+        public void Stop() => _running = false;
+        public void ResetMaxPause() => MaxPauseMs = 0; // Reset
+
+        public void Run()
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (_running)
+            {
+                var before = sw.ElapsedMilliseconds;
+                Thread.Sleep(1); 
+                var after = sw.ElapsedMilliseconds;
+                
+                var delta = after - before;
+                // Eger beklendiginden (1ms) cok uzun surerse (ornek > 3ms) kaydet
+                if (delta > 3) 
+                {
+                    if (delta > MaxPauseMs) MaxPauseMs = delta;
+                }
+            }
+        }
+    }
+
     private void AppendGenerationStats(System.Text.StringBuilder sb, string stepName, object obj)
     {
         int gen = GC.GetGeneration(obj);

@@ -211,7 +211,32 @@ Bizim `GC.Collect()` ile zorla yaptığımız işi Runtime normalde şu durumlar
 **Planlanan Test:**
 - `RunGenerationsScenario`: Bir objeyi hayatta tutarak Gen 0 -> Gen 1 -> Gen 2 yolculuğunu gözlemlemek.
 
-## 9. Request Cancellation Propagation
+## 9. Full GC "Donma" (Freeze) Testi
+**Amaç:** GC çalıştığında uygulamanın gerçekten durduğunu (Stop-The-World) ispatlamak.
+**Yöntem:**
+1.  **Arkaplan Threadi:** 1ms uyuyup uyanma süresini ölçerek "Donma"yı (Pause) yakalar.
+2.  **Yükleme:** 10 Milyon nesne (LinkedList) yaratılır ama silinmez (Root edilir).
+3.  **Tetikleme:** `GC.Collect()` çağrılır (Default Mod).
+
+**Sonuçlar (Kritik Kanıt):**
+1.  **Allocation (Sadece CPU Yükü):**
+    *   **Max Gecikme:** **~26 ms** (CPU %100 olsa bile threadler arası geçiş hızlıdır).
+
+2.  **Small Objects (10 Milyon Adet Linked List):**
+    *   **GC Süresi (Main Thread):** **~194 ms** (Ana thread kilitlendi).
+    *   **Donma (Background Thread):** **~197 ms** (Stop-The-World).
+    *   **Bellek:** **840 MB** (Gen 0+1 temizlense bile Gen 2'deki nesneler kaldığı için bellek düşmedi).
+    *   **Sebep:** Milyonlarca nesnenin GRAFİĞİNİ TARAMAK (Marking) ~200ms sürdü ve dünyayı durdurdu. (Eğer Compacting de olsaydı bu süre ~400ms olurdu).
+
+3.  **Large Objects (500 MB):**
+    *   **Donma:** ~0 ms
+    *   **Sebep:** Nesne sayısı (50 adet) çok az, LOH genelde compact edilmez.
+
+**Ders:**
+GC süresini belirleyen şey **toplam GB** değil, **canlı nesne sayısıdır (Graph Complexity)**.
+CPU yükü sistemi "yavaşlatır" (slowdown), ama GC sistemi "durdurur" (freeze).
+
+## 10. Request Cancellation Propagation
 Ne yapıyor:
 - Kısa timeout ile cancellable endpoint'e istek gönderir.
 

@@ -18,4 +18,10 @@ public class GcController(GcLab gcLab) : ControllerBase
 
     [HttpPost("generations")]
     public IActionResult RunGenerations() => Ok(_gcLab.RunGenerationsScenario());
+
+    [HttpPost("freeze/small")]
+    public IActionResult RunSmallFreeze() => Ok(_gcLab.RunSmallObjectFreeze());
+
+    [HttpPost("freeze/large")]
+    public IActionResult RunLargeFreeze() => Ok(_gcLab.RunLargeObjectFreeze());
 }
