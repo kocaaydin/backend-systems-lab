@@ -7,8 +7,5 @@ namespace ThreadTypesApi.Controllers;
 public sealed class HealthController : ControllerBase
 {
     [HttpGet("health")]
-    public IActionResult Health()
-    {
-        return Ok(new { status = "ok", service = "thread-types-api" });
-    }
+    public IActionResult Health() => Ok(new { status = "ok", service = "thread-types-api" });
 }

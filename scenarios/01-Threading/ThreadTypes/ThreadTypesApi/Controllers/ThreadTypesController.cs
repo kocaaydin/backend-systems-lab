@@ -10,15 +10,12 @@ namespace ThreadTypesApi.Controllers;
 public sealed class ThreadTypesController : ControllerBase
 {
     [HttpGet("info")]
-    public IActionResult Info()
+    public IActionResult Info() => Ok(new
     {
-        return Ok(new
-        {
-            managedThreadId = Thread.CurrentThread.ManagedThreadId,
-            isThreadPoolThread = Thread.CurrentThread.IsThreadPoolThread,
-            processorCount = Environment.ProcessorCount
-        });
-    }
+        managedThreadId = Thread.CurrentThread.ManagedThreadId,
+        isThreadPoolThread = Thread.CurrentThread.IsThreadPoolThread,
+        processorCount = Environment.ProcessorCount
+    });
 
     [HttpGet("pool-stats")]
     public IActionResult PoolStats()
@@ -39,10 +36,7 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpPost("set-min-threads")]
     public IActionResult SetMinThreads([FromQuery] int minWorker, [FromQuery] int minIo)
     {
-        if (minWorker <= 0 || minIo <= 0)
-        {
-            return BadRequest("minWorker ve minIo pozitif olmalı.");
-        }
+        if (minWorker <= 0 || minIo <= 0) return BadRequest("minWorker ve minIo pozitif olmalı.");
 
         bool success = ThreadPool.SetMinThreads(minWorker, minIo);
         
@@ -250,10 +244,7 @@ public sealed class ThreadTypesController : ControllerBase
     {
         LogStart("queue/enqueue", $"items={items},capacity={capacity},workMs={workMs}");
 
-        if (items <= 0 || capacity <= 0 || workMs <= 0)
-        {
-            return BadRequest(new { error = "items, capacity ve workMs pozitif olmalı." });
-        }
+        if (items <= 0 || capacity <= 0 || workMs <= 0) return BadRequest(new { error = "items, capacity ve workMs pozitif olmalı." });
 
         var channel = Channel.CreateBounded<int>(new BoundedChannelOptions(capacity)
         {
