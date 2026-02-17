@@ -262,11 +262,29 @@ CPU yükü sistemi "yavaşlatır" (slowdown), ama GC sistemi "durdurur" (freeze)
 
 ## 10. Request Cancellation Propagation
 Ne yapıyor:
-- Kısa timeout ile cancellable endpoint'e istek gönderir.
+- Ayni endpoint'e iki farkli timeout ile istek gonderir:
+- Test A: Cok dusuk timeout (iptal beklenir)
+- Test B: Yeterli timeout (iptal olmamasi beklenir)
 
 Ne gözlemlemeliyim:
 - Client timeout olduğunda iş gerçekten kesiliyor mu?
 - Cancellation zinciri taşınıyor mu?
+
+Dosyalar:
+- SH: `10_request_cancellation_propagation.sh`
+- Endpoint: `/thread-types/cpu-cancellable`
+- Not: Ayni `n` degeri ile iki test kosulur; sadece timeout farklidir.
+
+Sonuçlar (2026-02-17):
+```text
+n=200000000, checkEvery=1
+Test A (cancel): timeout=0.05s -> curl timeout (HTTP 000)
+Test B (no-cancel): timeout=5s -> HTTP 200, "cancelled": false
+```
+
+Yorum:
+- Dusuk timeout'ta client istegi erken kesiyor (iptal senaryosu).
+- Yeterli timeout'ta ayni endpoint islemi tamamliyor (iptal olmayan senaryo).
 
 
 
@@ -296,5 +314,3 @@ Ne yapıyor:
 Ne gözlemlemeliyim:
 - A yük altındayken B izolasyonu korunuyor mu?
 - Process başına ayrı threadpool davranışı pratikte nasıl görünüyor?
-
-

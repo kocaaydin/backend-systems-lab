@@ -13,21 +13,6 @@ public sealed class CpuCalculator
         return count;
     }
 
-    public int CountPrimesCancellable(int n, CancellationToken cancellationToken, int checkEvery = 200)
-    {
-        if (checkEvery <= 0) checkEvery = 1;
-
-        var count = 0;
-        for (var i = 2; i <= n; i++)
-        {
-            if (i % checkEvery == 0) cancellationToken.ThrowIfCancellationRequested();
-
-            if (IsPrime(i)) count++;
-        }
-
-        return count;
-    }
-
     private static bool IsPrime(int x)
     {
         if (x < 2) return false;

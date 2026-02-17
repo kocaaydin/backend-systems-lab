@@ -39,7 +39,7 @@ public sealed class ThreadTypesController : ControllerBase
         if (minWorker <= 0 || minIo <= 0) return BadRequest("minWorker ve minIo pozitif olmalı.");
 
         bool success = ThreadPool.SetMinThreads(minWorker, minIo);
-        
+
         ThreadPool.GetMinThreads(out int currentMinWorker, out int currentMinIo);
 
         return Ok(new
@@ -186,7 +186,7 @@ public sealed class ThreadTypesController : ControllerBase
             IsBackground = true,
             Name = "blocking-dedicated-thread"
         };
-        
+
         thread.Start();
         var result = await tcs.Task;
 
@@ -207,33 +207,26 @@ public sealed class ThreadTypesController : ControllerBase
     [HttpGet("cpu-cancellable")]
     public IActionResult CpuCancellable([FromServices] CpuCalculator calculator, [FromQuery] int n = 250000, [FromQuery] int checkEvery = 200, CancellationToken cancellationToken = default)
     {
-        var sw = Stopwatch.StartNew();
-        LogStart("cpu-cancellable", $"n={n},checkEvery={checkEvery}");
-
         try
         {
-            var count = calculator.CountPrimesCancellable(n, cancellationToken, checkEvery);
-            sw.Stop();
-            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={n},completed=true");
+            for (var i = 2; i <= n; i++) 
+                if (i % checkEvery == 0) 
+                    cancellationToken.ThrowIfCancellationRequested();
+
             return Ok(new
             {
                 endpoint = "cpu-cancellable",
                 n,
                 checkEvery,
-                primeCount = count,
-                elapsedMs = sw.ElapsedMilliseconds,
                 cancelled = false
             });
         }
         catch (OperationCanceledException)
         {
-            sw.Stop();
-            LogEnd("cpu-cancellable", sw.ElapsedMilliseconds, $"n={n},completed=false");
             return StatusCode(499, new
             {
                 endpoint = "cpu-cancellable",
                 n,
-                elapsedMs = sw.ElapsedMilliseconds,
                 cancelled = true
             });
         }
