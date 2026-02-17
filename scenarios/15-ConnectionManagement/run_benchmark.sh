@@ -5,13 +5,13 @@ cd "$(dirname "$0")"
 
 # Yapılandırma
 # Wireshark ile trafiği gözlemlemek için host port mapping'lerini kullanıyoruz.
-# KeepAliveOff -> 15001 portu (çok sayıda SYN göreceğiz)
-# KeepAliveOn  -> 15002 portu (tek bir SYN göreceğiz)
+# KeepAliveOff ölçüm -> 15001, warm-up -> 15011
+# KeepAliveOn  ölçüm -> 15002, warm-up -> 15012
 # macOS Docker Desktop'ta host.docker.internal host makineyi işaret eder.
 URL_BASE="http://host.docker.internal"
 ITERATIONS=1000
 WARMUP_ITERATIONS=200
-CONCURRENCY_LEVELS=(1 10)
+CONCURRENCY_LEVELS=(1)
 RESULTS_DIR="results"
 
 # Docker Ağı (docker-compose'da tanımladığımız explicit network)
@@ -38,14 +38,16 @@ run_scenario() {
     local script_file=$2
     local vus=$3
     local keep_alive_status=$4 # "ACIK" veya "KAPALI"
-    local host_port=$5 # KeepAliveOff için 15001, KeepAliveOn için 15002
+    local host_port=$5 # Ölçüm portu
+    local warmup_host_port=$6 # Warm-up portu
 
     echo ""
     echo "---------------------------------------------------------"
-    echo "▶️  Senaryo: $scenario_name | VU: $vus | Keep-Alive: $keep_alive_status | Host Port: $host_port"
+    echo "▶️  Senaryo: $scenario_name | VU: $vus | Keep-Alive: $keep_alive_status | Warm-up Port: $warmup_host_port | Ölçüm Port: $host_port"
     echo "---------------------------------------------------------"
 
     # Host port mapping üzerinden erişiyoruz (Wireshark için)
+    local warmup_target_url="${URL_BASE}:${warmup_host_port}/api/benchmark/fast"
     local target_url="${URL_BASE}:${host_port}/api/benchmark/fast"
 
     # 1. Isınma (JIT/Pool ısınması için ön koşu)
@@ -55,7 +57,8 @@ run_scenario() {
     docker run --rm -i grafana/k6 run \
         --vus $vus --iterations $WARMUP_ITERATIONS --quiet \
         --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" \
-        -e TARGET_URL=$target_url \
+        -e TARGET_URL=$warmup_target_url \
+        -e PHASE=warmup \
         - < $script_file > /dev/null 2>&1
 
     # 2. Başlangıç soket durumunu kaydet (host portunu kullan)
@@ -73,6 +76,7 @@ run_scenario() {
         -v $(pwd)/$RESULTS_DIR:/results \
         -v $(pwd)/k6:/scripts \
         -e TARGET_URL=$target_url \
+        -e PHASE=measure \
         grafana/k6 run \
         --vus $vus \
         --iterations $ITERATIONS \
@@ -122,15 +126,15 @@ run_scenario() {
 echo "Senaryo,VU,KeepAlive,Port,Ort(ms),P50(ms),P95(ms),P99(ms),RPS,Eklenen_TIME_WAIT" > $RESULTS_DIR/report.csv
 
 # Senaryoları Döngüye Sok
-# KeepAliveOff -> 15001 portu (her istekte yeni bağlantı, çok SYN)
-# KeepAliveOn  -> 15002 portu (bağlantı reuse, tek SYN)
+# KeepAliveOff ölçüm -> 15001, warm-up -> 15011
+# KeepAliveOn  ölçüm -> 15002, warm-up -> 15012
 for vu in "${CONCURRENCY_LEVELS[@]}"; do
-    run_scenario "KeepAliveOff" "k6/keep_alive_off.js" $vu "KAPALI" "15001"
+    run_scenario "KeepAliveOff" "k6/keep_alive_off.js" $vu "KAPALI" "15001" "15011"
     
     # Soketlerin temizlenmesi için bekle
     sleep 5
     
-    run_scenario "KeepAliveOn" "k6/keep_alive_on.js" $vu "ACIK" "15002"
+    run_scenario "KeepAliveOn" "k6/keep_alive_on.js" $vu "ACIK" "15002" "15012"
     
     # Bekle
     sleep 5

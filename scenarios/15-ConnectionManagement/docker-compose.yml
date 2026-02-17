@@ -6,6 +6,8 @@ services:
     ports:
       - "15001:5001" # External 15001 -> Internal 5001
       - "15002:5001" # External 15002 -> Internal 5001
+      - "15011:5001" # Warm-up port for KeepAliveOff traffic
+      - "15012:5001" # Warm-up port for KeepAliveOn traffic
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       # Sadece 5001 yeterli, external 5002 de 5001'e maplendi.

@@ -9,7 +9,10 @@ export default function () {
     // Force new connection by sending 'Connection: close'
     // Server will send a FIN after the response.
     const res = http.get(url, {
-        headers: { 'Connection': 'close' },
+        headers: {
+            'Connection': 'close',
+            'X-Benchmark-Phase': __ENV.PHASE || 'measure',
+        },
         tags: { my_scenario: 'KeepAliveOFF' },
     });
 

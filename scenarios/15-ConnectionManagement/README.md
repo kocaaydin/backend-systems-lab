@@ -144,16 +144,52 @@ Tek proje üzerinde 3 port dinleyecek:
 - **Protobuf Payload:** Body kısmının binary (okunamaz) olduğunu gör.
 - **Trailers:** Response sonunda gelen `grpc-status` trailer frame'ini yakala.
 
+## Kısa Test Senaryosu
+
+- Aynı endpoint test edildi: `/api/benchmark/fast`
+- Keep-Alive kapalı (`Connection: close`) ve Keep-Alive açık senaryoları karşılaştırıldı.
+- Her koşuda `1000` ölçüm isteği + `200` ısınma isteği atıldı.
+- Eşzamanlılık seviyeleri: `VU=1` ve `VU=10`
+- Ölçülen metrikler: `Ort`, `P50`, `P95`, `P99`, `RPS`, `Eklenen_TIME_WAIT`
+
+## Kısa Sonuçlar
+
+### VU = 1
+
+```text
+Senaryo       P50(ms)  P95(ms)  P99(ms)  RPS      TIME_WAIT(+)
+KeepAliveOff  0.404    0.819    1.783    1065.85  1000
+KeepAliveOn   0.284    0.569    1.290    2666.10  1
+```
+
+Handshake gecikme maliyeti
+Off: tcp.port == 15001 and tcp.flags.syn == 1 and tcp.flags.ack == 1
+On: tcp.port == 15002 and tcp.flags.syn == 1 and tcp.flags.ack == 1
+Bakılacak alan: tcp.analysis.initial_rtt (SYN/SYN-ACK tarafında).
+
+### VU = 10
+
+```text
+Senaryo       P50(ms)  P95(ms)  P99(ms)  RPS       TIME_WAIT(+)
+KeepAliveOff  1.23     2.78     7.15     20.06     163
+KeepAliveOn   0.64     0.91     1.35     13475.73  10
+```
+
+### Hızlı Okuma
+
+- `KeepAliveOn`, her iki VU seviyesinde de daha düşük gecikme veriyor.
+- `KeepAliveOn`, daha yüksek RPS üretiyor.
+- `KeepAliveOff`, çok daha fazla `TIME_WAIT` oluşturuyor.
+
+### Özet Yorum
+
+- Keep-Alive açık senaryoda hem gecikme (P50/P95/P99) daha düşük hem de throughput (RPS) daha yüksek.
+- Keep-Alive kapalı senaryoda TCP bağlantı kur/kapat maliyeti arttığı için `TIME_WAIT` ciddi yükseliyor.
+- Wireshark tarafında beklenen gözlem: Keep-Alive kapalıda çok daha fazla SYN/handshake, Keep-Alive açıkta bağlantı tekrar kullanımı.
 
 
+---------------------------------------------------------------------------------------------------------------------------------------------------
 
-Şu şekilde olursa değerli olur:
-	•	Aynı endpoint
-	•	Keep-Alive açık vs kapalı
-	•	1000 istek
-	•	P50 / P95 / P99
-	•	Açılan TCP connection sayısı
-	•	Handshake sayısı (Wireshark ekran görüntüsü)
-
-Ve şu soruya cevap verirsen:
-
+TCP 3-way handshake (SYN, SYN-ACK, ACK)
+TCP kapanış (FIN, ACK, RST, TIME_WAIT)
+HTTP/1.1 keep-alive mantığı (aynı TCP üstünden çoklu request)

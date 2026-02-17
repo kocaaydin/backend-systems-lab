@@ -7,6 +7,9 @@ export default function () {
 
     // Use Port 5002 for Persistent Connections
     const res = http.get(url, {
+        headers: {
+            'X-Benchmark-Phase': __ENV.PHASE || 'measure',
+        },
         tags: { my_scenario: 'KeepAliveON' },
     });
 
