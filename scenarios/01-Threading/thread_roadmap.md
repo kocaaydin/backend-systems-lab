@@ -1,5 +1,12 @@
 # Thread Pool / Worker Pool Roadmap (Deney + Stres Test)
 
+## Mülakat Odaklı Minimal Çerçeve
+- ThreadPool starvation belirtilerini anlat.
+- async/await ile blocking farkını net kur.
+- Deadlock/race condition farkını örnekle açıkla.
+- lock vs SemaphoreSlim seçimini trade-off ile anlat.
+- Metrik: queue wait, p95/p99 latency, active/pending worker.
+
 ## Amaç
 - Teoride bilinen kavramları pratikte gözlemlemek.
 - Yanlış thread/pool kararlarının latency ve cevap sürelerine etkisini görmek.

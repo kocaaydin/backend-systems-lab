@@ -1,5 +1,12 @@
 # MSSQL Performance & Design Reflex Lab
 
+## Mülakat Odaklı Minimal Çerçeve
+- Index: doğru index + over-indexing riskini anlat.
+- Transaction: scope kısa tut, lock etkisini yönet.
+- Isolation: tutarlılık/performans trade-off'unu söyle.
+- Query Plan: seek/scan ve lookup problemini okuyup aksiyon üret.
+- Metrik: p95 query latency, logical reads, deadlock/timeouts.
+
 ## Amaç
 
 Bu lab'in amacı, MSSQL tarafında şu refleksleri geliştirmektir:

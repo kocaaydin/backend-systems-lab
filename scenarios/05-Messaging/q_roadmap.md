@@ -1,5 +1,12 @@
 # Queueing & Asynchronous Messaging Roadmap
 
+## Mülakat Odaklı Minimal Çerçeve
+- Queue semantics: at-least-once vs exactly-once farkı.
+- Poison message için DLQ şartını açıkla.
+- Retry policy'nin retry storm'a dönme riskini anlat.
+- Consumer lag/backpressure ile sistem doygunluğunu yorumla.
+- Metrik: queue depth, consumer lag, DLQ rate, processing latency.
+
 Bu roadmap, asenkron sistemlerde karşılaşılan temel zorlukları ve çözüm desenlerini inceleyen deneyleri kapsar.
 
 ## Senaryo İndeksi

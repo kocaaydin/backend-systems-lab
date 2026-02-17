@@ -1,5 +1,12 @@
 # Network Behavior Lab
 
+## Mülakat Odaklı Minimal Çerçeve
+- Latency nerede oluşur: connect, TLS, app processing, transfer.
+- Timeout + retry yanlış ayarı nasıl zincirleme sorun üretir.
+- Keep-Alive/connection reuse neden kritik.
+- HTTP/1.1 vs HTTP/2 farkını davranış üzerinden anlat.
+- Metrik: handshake sayısı, retransmission, p95/p99 latency.
+
 ## 🎯 Amaç
 Bu laboratuvarın amacı, **Ağ Katmanı (Network Layer)** davranışlarını, özellikle TCP bağlantıları, Connection Pooling ve Protokol farklarını (HTTP/1.1 vs HTTP/2) deneyimlemektir.
 

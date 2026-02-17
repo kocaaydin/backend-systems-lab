@@ -1,5 +1,12 @@
 # Microservice Roadmap
 
+## Mülakat Odaklı Minimal Çerçeve (System Design + Trade-off)
+- Servis sınırı nasıl çizildiğini iş kabiliyetleriyle açıkla.
+- Senkron vs asenkron iletişim seçimini trade-off ile anlat.
+- Data ownership ve distributed transaction riskini net koy.
+- Outbox + idempotency ile veri güvenilirliğini savun.
+- Metrik: end-to-end p95, duplicate rate, consume lag, failure isolation.
+
 ## 🎯 Amaç
 Mikroservislerde sadece endpoint degil, **pattern secimlerinin** sistem davranisini nasil degistirdigini gostermek.
 

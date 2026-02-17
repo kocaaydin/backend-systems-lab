@@ -1,5 +1,12 @@
 # Microservice Resilience Lab
 
+## Mülakat Odaklı Minimal Çerçeve
+- Retry her zaman çözüm değildir; backoff şart.
+- Timeout budget ve fail-fast yaklaşımını açıkla.
+- Circuit breaker ile sistem koruma mantığını anlat.
+- Idempotency olmadan retry'nin veri hatasına yol açacağını göster.
+- Metrik: error rate, retry count, timeout ratio, breaker state.
+
 ## 🎯 Amaç
 Bu laboratuvarın amacı, dağıtık sistemlerde **Dayanıklılık (Resilience)** desenlerini uygulamalı olarak test etmek ve yanlış yapılandırılmış retry stratejilerinin nasıl felaketlere yol açabileceğini gözlemlemektir.
 

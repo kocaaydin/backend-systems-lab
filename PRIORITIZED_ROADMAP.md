@@ -1,149 +1,104 @@
-01 – Tooling
-	•	Git (rebase, stash, branching strategy)
-	•	CI/CD basics
-	•	Docker fundamentals
-	•	Debugging & profiling
+# Prioritized Roadmap (Senior Interview First)
 
-⸻
 
-02 – Threading & Concurrency
-	•	Process vs Thread
-	•	ThreadPool
-	•	async/await internals
-	•	Task vs ValueTask
-	•	Blocking vs Non-blocking
-	•	Deadlock
-	•	Race condition
-	•	Parallelism vs Concurrency
-	•	Synchronization primitives (lock, SemaphoreSlim, Monitor)
+## Faz 1 - Senior Mülakat İçin Minimal 8 Blok (Öncelik Sırası)
 
-⸻
+### 1) System Design + Trade-off
+- Gereksinim netleştirme (trafik, SLA, tutarlılık, güvenlik)
+- Bileşenleri ayırma (API, domain, data, cache, queue)
+- Trade-off konuşma (latency vs consistency, cost vs reliability)
+- Failure mode ve rollback düşüncesi
 
-03 – Database
-	•	Indexing
-	•	Query execution plan
-	•	Locking / Isolation levels
-	•	Transactions
-	•	Connection pooling
-	•	N+1 problem
-	•	Pagination strategies
-	•	Bulk operations
-	•	Optimistic vs pessimistic concurrency
+### 2) Database (Index, Transaction, Isolation, Query Plan)
+- Index seçimi ve over-indexing riski
+- Transaction scope ve lock etkisi
+- Isolation level trade-off
+- Execution plan okuma refleksi
 
-⸻
+### 3) Concurrency / Threading + Async
+- ThreadPool davranışı, starvation sinyalleri
+- async/await doğru kullanım, blocking etkisi
+- Deadlock/race condition farkı
+- Senkronizasyon primitive'leri (lock/SemaphoreSlim)
 
-04 – Network & HTTP
-	•	TCP handshake
-	•	TLS handshake
-	•	HTTP lifecycle
-	•	HTTP/1.1 vs HTTP/2 vs HTTP/3
-	•	Keep-Alive
-	•	Chunked encoding
-	•	MTU & fragmentation
-	•	Retransmission
-	•	Tail latency (P95, P99)
+### 4) Network / HTTP (Latency, Timeout, Retry, Keep-Alive)
+- TCP/TLS handshake maliyeti
+- Keep-Alive ve connection reuse
+- Timeout budget ve retry etkisi
+- P95/P99 latency yorumlama
 
-⸻
+### 5) Resilience (Circuit Breaker, Idempotency, Backpressure)
+- Retry + exponential backoff
+- Circuit breaker ile fail-fast
+- Idempotency ile güvenli tekrar deneme
+- Backpressure ile sistem koruma
 
-05 – Connection Management
-	•	Socket lifecycle
-	•	Ephemeral ports
-	•	TIME_WAIT
-	•	Port exhaustion
-	•	HttpClient reuse
-	•	DNS caching
-	•	Connection pooling behavior
+### 6) Messaging (Queue Semantics, DLQ, Retry)
+- At-least-once / exactly-once farkı
+- DLQ ve poison message izolasyonu
+- Retry politikası ve retry storm riski
+- Consumer lag/backpressure yorumu
 
-⸻
+### 7) Observability (RED/USE, Log-Metric-Trace Korelasyonu)
+- RED: rate/errors/duration
+- USE: utilization/saturation/errors
+- Structured log + correlation ID
+- Trace/metric/log ile kök neden doğrulama
 
-06 – Resilience
-	•	Retry strategies
-	•	Exponential backoff
-	•	Timeout management
-	•	Circuit Breaker
-	•	Bulkhead
-	•	Idempotency
-	•	Fallback patterns
+### 8) Security Basics (AuthN/AuthZ, OWASP, Secrets, TLS)
+- AuthN vs AuthZ ayrımı
+- JWT/OAuth2 temel akış
+- Secrets management + least privilege
+- TLS, OWASP Top 10 farkındalığı
 
-⸻
+## Faz 2 - Destekleyici Konular (Faz 1 sonrası)
 
-07 – Messaging
-	•	Sync vs Async communication
-	•	Message broker basics
-	•	Kafka fundamentals
-	•	RabbitMQ fundamentals
-	•	At-least-once vs exactly-once
-	•	Consumer groups
-	•	Backpressure
+### Tooling
+- Git (rebase, stash, branching strategy)
+- CI/CD basics
+- Docker fundamentals
+- Debugging & profiling
 
-⸻
+### Connection Management (Derinleşme)
+- Socket lifecycle, ephemeral ports, TIME_WAIT
+- Port exhaustion
+- HttpClient reuse ve DNS caching
+- Connection pooling behavior
 
-08 – Microservices
-	•	Service boundaries
-	•	Data ownership
-	•	Distributed transactions
-	•	Saga pattern
-	•	API Gateway
-	•	Service discovery
-	•	Event-driven architecture
+### gRPC
+- HTTP/2 multiplexing
+- Protobuf serialization
+- Unary vs streaming
+- Connection reuse behavior
 
-⸻
+### Caching
+- In-memory caching
+- Redis fundamentals
+- Cache invalidation
+- TTL strategies, cache stampede
 
-09 – gRPC
-	•	HTTP/2 multiplexing
-	•	Protobuf serialization
-	•	Unary vs streaming
-	•	Connection reuse behavior
+### Search
+- Elasticsearch basics
+- Index mapping
+- Query DSL
+- Full-text search vs filter
 
-⸻
+### Platform & Runtime
+- JIT basics
+- GC basics
+- Memory allocation
+- CPU saturation
+- Thread starvation
 
-10 – Observability
-	•	Structured logging
-	•	Correlation ID
-	•	Metrics vs Logs vs Traces
-	•	OpenTelemetry basics
-	•	Latency analysis
-	•	Bottleneck detection
+### Storage
+- File storage strategies
+- Object storage basics
+- CDN concepts
 
-⸻
+## Çalışma Prensibi (Her Başlık İçin)
+1. Kavramı 1 cümlede anlat.
+2. En kritik 1 trade-off'u söyle.
+3. 1 failure senaryosu ver.
+4. 2-3 metrikle nasıl doğrulayacağını anlat.
 
-11 – Caching
-	•	In-memory caching
-	•	Redis fundamentals
-	•	Cache invalidation
-	•	TTL strategies
-	•	Cache stampede
-
-⸻
-
-12 – Search
-	•	Elasticsearch basics
-	•	Index mapping
-	•	Query DSL
-	•	Full-text search vs filter
-
-⸻
-
-13 – Platform & Runtime
-	•	JIT basics
-	•	GC basics
-	•	Memory allocation
-	•	CPU saturation
-	•	Thread starvation
-
-⸻
-
-14 – Security
-	•	HTTPS & TLS basics
-	•	JWT
-	•	OAuth2
-	•	Rate limiting
-	•	CSRF / XSS
-	•	OWASP basics
-
-⸻
-
-15 – Storage
-	•	File storage strategies
-	•	Object storage basics
-	•	CDN concepts
+Bu 4 adımı konuşabiliyorsan mülakatta "çerçeveli senior" sinyali verirsin.

@@ -1,5 +1,12 @@
 # Security & API Roadmap
 
+## Mülakat Odaklı Minimal Çerçeve
+- AuthN vs AuthZ ayrımını net anlat.
+- JWT/OAuth2 akışını temel seviyede konuş.
+- Secrets management + least privilege yaklaşımını belirt.
+- TLS ve OWASP risklerini uygulama davranışıyla bağla.
+- Metrik: auth failure ratio, forbidden/unauthorized trend, security event rate.
+
 ## 🎯 Amaç
 Güvenlik ve API tasarım kararlarının sadece "teori" değil, sistem davranışı ve risk seviyesi üzerinde nasıl etkiler ürettiğini göstermek.
 

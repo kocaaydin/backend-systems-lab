@@ -1,5 +1,12 @@
 # Vendor-Lock & Advanced Observability Lab
 
+## Mülakat Odaklı Minimal Çerçeve
+- RED/USE ile semptomu katmanlara ayır.
+- Log + metric + trace korelasyonu olmadan kök neden iddiası kurma.
+- Correlation ID ve structured logging temel zorunluluktur.
+- OpenTelemetry yaklaşımını vendor-lock riskine karşı konumlandır.
+- Metrik: p95/p99, error rate, saturation, trace error span oranı.
+
 ## 🎯 Amaç
 Bu lab çalışmasının temel amacı, modern mikroservis mimarilerinde **Gözlemlenebilirlik (Observability)** stratejilerini karşılaştırmak, **Vendor-Lock (Sağlayıcı Bağımlılığı)** risklerini uygulamalı olarak görmek ve **Gerçek Hayat Senaryoları (Real-World Problems)** ile başa çıkma reflekslerini geliştirmektir.
 
