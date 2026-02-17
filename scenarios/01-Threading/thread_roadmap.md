@@ -169,6 +169,28 @@ Dosyalar:
 - SH (Standard): `07_b_gc_standard.sh`
 - Endpoint: `/gc/standard` ve `/gc/finalizer`
 
+Sonuçlar (2026-02-17):
+```text
+=== Test 1: /gc/standard (No Finalizer) ===
+Baslangic Memory : 1091.86 KB
+Create sonrasi   : 11754.36 KB
+Clear+Collect    : 1213.59 KB
+Alive (Std)      : 0
+Finalized Count  : 0 (beklenen)
+
+=== Test 2: /gc/finalizer (With Destructor) ===
+Baslangic Memory : 1091.87 KB
+Create sonrasi   : 11760.05 KB
+Clear+Collect    : 1213.60 KB
+Alive (Fin)      : 0
+Finalized Count  : 10000 (beklenen)
+```
+
+Yorum:
+- **Standard Objects:** Referanslar silinip GC tetiklenince bellek hızlıca geri alındı, finalizer calismadi.
+- **Finalizable Objects:** Finalizer kuyrugu islendikten sonra `Finalized Count` 10000'e cikti; bu, Finalizer Thread'in devreye girdigini dogruladi.
+- Bu kosuda her iki testte de son memory degeri ~1.2 MB seviyesine geri dondu.
+
 
 
 ## 8. GC Generations & Full GC (Gen0, Gen1, Gen2)
@@ -274,6 +296,5 @@ Ne yapıyor:
 Ne gözlemlemeliyim:
 - A yük altındayken B izolasyonu korunuyor mu?
 - Process başına ayrı threadpool davranışı pratikte nasıl görünüyor?
-
 
 

@@ -9,18 +9,12 @@ public class GcLab
     // Holds references to prevent GC until cleared
     private readonly ConcurrentBag<FinalizableObject> _objects = new();
     private readonly ConcurrentBag<StandardObject> _standardObjects = new();
-
-    public void Allocate(int count)
-    {
-        for (int i = 0; i < count; i++) _objects.Add(new FinalizableObject());
-    }
-
     public void AllocateStandard(int count)
     {
         for (int i = 0; i < count; i++) _standardObjects.Add(new StandardObject());
     }
 
-    public void Clear() 
+    public void Clear()
     {
         // Clearing the bag makes objects eligible for collection
         _objects.Clear();
@@ -80,7 +74,10 @@ public class GcLab
 
         // 1. Allocate
         int count = 10000;
-        Allocate(count);
+
+
+        for (int i = 0; i < count; i++) _objects.Add(new FinalizableObject());
+
         AppendFinalizerStats(sb, $"2. {count} FINALIZABLE OBJE YARATILDI (Yikici Metod VAR)");
 
         // 2. Clear References
@@ -91,6 +88,7 @@ public class GcLab
         sb.AppendLine(">>> GC Tetikleniyor...");
         GC.Collect();
         sb.AppendLine(">>> GC tetiklendi. Finalizer thread bekleniyor...");
+        // Finalizer'lar arka planda calisir, bu yuzden beklemek gerekir.
         GC.WaitForPendingFinalizers();
         GC.Collect();
 
@@ -250,7 +248,7 @@ public class GcLab
         for (int i = 0; i < 85; i++) bigList.Add(new byte[10 * 1024 * 1024]); // 10 MB * 85 = 850 MB
 
         _keepAlive = bigList; // Rooting
-        
+
         sb.AppendLine($">>> Allocation Bitti. Memory: {GC.GetTotalMemory(false) / 1024 / 1024} MB");
 
         // Allocation sirasindaki max donmayi kaydet ve sifirla
