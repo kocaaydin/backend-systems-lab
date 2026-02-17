@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
 
 namespace ThreadTypesApi.Services.Gc;
 
@@ -234,19 +236,21 @@ public class GcLab
 
     public string RunLargeObjectFreeze()
     {
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         sb.AppendLine("=== GC Scenario: FULL GC FREEZE (LARGE OBJECTS) ===");
 
         PrepareCleanState();
         var (monitorThread, pauseMonitor) = StartFreezeMonitor();
 
         sb.AppendLine("1. YUKLEME (ALLOCATION)" + Environment.NewLine + "----------------------------------------");
-        sb.AppendLine(">>> 50 tane DEV (10MB) array yaratiliyor...");
+        sb.AppendLine(">>> 85 tane DEV (10MB) array yaratiliyor (Toplam ~850MB)...");
 
         var bigList = new List<byte[]>();
-        for (int i = 0; i < 50; i++) bigList.Add(new byte[10 * 1024 * 1024]); // 10 MB
+
+        for (int i = 0; i < 85; i++) bigList.Add(new byte[10 * 1024 * 1024]); // 10 MB * 85 = 850 MB
 
         _keepAlive = bigList; // Rooting
+        
         sb.AppendLine($">>> Allocation Bitti. Memory: {GC.GetTotalMemory(false) / 1024 / 1024} MB");
 
         // Allocation sirasindaki max donmayi kaydet ve sifirla
@@ -305,7 +309,7 @@ public class GcLab
         sb.AppendLine(">>> Monitor Thread izlemede...");
         sb.AppendLine(">>> GC.Collect(2) cagriliyor (Default Mod - Concurrent Erisim Mumkun)...");
 
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
         // Default davranisi gormek icin Force ediyoruz ama Compacting/Blocking zorlamiyoruz.
         // Runtime kendi karar versin (Muhtemelen Background GC yapacak).
         GC.Collect(2, GCCollectionMode.Forced);
@@ -333,7 +337,8 @@ public class GcLab
 
         public void Run()
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var sw = Stopwatch.StartNew();
+
             while (_running)
             {
                 var before = sw.ElapsedMilliseconds;
