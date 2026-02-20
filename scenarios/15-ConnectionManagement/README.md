@@ -45,7 +45,7 @@ Sonuçların tutarlı olması için **"Noisy Neighbor"** etkisini minimuma indir
 Tek proje üzerinde 3 port dinleyecek:
 - **Port 5001:** HTTP/1.1 Only
 - **Port 5002:** HTTP/2 Only (H2C)
-- **Port 5003:** gRPC
+- **Port 5003:** HTTP/1.1 + TLS
 
 ### Client (k6 & Wireshark)
 - **k6:** Yük testi ve latency ölçümü.
@@ -119,7 +119,7 @@ Sonuçların tutarlı olması için **"Noisy Neighbor"** etkisini minimuma indir
 Tek proje üzerinde 3 port dinleyecek:
 - **Port 5001:** HTTP/1.1 Only
 - **Port 5002:** HTTP/2 Only (H2C)
-- **Port 5003:** gRPC
+- **Port 5003:** HTTP/1.1 + TLS
 
 ### Client (k6 & Wireshark)
 - **k6:** Yük testi ve latency ölçümü.
@@ -173,6 +173,36 @@ Bakılacak alan: tcp.analysis.initial_rtt (SYN/SYN-ACK tarafında).
 Senaryo       P50(ms)  P95(ms)  P99(ms)  RPS       TIME_WAIT(+)
 KeepAliveOff  1.23     2.78     7.15     20.06     163
 KeepAliveOn   0.64     0.91     1.35     13475.73  10
+```
+
+### HTTP/2 Multiplexing (Aynı Yük Profili, TLS)
+
+HTTP/1.1 KeepAliveOn ile aynı yük profili:
+- Warm-up: `200`
+- Measure: `1000`
+- VU: `1` ve `10`
+
+```text
+Senaryo           VU  Port   Ort(ms)  P50(ms)  P95(ms)  P99(ms)  RPS      TIME_WAIT(+)
+HTTP2MultiplexOn  1   15021  0.470    0.402    0.776    1.447    1961.95   1
+HTTP2MultiplexOn  10  15021  1.150    0.990    2.592    3.934    7705.22   10
+HTTP2MultiplexOn  50  15021  2.895    2.516    5.339    8.039    13037.10  50
+HTTP2MultiplexOn  100 15021  6.439    4.907    16.990   22.487   8549.77   100
+```
+
+### HTTP/1.1 Keep-Alive (Aynı Yük Profili, TLS)
+
+HTTP/2 testiyle birebir aynı yük profili:
+- Warm-up: `200`
+- Measure: `1000`
+- VU: `1` ve `10`
+
+```text
+Senaryo              VU  Port   Ort(ms)  P50(ms)  P95(ms)  P99(ms)  RPS      TIME_WAIT(+)
+HTTP1KeepAliveOnTLS  1   15031  0.391    0.311    0.674    1.249    2326.89   1
+HTTP1KeepAliveOnTLS  10  15031  1.229    1.050    2.341    3.819    7053.69   10
+HTTP1KeepAliveOnTLS  50  15031  2.831    2.434    5.341    8.454    12536.61  50
+HTTP1KeepAliveOnTLS  100 15031  5.676    4.871    11.187   16.942   8431.19   100
 ```
 
 ### Hızlı Okuma

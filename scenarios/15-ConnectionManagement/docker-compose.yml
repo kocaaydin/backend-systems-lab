@@ -8,10 +8,12 @@ services:
       - "15002:5001" # External 15002 -> Internal 5001
       - "15011:5001" # Warm-up port for KeepAliveOff traffic
       - "15012:5001" # Warm-up port for KeepAliveOn traffic
+      - "15021:5002" # HTTP/2 (h2c) measure port
+      - "15022:5002" # HTTP/2 (h2c) warm-up port
+      - "15031:5003" # HTTP/1.1 + TLS measure port
+      - "15032:5003" # HTTP/1.1 + TLS warm-up port
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      # Sadece 5001 yeterli, external 5002 de 5001'e maplendi.
-      - ASPNETCORE_URLS=http://+:5001
     networks:
       - bench-net
 
