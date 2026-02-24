@@ -1,0 +1,137 @@
+{
+  "config": {
+    "run_count": 4,
+    "warmup_duration": "5s",
+    "test_duration": "10s",
+    "fast_rps": 20,
+    "heavy_rps": 50,
+    "block_ms": 500,
+    "tuned_min_worker": 100,
+    "tuned_min_io": 100
+  },
+  "default_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-default-run-1-summary.json",
+      "fast_avg_ms": 16473.90298841379,
+      "fast_p95_ms": 23816.9237885,
+      "fast_p99_ms": 24047.6733264,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-default-run-2-summary.json",
+      "fast_avg_ms": 28058.630915666665,
+      "fast_p95_ms": 34791.036841999994,
+      "fast_p99_ms": 34891.036321499996,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-default-run-3-summary.json",
+      "fast_avg_ms": 17532.781322137926,
+      "fast_p95_ms": 25329.24235175,
+      "fast_p99_ms": 25560.702866749998,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-default-run-4-summary.json",
+      "fast_avg_ms": 22886.008438569766,
+      "fast_p95_ms": 30493.461166999998,
+      "fast_p99_ms": 30661.9607902,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "tuned_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-tuned-run-1-summary.json",
+      "fast_avg_ms": 1.7700995472636813,
+      "fast_p95_ms": 2.613166,
+      "fast_p99_ms": 4.101292,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-tuned-run-2-summary.json",
+      "fast_avg_ms": 1.6910012388059696,
+      "fast_p95_ms": 2.457708,
+      "fast_p99_ms": 8.359375,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-tuned-run-3-summary.json",
+      "fast_avg_ms": 1.6882385349999995,
+      "fast_p95_ms": 2.46217915,
+      "fast_p99_ms": 5.573010089999999,
+      "http_fail_rate": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/06-minthreads-tuned-run-4-summary.json",
+      "fast_avg_ms": 1.4472027313432831,
+      "fast_p95_ms": 2.304542,
+      "fast_p99_ms": 2.690709,
+      "http_fail_rate": 0.0
+    }
+  ],
+  "default_avg": {
+    "fast_avg_ms": 21237.831,
+    "fast_p95_ms": 28607.666,
+    "fast_p99_ms": 28790.343,
+    "http_fail_rate": 0.0
+  },
+  "tuned_avg": {
+    "fast_avg_ms": 1.649,
+    "fast_p95_ms": 2.459,
+    "fast_p99_ms": 5.181,
+    "http_fail_rate": 0.0
+  },
+  "delta_tuned_minus_default_ms": {
+    "fast_avg_ms": -21236.182,
+    "fast_p95_ms": -28605.207,
+    "fast_p99_ms": -28785.162
+  },
+  "pool_stats": {
+    "default_before": {
+      "workerThreads": {
+        "min": 1,
+        "max": 32767,
+        "available": 32766,
+        "active": 1
+      },
+      "completionPortThreads": {
+        "min": 1,
+        "max": 1000,
+        "available": 1000,
+        "active": 0
+      },
+      "threadCount": 2,
+      "pendingWorkItemCount": 0
+    },
+    "tuned_before": {
+      "workerThreads": {
+        "min": 100,
+        "max": 32767,
+        "available": 32766,
+        "active": 1
+      },
+      "completionPortThreads": {
+        "min": 100,
+        "max": 1000,
+        "available": 1000,
+        "active": 0
+      },
+      "threadCount": 4,
+      "pendingWorkItemCount": 0
+    }
+  },
+  "set_min_threads": {
+    "run_1": {
+      "success": true,
+      "requested": {
+        "minWorker": 100,
+        "minIo": 100
+      },
+      "current": {
+        "minWorker": 100,
+        "minIo": 100
+      },
+      "note": "Min threads updated."
+    }
+  }
+}

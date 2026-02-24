@@ -1,17 +1,11 @@
 # Thread Pool / Worker Pool Roadmap (Deney + Stres Test)
 
-## Mülakat Odaklı Minimal Çerçeve
+## Minimal Çerçeve
 - ThreadPool starvation belirtilerini anlat.
-- async/await ile blocking farkını net kur.
-- Deadlock/race condition farkını örnekle açıkla.
-- lock vs SemaphoreSlim seçimini trade-off ile anlat.
+- async/await ile blocking farkı
+- Deadlock/race condition farkı
+- lock vs SemaphoreSlim seçimini trade-off
 - Metrik: queue wait, p95/p99 latency, active/pending worker.
-
-## Amaç
-- Teoride bilinen kavramları pratikte gözlemlemek.
-- Yanlış thread/pool kararlarının latency ve cevap sürelerine etkisini görmek.
-- Her senaryoyu tek komutla çalıştırıp çıktıyı terminalden yorumlayabilmek.
-
 
 ## 0. Thread Türleri ve Pool Yapısı
 - `Main Thread`: Uygulamanın giriş thread'i.
@@ -129,24 +123,7 @@ Dedicated (Block)    | ~2.22 ms    | ~4.38 ms    | 0.0%
 - **ThreadPool:** 50 RPS ile gelen 300ms'lik bloklamalar havuzdaki tüm threadleri ("worker") tüketti. `/fast` istekleri bile kuyrukta beklediği için 16 saniyeye kadar gecikti (Starvation).
 - **Dedicated:** Her bloklanan işlem kendi özel thread'inde beklediği için, ThreadPool'daki worker'lar meşgul edilmedi. `/fast` istekleri havuzdan hemen cevap alabildi (~2.2ms).
 
-Dosyalar:
-- SH (CPU): `03_cpu_bound_pool_vs_dedicated.sh`
-- SH (IO): `03_io_bound_pool_vs_dedicated.sh`
-- K6: `k6/03_cpu_bound_pool_vs_dedicated.js`
-- K6: `k6/03_io_bound_pool_vs_dedicated.js`
-Ne yapıyor:
-- Bounded queue ile backpressure davranışını test eder.
-- Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.
-
-Ne gözlemlemeliyim:
-- `producer` bekliyor mu?
-- Kapasite ve iş süresi değişince kuyruk davranışı nasıl değişiyor?
-
-Dosyalar:
-- SH: `04_queue_backpressure.sh`
-- K6: `k6/04_queue_backpressure.js`
-
-
+  
 ## 6. Çok Seviyeli Karşılaştırma
 Ne yapıyor:
 - `vus=1,4,8,12` seviyelerinde ThreadPool vs Dedicated karşılaştırması yapar.
@@ -158,6 +135,39 @@ Ne gözlemlemeliyim:
 Dosyalar:
 - SH: `06_compare_threadpool_vs_dedicated.sh`
 - K6: `k6/06_compare_threadpool_vs_dedicated.js`
+
+Not:
+- Bu plan roadmap'te duruyor, ilgili script/k6 dosyaları henüz repoda yok.
+
+### 6.b SetMinThreads Karşılaştırması (Default vs Tuned)
+Ne yapıyor:
+- Aynı blocking yükü altında `default` (runtime varsayılan min thread) ve `tuned` (`minWorker=100`, `minIo=100`) karşılaştırması yapar.
+- Her fazda `run_count=4` çalıştırır, her run öncesi warmup uygular.
+- `set-min-threads` endpoint'i ile tuned ayarı verip `/fast` gecikmelerindeki farkı ölçer.
+Dosyalar:
+- SH: `scripts/06_min_threads_comparison.sh`
+- K6: `k6/06_min_threads_comparison.js`
+- Endpoint: `/thread-types/set-min-threads`
+- Özet çıktı: `results/06-minthreads-summary.json`
+
+Son konsol çıktısı (cpu=1.0 limit, 4 tekrar, 2026-02-24):
+```text
+=== Senaryo 6: SetMinThreads Karsilastirmasi (Default vs Tuned) ===
+run_count=4 warmup=5s
+duration=10s fast_rps=20 heavy_rps=50 block_ms=500
+tuned_min_worker=100 tuned_min_io=100
+
+=== Ortalama Sonuclar ===
+default fast avg: 18407.489 ms   | p95: 25916.469 ms   | p99: 25916.469 ms
+tuned   fast avg: 1.634 ms       | p95: 2.424 ms       | p99: 2.424 ms
+delta   fast avg: -18405.855 ms  | p95: -25914.045 ms  | p99: -25914.045 ms
+set-min-threads response(run1): {"success": true, "requested": {"minWorker": 100, "minIo": 100}, "current": {"minWorker": 100, "minIo": 100}, "note": "Min threads updated."}
+summary_file: results/06-minthreads-summary.json
+```
+
+Not:
+- `default` fazda `worker min=1`, `tuned` fazda `worker min=100` doğrulandı.
+- Bu koşuda `p99` trend metrikleri bazı run dosyalarında üretilmediği için özet hesapta `p95` fallback kullanıldı.
 
 ## 7. GC Threads + Finalizer Thread
 Ne yapıyor:
@@ -321,3 +331,17 @@ Ne yapıyor:
 Ne gözlemlemeliyim:
 - A yük altındayken B izolasyonu korunuyor mu?
 - Process başına ayrı threadpool davranışı pratikte nasıl görünüyor?
+
+------------------------------------------------------
+
+Ne yapıyor:
+- Bounded queue ile backpressure davranışını test eder.
+- Dar kapasite/yavaş işleme ile geniş kapasite/hızlı işleme karşılaştırılır.
+
+Ne gözlemlemeliyim:
+- `producer` bekliyor mu?
+- Kapasite ve iş süresi değişince kuyruk davranışı nasıl değişiyor?
+
+Dosyalar:
+- SH: `04_queue_backpressure.sh`
+- K6: `k6/04_queue_backpressure.js`
