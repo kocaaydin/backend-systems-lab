@@ -6,13 +6,27 @@ class Program
     static async Task Main(string[] args)
     {
         var mode = args.FirstOrDefault()?.ToLowerInvariant();
-        if (mode != "longrunning")
+
+        if (mode == "longrunning")
         {
-            Console.WriteLine("Kullanim:");
-            Console.WriteLine("  dotnet run --project scenarios/01-Threading/ThreadingPlayground/ThreadingPlayground.csproj -- longrunning");
+            await RunLongRunningComparison();
             return;
         }
 
+        if (mode == "consumer-loss")
+        {
+            await ConsumerLossWorker.RunAsync(args.Skip(1).ToArray());
+            return;
+        }
+
+        if (string.IsNullOrEmpty(mode))
+            return;
+
+        PrintUsage();
+    }
+
+    static async Task RunLongRunningComparison()
+    {
         const int jobCount = 200;
         const int sleepMs = 200;
 
@@ -55,6 +69,20 @@ class Program
 
         int pool = types.Count(x => x);
         return new BatchResult(pool, jobCount - pool, sw.Elapsed.TotalMilliseconds);
+    }
+
+    static void PrintUsage()
+    {
+        Console.WriteLine("Kullanim:");
+        Console.WriteLine("  dotnet run --project scenarios/01-Threading/ThreadingPlayground/ThreadingPlayground.csproj -- longrunning");
+        Console.WriteLine("  dotnet run --project scenarios/01-Threading/ThreadingPlayground/ThreadingPlayground.csproj -- consumer-loss --scheduler taskrun");
+        Console.WriteLine();
+        Console.WriteLine("consumer-loss opsiyonlari:");
+        Console.WriteLine("  --scheduler taskrun|longrunning");
+        Console.WriteLine("  --iterations 10000");
+        Console.WriteLine("  --work-ms 250");
+        Console.WriteLine("  --linger-ms 1500");
+        Console.WriteLine("  --results-dir <path>");
     }
 
     record BatchResult(int PoolCount, int DedicatedCount, double ElapsedMs);
