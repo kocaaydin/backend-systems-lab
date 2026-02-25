@@ -1,8 +1,3 @@
-# Prioritized Roadmap (Senior Interview First)
-
-
-## Faz 1 - Senior Mülakat İçin Minimal 8 Blok (Öncelik Sırası)
-
 ### 1) System Design + Trade-off
 - Gereksinim netleştirme (trafik, SLA, tutarlılık, güvenlik)
 - Bileşenleri ayırma (API, domain, data, cache, queue)
@@ -94,11 +89,3 @@
 - File storage strategies
 - Object storage basics
 - CDN concepts
-
-## Çalışma Prensibi (Her Başlık İçin)
-1. Kavramı 1 cümlede anlat.
-2. En kritik 1 trade-off'u söyle.
-3. 1 failure senaryosu ver.
-4. 2-3 metrikle nasıl doğrulayacağını anlat.
-
-Bu 4 adımı konuşabiliyorsan mülakatta "çerçeveli senior" sinyali verirsin.
