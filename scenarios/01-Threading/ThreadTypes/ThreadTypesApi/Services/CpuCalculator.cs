@@ -4,9 +4,19 @@ public sealed class CpuCalculator
 {
     public int CountPrimes(int n)
     {
+        return CountPrimes(n, cancellable: false, checkEvery: 0, CancellationToken.None);
+    }
+
+    public int CountPrimes(int n, bool cancellable, int checkEvery, CancellationToken cancellationToken)
+    {
         var count = 0;
         for (var i = 2; i <= n; i++)
         {
+            if (cancellable && checkEvery > 0 && i % checkEvery == 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
             if (IsPrime(i)) count++;
         }
 

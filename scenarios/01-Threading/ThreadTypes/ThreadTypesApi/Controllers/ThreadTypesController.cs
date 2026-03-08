@@ -232,6 +232,51 @@ public sealed class ThreadTypesController : ControllerBase
         }
     }
 
+    [HttpGet("cpu-timeout-risk")]
+    public async Task<IActionResult> CpuTimeoutRisk(
+        [FromServices] CpuCalculator calculator,
+        [FromQuery] int n = 2000000,
+        [FromQuery] bool cancellable = false,
+        [FromQuery] int checkEvery = 200,
+        CancellationToken cancellationToken = default)
+    {
+        var sw = Stopwatch.StartNew();
+        LogStart("cpu-timeout-risk", $"n={n},cancellable={cancellable},checkEvery={checkEvery}");
+
+        try
+        {
+            int primeCount = await Task.Run(() =>
+                calculator.CountPrimes(n, cancellable, checkEvery, cancellationToken));
+
+            sw.Stop();
+            LogEnd("cpu-timeout-risk", sw.ElapsedMilliseconds, $"n={n},cancellable={cancellable},cancelled=false");
+            return Ok(new
+            {
+                endpoint = "cpu-timeout-risk",
+                n,
+                cancellable,
+                checkEvery,
+                cancelled = false,
+                primeCount,
+                elapsedMs = sw.ElapsedMilliseconds
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            sw.Stop();
+            LogEnd("cpu-timeout-risk", sw.ElapsedMilliseconds, $"n={n},cancellable={cancellable},cancelled=true");
+            return StatusCode(499, new
+            {
+                endpoint = "cpu-timeout-risk",
+                n,
+                cancellable,
+                checkEvery,
+                cancelled = true,
+                elapsedMs = sw.ElapsedMilliseconds
+            });
+        }
+    }
+
     [HttpPost("queue/enqueue")]
     public async Task<IActionResult> Enqueue([FromQuery] int items = 20, [FromQuery] int capacity = 5, [FromQuery] int workMs = 300, CancellationToken cancellationToken = default)
     {

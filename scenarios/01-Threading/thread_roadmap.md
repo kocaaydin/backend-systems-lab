@@ -313,6 +313,12 @@ Ne gözlemlemeliyim:
 - Timeout sonrası sistem etkisi (özellikle `/fast` gecikmesi).
 - Cancellable ve non-cancellable farkı.
 
+Dosyalar:
+- SH: `ThreadTypes/scripts/10_fire_and_forget_risk.sh`
+- K6: `ThreadTypes/k6/10_fire_and_forget_risk.js`
+- Endpoint: `/thread-types/cpu-timeout-risk` (`cancellable=false|true`)
+- Probe: `/thread-types/fast`
+
 
 ## 11. Graceful Shutdown + Queue Drain
 Ne yapıyor:

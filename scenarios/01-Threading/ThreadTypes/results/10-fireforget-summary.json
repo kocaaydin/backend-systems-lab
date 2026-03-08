@@ -1,0 +1,82 @@
+{
+  "config": {
+    "run_count": 3,
+    "test_duration": "10s",
+    "fast_rps": 20,
+    "load_rps": 40,
+    "n_value": 2000000,
+    "check_every": 200,
+    "request_timeout": "50ms"
+  },
+  "noncancellable_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-noncancellable-run-1.json",
+      "fast_avg_ms": 1916.8677586629847,
+      "fast_p95_ms": 2001.966876,
+      "fast_p99_ms": 2002.1738258,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-noncancellable-run-2.json",
+      "fast_avg_ms": 1929.971242288889,
+      "fast_p95_ms": 2001.9592507,
+      "fast_p99_ms": 2002.37661349,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-noncancellable-run-3.json",
+      "fast_avg_ms": 1934.3057118435747,
+      "fast_p95_ms": 2001.9004052,
+      "fast_p99_ms": 2002.33280922,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    }
+  ],
+  "cancellable_runs": [
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-cancellable-run-1.json",
+      "fast_avg_ms": 159.1380859253732,
+      "fast_p95_ms": 358.896625,
+      "fast_p99_ms": 388.907376,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-cancellable-run-2.json",
+      "fast_avg_ms": 149.26744842786067,
+      "fast_p95_ms": 381.531125,
+      "fast_p99_ms": 502.683292,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    },
+    {
+      "file": "/Users/aydin/Desktop/Projects/backend-systems-lab/scenarios/01-Threading/ThreadTypes/results/10-fireforget-cancellable-run-3.json",
+      "fast_avg_ms": 209.6932847950002,
+      "fast_p95_ms": 451.7092431,
+      "fast_p99_ms": 580.96079542,
+      "load_timeouts": 401.0,
+      "load_non_2xx": 0.0
+    }
+  ],
+  "noncancellable_avg": {
+    "fast_avg_ms": 1927.048,
+    "fast_p95_ms": 2001.942,
+    "fast_p99_ms": 2002.294,
+    "load_timeouts_avg": 401.0,
+    "load_non_2xx_avg": 0.0
+  },
+  "cancellable_avg": {
+    "fast_avg_ms": 172.7,
+    "fast_p95_ms": 397.379,
+    "fast_p99_ms": 490.85,
+    "load_timeouts_avg": 401.0,
+    "load_non_2xx_avg": 0.0
+  },
+  "delta_cancellable_minus_noncancellable_ms": {
+    "fast_avg_ms": -1754.348,
+    "fast_p95_ms": -1604.563,
+    "fast_p99_ms": -1511.444
+  }
+}
