@@ -295,38 +295,56 @@ public sealed class ThreadTypesController : ControllerBase
         var producerWaitTotalMs = 0L;
         var producerWaitMaxMs = 0L;
 
-        var consumer = Task.Run(async () =>
+        try
         {
-            await foreach (var _ in channel.Reader.ReadAllAsync(cancellationToken))
+            var consumer = Task.Run(async () =>
             {
-                await Task.Delay(workMs, cancellationToken);
-                processed++;
+                await foreach (var _ in channel.Reader.ReadAllAsync(cancellationToken))
+                {
+                    await Task.Delay(workMs, cancellationToken);
+                    processed++;
+                }
+            }, cancellationToken);
+
+            for (var i = 0; i < items; i++)
+            {
+                var waitSw = Stopwatch.StartNew();
+                await channel.Writer.WriteAsync(i, cancellationToken);
+                waitSw.Stop();
+                producerWaitTotalMs += waitSw.ElapsedMilliseconds;
+                producerWaitMaxMs = Math.Max(producerWaitMaxMs, waitSw.ElapsedMilliseconds);
             }
-        }, cancellationToken);
 
-        for (var i = 0; i < items; i++)
-        {
-            var waitSw = Stopwatch.StartNew();
-            await channel.Writer.WriteAsync(i, cancellationToken);
-            waitSw.Stop();
-            producerWaitTotalMs += waitSw.ElapsedMilliseconds;
-            producerWaitMaxMs = Math.Max(producerWaitMaxMs, waitSw.ElapsedMilliseconds);
+            channel.Writer.Complete();
+            await consumer;
+
+            LogEnd("queue/enqueue", 0, $"items={items},processed={processed},producerWaitMaxMs={producerWaitMaxMs}");
+            return Ok(new
+            {
+                endpoint = "queue/enqueue",
+                items,
+                capacity,
+                workMs,
+                backpressureDetected = producerWaitMaxMs > 0,
+                producerWaitMs = producerWaitMaxMs,
+                processed,
+                note = "producerWaitMs > 0 ise producer kuyruk doldugunda beklemistir."
+            });
         }
-
-        channel.Writer.Complete();
-        await consumer;
-
-        LogEnd("queue/enqueue", 0, $"items={items},processed={processed},producerWaitMaxMs={producerWaitMaxMs}");
-        return Ok(new
+        catch (OperationCanceledException)
         {
-            endpoint = "queue/enqueue",
-            items,
-            capacity,
-            workMs,
-            backpressureDetected = producerWaitMaxMs > 0,
-            producerWaitMs = producerWaitMaxMs,
-            note = "producerWaitMs > 0 ise producer kuyruk doldugunda beklemistir."
-        });
+            LogEnd("queue/enqueue", 0, $"items={items},processed={processed},CANCELLED");
+            return StatusCode(499, new
+            {
+                endpoint = "queue/enqueue",
+                items,
+                capacity,
+                workMs,
+                processed,
+                cancelled = true,
+                note = "Istek tamamlanamadi (shutdown veya client cancel)."
+            });
+        }
     }
 
     [HttpPost("finalizer/create")]
