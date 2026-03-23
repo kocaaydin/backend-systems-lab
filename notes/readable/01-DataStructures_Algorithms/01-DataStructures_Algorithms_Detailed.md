@@ -3,7 +3,7 @@
 
 ## **🧠 Temel Kavramlar**
 
-- Big-O Notation (O(1), O(log n), O(n), O(n log n), O(n²)): Algoritma performansının veri girdisine (n) göre büyüme hızı.
+- Big-O Notation : Algoritma performansının veri girdisine (n) göre büyüme hızı.
   - **O(1) - Constant**: Girdi ne olursa olsun süre aynıdır (örn. Array index erişimi `arr[5]`).
   - **O(log n) - Logarithmic**: Girdi arttıkça süre çok az artar, genelde bölerek ilerlenir (örn. Binary Search).
   - **O(n) - Linear**: Girdi ile süre doğru orantılıdır (örn. For döngüsü ile tüm listeyi gezmek).
@@ -71,15 +71,6 @@
   ```
 - Amortized Add() maliyeti: Kapasite dolunca yeni dizi açıp kopyalamak O(n), diğer eklemeler O(1)'dir; ortalama O(1).
 - Listeyi ters çevirme: Elemanların sırasını `Reverse()` ile döndürme O(n).
-- Duplicate silme: Tekrarlı elemanları `Distinct()` ile temizleme.
-  ```csharp
-  var uniqueList = list.Distinct().ToList();
-  ```
-- En sık geçen elemanı bulma: Frekans sayımı (Dictionary ile).
-  ```csharp
-  var mostFrequent = list.GroupBy(x => x).OrderByDescending(g => g.Count()).First().Key;
-  ```
-- C# List<T> metotları: `Add`, `Remove`, `Contains`, `Find` gibi yardımcı metotlar.
 
 ---
 
