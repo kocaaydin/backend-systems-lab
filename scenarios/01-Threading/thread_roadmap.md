@@ -1,7 +1,7 @@
 # Thread Pool / Worker Pool Roadmap (Deney + Stres Test)
 
 ## Minimal Çerçeve
-- ThreadPool starvation belirtilerini anlat.
+- ThreadPool starvation belirtilerini
 - async/await ile blocking farkı
 - Deadlock/race condition farkı
 - lock vs SemaphoreSlim seçimini trade-off

@@ -1,11 +1,6 @@
-public sealed class BackpressureWorker : BackgroundService
+public sealed class BackpressureWorker(QueueLabState state) : BackgroundService
 {
-    private readonly QueueLabState _state;
-
-    public BackpressureWorker(QueueLabState state)
-    {
-        _state = state;
-    }
+    private readonly QueueLabState _state = state;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

@@ -1,11 +1,6 @@
-public sealed class HolWorker : BackgroundService
+public sealed class HolWorker(QueueLabState state) : BackgroundService
 {
-    private readonly QueueLabState _state;
-
-    public HolWorker(QueueLabState state)
-    {
-        _state = state;
-    }
+    private readonly QueueLabState _state = state;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
